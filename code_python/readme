@@ -1,0 +1,2 @@
+step1:use the h5file_readtest.py test all the *.h5 to insure they can be readed & predict
+step2:use the main.py to train & ver & test
