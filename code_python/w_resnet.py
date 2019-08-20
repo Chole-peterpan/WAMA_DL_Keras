@@ -243,10 +243,10 @@ def multiinput_resnet(classes=2):
     out1 = MaxPooling3D((3, 3, 3), strides=(2, 2, 1), padding = 'same')(out1)
     print("path1_pooling1 shape:", out1.shape)#(?, 70, 70, 16, 64)
 
-    out1 = conv_block(out1, [64, 64, 256], name = 'path1_L1_block1')
+    out1 = conv_block_or(out1, [64, 64, 256], name = 'path1_L1_block1')
     print("path1_conv1 shape:", out1.shape)
-    out1 = identity_block(out1, [64, 64, 256], name = 'path1_L1_block2')
-    out1 = identity_block(out1, [64, 64, 256], name = 'path1_L1_block3')
+    out1 = identity_block_or(out1, [64, 64, 256], name = 'path1_L1_block2')
+    out1 = identity_block_or(out1, [64, 64, 256], name = 'path1_L1_block3')
 
     # 4 input2:v =======================================================================================================
     inputs_2 = Input(shape=(280, 280, 16, 1), name='path2_input2')
@@ -259,10 +259,10 @@ def multiinput_resnet(classes=2):
     out2 = MaxPooling3D((3, 3, 3), strides=(2, 2, 1), padding = 'same')(out2)
     print("path2_pooling1 shape:", out1.shape)#(?, 70, 70, 16, 64)
 
-    out2 = conv_block(out2, [64, 64, 256], name = 'path2_L1_block1')
+    out2 = conv_block_or(out2, [64, 64, 256], name = 'path2_L1_block1')
     print("path2_conv1 shape:", out2.shape)
-    out2 = identity_block(out2, [64, 64, 256], name = 'path2_L1_block2')
-    out2 = identity_block(out2, [64, 64, 256], name = 'path2_L1_block3')
+    out2 = identity_block_or(out2, [64, 64, 256], name = 'path2_L1_block2')
+    out2 = identity_block_or(out2, [64, 64, 256], name = 'path2_L1_block3')
 
 
     #main path:concatenate 'out1' and 'out2' into 'out' ================================================================
@@ -271,32 +271,32 @@ def multiinput_resnet(classes=2):
 
 
 
-    out = conv_block(out, [128, 128, 512], name = 'L2_block1')
+    out = conv_block_or(out, [128, 128, 512], name = 'L2_block1')
     print("conv2 shape:", out.shape)
-    out = identity_block(out, [128, 128, 512], name = 'L2_block2')
-    out = identity_block(out, [128, 128, 512], name = 'L2_block3')
-    out = identity_block(out, [128, 128, 512], name = 'L2_block4')
+    out = identity_block_or(out, [128, 128, 512], name = 'L2_block2')
+    out = identity_block_or(out, [128, 128, 512], name = 'L2_block3')
+    out = identity_block_or(out, [128, 128, 512], name = 'L2_block4')
 
 
-    out = conv_block(out, [256, 256, 1024], name = 'L3_block1')
+    out = conv_block_or(out, [256, 256, 1024], name = 'L3_block1')
     print("conv3 shape:", out.shape)
-    out = identity_block(out, [256, 256, 1024], name = 'L3_block2')
-    out = identity_block(out, [256, 256, 1024], name = 'L3_block3')
-    out = identity_block(out, [256, 256, 1024], name = 'L3_block4')
-    out = identity_block(out, [256, 256, 1024], name = 'L3_block5')
-    out = identity_block(out, [256, 256, 1024], name = 'L3_block6')
+    out = identity_block_or(out, [256, 256, 1024], name = 'L3_block2')
+    out = identity_block_or(out, [256, 256, 1024], name = 'L3_block3')
+    out = identity_block_or(out, [256, 256, 1024], name = 'L3_block4')
+    out = identity_block_or(out, [256, 256, 1024], name = 'L3_block5')
+    out = identity_block_or(out, [256, 256, 1024], name = 'L3_block6')
 
-    out = conv_block(out, [512, 512, 2048], name = 'L4_block1')
+    out = conv_block_or(out, [512, 512, 2048], name = 'L4_block1')
     print("conv4 shape:", out.shape)
-    out = identity_block(out, [512, 512, 2048], name = 'L4_block2')
-    out = identity_block(out, [512, 512, 2048], name = 'L4_block3')
+    out = identity_block_or(out, [512, 512, 2048], name = 'L4_block2')
+    out = identity_block_or(out, [512, 512, 2048], name = 'L4_block3')
 
     out = GlobalAveragePooling3D(data_format = 'channels_last')(out)
     print("Gpooling shape:", out.shape)
     out_drop = Dropout(rate=0.3)(out)
     out = Dense(classes, name = 'fc1')(out_drop)
     print("out shape:", out.shape)
-    output = Activation(activation = 'sigmoid')(out)
+    output = Activation(activation = 'softmax')(out)
 
     model = Model(input = [inputs_1, inputs_2], output = output)
 
