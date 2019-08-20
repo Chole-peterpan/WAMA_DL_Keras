@@ -40,6 +40,25 @@ def EuiLoss(y_true, y_pred):
     return loss
 
 
+#用于二分类,输出为两个神经元
+def EuiLoss_new(y_true, y_pred):
+    y_true_t = y_true[:,0:1]
+    y_pred_t = y_pred[:,0:1]
+    y_true_f = K.flatten(y_true_t)
+    y_pred_f = K.flatten(y_pred_t)
+
+    d = K.mean(K.sqrt(K.square(y_true_f - y_pred_f) + 1e-12))
+    a = K.cast(K.greater_equal(d, 0.5), dtype='float32')
+    b = K.cast(K.greater_equal(0.12, d), dtype='float32')
+    c = K.cast(K.greater_equal(0.3, d), dtype='float32')
+    #e = K.cast(y_pred_f, dtype='float32')
+
+    loss = (2 + 4 * a - 0.5 * b - 1 * c) * d + 0.2 * y_pred_f *d
+
+
+    return loss
+
+
 def EuclideanLoss(y_true, y_pred):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
