@@ -203,6 +203,9 @@ if __name__ == "__main__":
     vre_result = [0, 0, 0, 0]  # acc,sen,spc,auc
     test_result = [0, 0, 0, 0]  # acc,sen,spc,auc
 
+
+    subject_num = 0
+
     # txt as a log
     minibatch_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_loss.txt'  # minibatch上的loss  txt_minibatch_loss
     or_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_or_loss.txt'  # 在原未扩增训练集上的loss  txt_or_loss
@@ -238,6 +241,7 @@ if __name__ == "__main__":
         txt_test_result = open(test_result_txt, 'a')
 
         Iter = Iter + 1
+        subject_num = subject_num + batch_size
         filenamelist = []
         labeel = []
         # start batch input build -----------------------------------------------
@@ -264,6 +268,7 @@ if __name__ == "__main__":
             batch_x_t_v = np.transpose(batch_x_v, (1, 2, 0))
             data_input_2[ii, :, :, :, 0] = batch_x_t_v[:, :, 0:16]
 
+
             # index plus 1 and check to update epoch
             index_flag = index_flag + 1
             if index_flag == trainset_num:
@@ -282,10 +287,9 @@ if __name__ == "__main__":
         tb = pt.PrettyTable()
         tb.field_names = [(char_color("task name",50,32)),(char_color("fold",50,32)),(char_color("gpu",50,32)),
                           (char_color("lr",50,32)),(char_color("epoch",50,32)),(char_color("iter",50,32)),
-                          (char_color("loss(0~6)",50,32))]
+                          (char_color("loss(0~6)",50,32)),(char_color("epoch_subject",50,32))]
         tb.add_row(      [task_name,foldname,os.environ["CUDA_VISIBLE_DEVICES"],
-                          K.get_value(d_model.optimizer.lr),epoch,Iter,
-                          cost[0]])
+                          K.get_value(d_model.optimizer.lr),epoch,Iter,cost[0],str(subject_num%or_train_num)+'/'+str(trainset_num)])
         tb.align["param_value"] = "l"
         tb.align["param_name"] = "r"
         print(tb)
