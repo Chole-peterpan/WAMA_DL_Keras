@@ -18,7 +18,7 @@ from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss,EuiLoss_new
 import keras.backend as K
 
 # os.system('matlab')
-config_path = '/data/XS_Aug_model_result/model_templete/testtttttttttttttt/config4multiinput.txt'
+config_path = '/data/XS_Aug_model_result/model_templete/recurrent/pnens_zhuanyi_resnet_av_new/config4multiinput.txt'
 
 # 从文件读取参数
 param_dict = get_param_from_txt(config_path)

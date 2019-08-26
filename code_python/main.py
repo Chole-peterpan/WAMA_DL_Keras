@@ -51,6 +51,12 @@ elif os_stage == "L":
 else:
     file_sep = r'/'
 
+
+# step4print(of iters)
+print_steps = 10
+
+
+
 # mkdir log和model两个文件夹,并将参数文件备份到log文件夹中
 log_save_Path = Result_save_Path + file_sep[0] + 'log'
 model_save_Path = Result_save_Path + file_sep[0] + 'model'
@@ -262,26 +268,27 @@ if __name__ == "__main__":
 
 
         # print the detail of this iter===============================================================
-        tb = pt.PrettyTable()
-        tb.field_names = [(char_color("task name",50,32)),(char_color("fold",50,32)),(char_color("gpu",50,32)),
+        if Iter % print_steps == 0:
+            tb = pt.PrettyTable()
+            tb.field_names = [(char_color("task name",50,32)),(char_color("fold",50,32)),(char_color("gpu",50,32)),
                           (char_color("lr",50,32)),(char_color("epoch",50,32)),(char_color("iter",50,32)),
                           (char_color("loss(0~6)",50,32))]
-        tb.add_row(      [task_name,foldname,os.environ["CUDA_VISIBLE_DEVICES"],
+            tb.add_row(      [task_name,foldname,os.environ["CUDA_VISIBLE_DEVICES"],
                           K.get_value(d_model.optimizer.lr),epoch,Iter,
                           cost[0]])
-        tb.align["param_value"] = "l"
-        tb.align["param_name"] = "r"
-        print(tb)
+            tb.align["param_value"] = "l"
+            tb.align["param_name"] = "r"
+            print(tb)
 
-        tb = pt.PrettyTable()
-        tb.field_names = [char_color('sub_subject',50,32),char_color('label',50,32),char_color('pre_value',50,32)]
-        for ii in range(filenamelist.__len__()):
-            sub_subject = filenamelist[ii].split('/')[-1]
-            tb.add_row([sub_subject,label_input_c[ii],pre[ii]])
-        print(tb)
+            tb = pt.PrettyTable()
+            tb.field_names = [char_color('sub_subject',50,32),char_color('label',50,32),char_color('pre_value',50,32)]
+            for ii in range(filenamelist.__len__()):
+                sub_subject = filenamelist[ii].split('/')[-1]
+                tb.add_row([sub_subject,label_input_c[ii],pre[ii]])
+            print(tb)
 
-        tb = pt.PrettyTable()
-        tb.field_names = [char_color("v_m_acc(iter)",50,35),
+            tb = pt.PrettyTable()
+            tb.field_names = [char_color("v_m_acc(iter)",50,35),
                           char_color("v_m_AUC(iter)",50,35),
                           char_color("v_m_sen(iter)",50,35),
                           char_color("v_m_spc(iter)",50,35),
@@ -292,7 +299,7 @@ if __name__ == "__main__":
                           char_color("t_m_sen(iter)",50,36),
                           char_color("t_m_spc(iter)",50,36),
                           char_color("t_m_loss(iter)",50,36)]
-        tb.add_row([str(max_acc_verify)+'('+char_color(str(max_acc_verify_iter),50,31)+')',
+            tb.add_row([str(max_acc_verify)+'('+char_color(str(max_acc_verify_iter),50,31)+')',
                     str(max_auc_verify) + '(' + char_color(str(max_auc_verify_iter),50,31) + ')',
                     str(max_sen_verify) + '(' + char_color(str(max_sen_verify_iter),50,31) + ')',
                     str(max_spc_verify) + '(' + char_color(str(max_spc_verify_iter),50,31) + ')',
@@ -303,7 +310,7 @@ if __name__ == "__main__":
                     str(max_sen_test) + '(' + char_color(str(max_sen_test_iter),50,31) + ')',
                     str(max_spc_test) + '(' + char_color(str(max_spc_test_iter),50,31) + ')',
                     str(min_loss_test) + '(' + char_color(str(min_loss_test_iter),50,31) + ')'])
-        print(tb)
+            print(tb)
         # =============================================================================================
 
         txt_minibatch_loss.write(str(cost[0]) + '\n')
