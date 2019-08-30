@@ -1,5 +1,5 @@
 from keras.models import *
-from keras.layers import Input, Flatten, Dense, Conv3D, MaxPooling3D, GlobalAveragePooling3D, Dropout, Activation
+from keras.layers import Input, Flatten, Dense, Conv3D, MaxPooling3D, GlobalAveragePooling3D, Dropout, Activation,BatchNormalization
 from keras.regularizers import l2
 
 def vgg16_w_3d(classes=2,dropout_rate=0.3,use_bias_flag=False):
@@ -26,21 +26,22 @@ def vgg16_w_3d(classes=2,dropout_rate=0.3,use_bias_flag=False):
     x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block4_conv2', use_bias=use_bias_flag)(x)
     x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block4_conv3', use_bias=use_bias_flag)(x)
     x = MaxPooling3D((2, 2, 2), strides=(2, 2, 2), name='block4_pool')(x)
+    # x = BatchNormalization(axis=-1, epsilon=1e-6, )(x)
     print("block4 shape:", x.shape)
     # Block 5
-    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv1', use_bias=use_bias_flag)(x)
-    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv2', use_bias=use_bias_flag)(x)
-    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv3', use_bias=use_bias_flag)(x)
-    x = MaxPooling3D((2, 2, 2), strides=(2, 2, 2), name='block5_pool')(x)
-    print("block5 shape:", x.shape)
+    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv1', use_bias=use_bias_flag)(x)
+    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv2', use_bias=use_bias_flag)(x)
+    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv3', use_bias=use_bias_flag)(x)
+    # x = MaxPooling3D((2, 2, 2), strides=(2, 2, 2), name='block5_pool')(x)
+    # print("block5 shape:", x.shape)
     # dense
     x = Flatten(name='flatten')(x)
-    x = Dense(4096, activation='relu', name='fc1', use_bias=use_bias_flag)(x)
-    print("Dense1 shape:", x.shape)
+    # x = Dense(4096, activation='relu', name='fc1', use_bias=use_bias_flag)(x)
+    # print("Dense1 shape:", x.shape)
     x = Dropout(rate=dropout_rate)(x)
-    x = Dense(2021, activation='relu', name='fc2', use_bias=use_bias_flag)(x)
+    x = Dense(128, activation='relu', name='fc2', use_bias=use_bias_flag)(x)
     print("Dense2 shape:", x.shape)
-    x = Dropout(rate=dropout_rate)(x)
+    # x = Dropout(rate=dropout_rate)(x)
 
     if classes == 1:
         output = Dense(classes, activation='sigmoid', use_bias=use_bias_flag, name='predictions')(x)

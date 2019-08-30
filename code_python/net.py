@@ -190,3 +190,13 @@ def alexnet_jn():
     return model
 
 
+H5_file = h5py.File(train__List[14], 'r')
+batch_x = H5_file['data'][:]
+batch_y = H5_file['label3'][:]
+print(batch_y)
+H5_file.close()
+
+
+batch_y = batch_y[0]
+batch_y = abs(1- batch_y)
+label_input_c[3]=batch_y

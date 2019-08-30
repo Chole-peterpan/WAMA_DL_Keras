@@ -209,7 +209,7 @@ def se_dense_net(nb_layers, growth_rate=12, nb_filter=64, bottleneck=True, reduc
     return model
 
 # nestt = dense_net(nb_layers=[6,12,24,16],growth_rate=32, nb_filter=64, bottleneck=True, reduction=0.0, dropout_rate=None, subsample_initial_block=True, classes = 2)
-# nestt = se_create_dense_net(nb_layers=[6,12,24,16],growth_rate=32, nb_filter=64, bottleneck=True, reduction=0.0, dropout_rate=None, subsample_initial_block=True)
+# nestt = se_dense_net(nb_layers=[6,12,24,16],growth_rate=32, nb_filter=64, bottleneck=True, reduction=0.0, dropout_rate=None, subsample_initial_block=True)
 # print(nestt.summary())
 
 

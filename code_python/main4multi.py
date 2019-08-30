@@ -289,7 +289,7 @@ if __name__ == "__main__":
                           (char_color("lr",50,32)),(char_color("epoch",50,32)),(char_color("iter",50,32)),
                           (char_color("loss(0~6)",50,32)),(char_color("epoch_subject",50,32))]
         tb.add_row(      [task_name,foldname,os.environ["CUDA_VISIBLE_DEVICES"],
-                          K.get_value(d_model.optimizer.lr),epoch,Iter,cost[0],str(subject_num%or_train_num)+'/'+str(trainset_num)])
+                          K.get_value(d_model.optimizer.lr),epoch,Iter,cost[0],str(subject_num%trainset_num)+'/'+str(trainset_num)])
         tb.align["param_value"] = "l"
         tb.align["param_name"] = "r"
         print(tb)

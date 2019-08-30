@@ -4,6 +4,7 @@ import os
 import numpy as np
 import random
 import h5py
+from keras.losses import binary_crossentropy,categorical_crossentropy
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 # step1: import model finished
