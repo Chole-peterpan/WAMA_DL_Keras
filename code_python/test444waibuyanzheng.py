@@ -22,6 +22,7 @@ from sparsenet import SparseNetImageNet121
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
@@ -115,24 +116,28 @@ H5_List_train = train__List
 trainset_num = len(H5_List_train)
 H5_List_test = test_List
 # log的savepath
-Result_save_Path = r'/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu9'
+Result_save_Path = r'/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu10'
 
 
+multi_gpu_mode = True #是否开启多GPU数据并行模式
+gpu_munum = 3 #多GPU并行指定GPU数量
 
 foldname = '1'  #暂时命名为1,不然观察不了
-batch_size = 22
+batch_size = 20
 label_index = 'label3'
 data_input_shape = [280,280,16]
 label_shape = [2]
-init_lr = 2e-5
-init_lr_new = 2e-5
-max_iter = 20000000
-print_steps = 30
-task_name = 'ceshi waibu shenmegui'
-min_verify_Iters = 0
-model_save_step = 1000000
-verify_Iters_step = 1600
-optimizer_switch_point = 1600
+init_lr = 2e-5 # 初始学习率
+trans_lr = 2e-5 # 转换后学习率
+max_iter = 20000000 #最大迭代次数
+print_steps = 50 # 打印训练信息的步长
+task_name = 'test'  # 任务名称,自己随便定义
+min_verify_Iters = 1  # 最小测试和验证迭代数量
+verify_Iters_step = 50 # 测试和验证的步长
+
+model_save_step = 300 # 模型保存的步长
+
+optimizer_switch_point = 10000000000000 # 优化器转换的迭代数时间点
 os_stage = "L"
 if os_stage == "W":
     file_sep = r"\\"
@@ -149,20 +154,22 @@ os.system('mkdir '+model_save_Path)
 
 
 if __name__ == "__main__":
-    # prepare container:准备网络输入输出容器
-    data_input_c = np.zeros([batch_size] + data_input_shape + [1], dtype=np.float32)  # net input container
-    label_input_c = np.zeros([batch_size] + label_shape)
+    # prepare container:准备网络输入输出容器 暂时测试新getbatch函数,所以注释掉了
+    # data_input_c = np.zeros([batch_size] + data_input_shape + [1], dtype=np.float32)  # net input container
+    # label_input_c = np.zeros([batch_size] + label_shape)
+
+
     # 构建网络并compile
     # d_model_1 = vgg16_w_3d(use_bias_flag=True,classes=2)
-    d_model_1 = resnet_or(use_bias_flag=False,classes=2)
+    d_model = resnet_or(use_bias_flag=False,classes=2)
     # d_model_1 = resnext(classes=2, use_bias_flag=True)
     # d_model_1 = SparseNetImageNet121(classes = 2,activation='softmax',dropout_rate = 0.5)
 
-    # d_model_1 = se_dense_net(nb_layers=[6, 12, 24, 16], growth_rate=32, nb_filter=64, bottleneck=True, reduction=0.0,
-    #                      dropout_rate=None, subsample_initial_block=True)
+    # d_model_1 = se_dense_net(nb_layers=[6, 12, 24, 16], growth_rate=32, nb_filter=64, bottleneck=True, reduction=0.0, dropout_rate=None, subsample_initial_block=True)
 
 
-    d_model = multi_gpu_model(d_model_1, gpus=3)
+    if multi_gpu_mode:
+        d_model = multi_gpu_model(d_model, gpus=gpu_munum)
     d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # pause()  # identify
     print(d_model.summary())  # view net
@@ -222,7 +229,7 @@ if __name__ == "__main__":
     # 开始run
     random.shuffle(H5_List_train)
     random.shuffle(H5_List_train)
-    index_flag = 0
+    index_flag = 0  # 指向训练集列表的index,是更新epoch的依据
     for i in range(max_iter):
         txt_minibatch_loss = open(minibatch_loss_txt, 'a')
         txt_or_loss = open(or_loss_txt, 'a')
@@ -235,32 +242,22 @@ if __name__ == "__main__":
 
         Iter = Iter + 1
         subject_num = subject_num + batch_size
-        filenamelist = []
-        labeel = []
-        # start batch input build -----------------------------------------------
-        for ii in range(batch_size):
-            # read data from h5
-            read_name = H5_List_train[index_flag]
-            # print(read_name)
-            filenamelist.append(read_name)
-            H5_file = h5py.File(read_name, 'r')
-            batch_x = H5_file['data'][:]
-            batch_y = H5_file[label_index][:]
-            H5_file.close()
-            labeel.append(batch_y)
-            # put data into container
-            batch_x_t = np.transpose(batch_x, (1, 2, 0))
-            data_input_c[ii, :, :, :, 0] = batch_x_t[:, :, 0:16]
-            label_input_c[ii] = batch_y#有点微妙啊这个地方,有点二元数组的感觉
-            # index plus 1 and check
-            index_flag = index_flag + 1
-            if index_flag == trainset_num:
-                index_flag = 0
-                epoch = epoch +1
-                random.shuffle(H5_List_train)  # new
-        # finish batch input build -----------------------------------------------
+
+        # 读取batch ==================================================================================================================================
+        epoch, index_flag, H5_List_train, data_input_c, label_input_c, filenamelist, labeel = get_batch_from_list(batch_size = batch_size,
+                                                                                                                  index_flag = index_flag,
+                                                                                                                  filepath_list = H5_List_train,
+                                                                                                                  epoch = epoch,
+                                                                                                                  label_index = label_index,
+                                                                                                                  data_input_shape = data_input_shape,
+                                                                                                                  label_shape = label_shape)
+        # 读取完成 =====================================================================================================================================
+
+
+
+
         # train on model
-        losssss = d_model.test_on_batch(data_input_c,label_input_c)
+        # losssss = d_model.test_on_batch(data_input_c,label_input_c)
         # print(Iter,'before train :',losssss)
 
         # 应该放在train前面,这样才和train返回的acc一样
@@ -278,6 +275,7 @@ if __name__ == "__main__":
 
         # print the detail of this iter===============================================================
         if Iter % print_steps == 0:
+            # 打印第一组列表
             tb = pt.PrettyTable()
             tb.field_names = [(char_color("task name",50,32)),(char_color("fold",50,32)),(char_color("gpu",50,32)),
                           (char_color("lr",50,32)),(char_color("epoch",50,32)),(char_color("iter",50,32)),
@@ -289,6 +287,7 @@ if __name__ == "__main__":
             tb.align["param_name"] = "r"
             print(tb)
 
+            # 打印第二组列表
             tb = pt.PrettyTable()
             tb.field_names = [char_color('sub_subject',50,32),char_color('label',50,32),char_color('pre_value',50,32)]
             for ii in range(filenamelist.__len__()):
@@ -296,6 +295,7 @@ if __name__ == "__main__":
                 tb.add_row([sub_subject,label_input_c[ii],pre[ii]])
             print(tb)
 
+            # 打印第三组列表
             tb = pt.PrettyTable()
             tb.field_names = [char_color("v_m_acc(iter)",50,35),
                           char_color("v_m_AUC(iter)",50,35),
@@ -327,34 +327,36 @@ if __name__ == "__main__":
         txt_lr.write(str(K.get_value(d_model.optimizer.lr)) + '\n')
 
         # verify & test : only save result , no model will be saved (only use fuc 'test_on_model'or'test_on_model4_subject')
-        # if Iter >= min_verify_Iters and Iter % verify_Iters_step == 0:
+        if Iter >= min_verify_Iters and Iter % verify_Iters_step == 0:
             # # ver
-            # vre_result = test_on_model4_subject(model=d_model,
-            #                                     test_list=H5_List_verify,
-            #                                     iters=Iter,
-            #                                     data_input_shape=data_input_shape,
-            #                                     label_shape=label_shape,
-            #                                     id_savepath=ver_id_txt,
-            #                                     label_savepath=ver_label_txt,
-            #                                     pre_savepath=ver_pre_txt,
-            #                                     label_index=label_index)
-            # # save
-            # txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
-            # txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
+            vre_result = test_on_model4_subject_new(model=d_model,
+                                                test_list=H5_List_train,
+                                                iters=Iter,
+                                                data_input_shape=data_input_shape,
+                                                label_shape=label_shape,
+                                                id_savepath=ver_id_txt,
+                                                label_savepath=ver_label_txt,
+                                                pre_savepath=ver_pre_txt,
+                                                label_index=label_index,
+                                                batch_size=10)
+            # save
+            txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
+            txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
 
             # test
-            # test_result = test_on_model4_subject_waibu(model=d_model,
-            #                                     test_list=H5_List_test,
-            #                                     iters=Iter,
-            #                                     data_input_shape=data_input_shape,
-            #                                     label_shape=label_shape,
-            #                                     id_savepath=test_id_txt,
-            #                                     label_savepath=test_label_txt,
-            #                                     pre_savepath=test_pre_txt,
-            #                                     label_index=label_index)
-            # # save
-            # txt_test_result.write(str(Iter) + '@' + str(test_result) + '\n')
-            # txt_test_loss.write(str(Iter) + '@' + str(test_result[4]) + '\n')
+            test_result = test_on_model4_subject_new(model=d_model,
+                                                test_list=H5_List_test,
+                                                iters=Iter,
+                                                data_input_shape=data_input_shape,
+                                                label_shape=label_shape,
+                                                id_savepath=test_id_txt,
+                                                label_savepath=test_label_txt,
+                                                pre_savepath=test_pre_txt,
+                                                label_index=label_index,
+                                                batch_size=10)
+            # save
+            txt_test_result.write(str(Iter) + '@' + str(test_result) + '\n')
+            txt_test_loss.write(str(Iter) + '@' + str(test_result[4]) + '\n')
             # print(str(Iter) + '@' + str(test_result[4]))
             # print(test_result)
 
@@ -370,38 +372,38 @@ if __name__ == "__main__":
 
 
             # 更新verify的以供打印的参数 =========================================================================
-            # if vre_result[0] >= max_acc_verify:
-            #     max_acc_verify_iter = Iter
-            #     max_acc_verify = vre_result[0]
-            # if vre_result[1] >= max_sen_verify:
-            #     max_sen_verify_iter = Iter
-            #     max_sen_verify = vre_result[1]
-            # if vre_result[2] >= max_spc_verify:
-            #     max_spc_verify_iter = Iter
-            #     max_spc_verify = vre_result[2]
-            # if vre_result[3] >= max_auc_verify:
-            #     max_auc_verify_iter = Iter
-            #     max_auc_verify = vre_result[3]
-            # if vre_result[4] <= min_loss_verify:
-            #     min_loss_verify_iter = Iter
-            #     min_loss_verify = vre_result[4]
+            if vre_result[0] >= max_acc_verify:
+                max_acc_verify_iter = Iter
+                max_acc_verify = vre_result[0]
+            if vre_result[1] >= max_sen_verify:
+                max_sen_verify_iter = Iter
+                max_sen_verify = vre_result[1]
+            if vre_result[2] >= max_spc_verify:
+                max_spc_verify_iter = Iter
+                max_spc_verify = vre_result[2]
+            if vre_result[3] >= max_auc_verify:
+                max_auc_verify_iter = Iter
+                max_auc_verify = vre_result[3]
+            if vre_result[4] <= min_loss_verify:
+                min_loss_verify_iter = Iter
+                min_loss_verify = vre_result[4]
 
             # 更新test的以供打印的参数 =========================================================================
-            # if test_result[0] >= max_acc_test:
-            #     max_acc_test_iter = Iter
-            #     max_acc_test = test_result[0]
-            # if test_result[1] >= max_sen_test:
-            #     max_sen_test_iter = Iter
-            #     max_sen_test = test_result[1]
-            # if test_result[2] >= max_spc_test:
-            #     max_spc_test_iter = Iter
-            #     max_spc_test = test_result[2]
-            # if test_result[3] >= max_auc_test:
-            #     max_auc_test_iter = Iter
-            #     max_auc_test = test_result[3]
-            # if test_result[4] <= min_loss_test:
-            #     min_loss_test_iter = Iter
-            #     min_loss_test = test_result[4]
+            if test_result[0] >= max_acc_test:
+                max_acc_test_iter = Iter
+                max_acc_test = test_result[0]
+            if test_result[1] >= max_sen_test:
+                max_sen_test_iter = Iter
+                max_sen_test = test_result[1]
+            if test_result[2] >= max_spc_test:
+                max_spc_test_iter = Iter
+                max_spc_test = test_result[2]
+            if test_result[3] >= max_auc_test:
+                max_auc_test_iter = Iter
+                max_auc_test = test_result[3]
+            if test_result[4] <= min_loss_test:
+                min_loss_test_iter = Iter
+                min_loss_test = test_result[4]
 
         # 保存尽量新模型,防止训练中断
         if Iter % model_save_step == 0:
@@ -441,10 +443,16 @@ if __name__ == "__main__":
         # 开始的时候我们用的是adam,所以下面代码分为两部分,一部分是切换adam到sgd,另外一部分负责切换之后更新学习率
         # 如果到达转换点,那么就开始转换,以防万一,先保存权重,之后重新编译模型,之后加载权重
         if Iter == optimizer_switch_point:
+            print('saving model')
             d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
-            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=init_lr_new)
+            print('saved succeed')
+
+            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
             # d_model_1 = resnet_or(use_bias_flag=True, classes=2)
+
+            print('loading model weights')
             d_model.load_weights(model_save_Path + '/m_' + 'newest_model.h5',by_name=True)
+            print('loaded succeed')
 
             # d_model = multi_gpu_model(d_model_1, gpus=3)
             d_model.compile(optimizer=SGD(lr=lr_new, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
@@ -452,7 +460,7 @@ if __name__ == "__main__":
 
         if Iter > optimizer_switch_point:
             #batch_num_perepoch = or_train_num // batch_size  # 每个epoch包含的迭代次数,也即batch的个数
-            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=init_lr_new)
+            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
             K.set_value(d_model.optimizer.lr, lr_new)
 
 

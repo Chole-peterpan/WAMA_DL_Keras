@@ -187,7 +187,8 @@ def test_on_model(model, test_list,iters, save_path, data_input_shape,front_name
 def test_on_model4_subject(model, test_list, iters,
                            data_input_shape, label_shape,
                            id_savepath, label_savepath, pre_savepath,
-                           label_index = 'label_2'):
+                           label_index = 'label_2',
+                           ):
     """
     
     :param model: 
@@ -300,11 +301,7 @@ def test_on_model4_subject(model, test_list, iters,
     for nn in range(patient_num):
         t_label = final_true_label[nn]#true label
         p_value = final_pred_value[nn]
-        # ptnt_id = patient_index[nn]
-		
-        # txt_id.write(str(float(p_value))+'\n')
-        # txt_lb.write(str(float(t_label)) + '\n')
-        # txt_pr.write(str(float(ptnt_id)) + '\n')
+
 		
         p_label = sigmoid_y(p_value)
 		
@@ -330,10 +327,6 @@ def test_on_model4_subject(model, test_list, iters,
         print('AUC', Aucc)
 
 
-
-
-
-
     # =====================================================
     mean_loss = np.mean(loss_temp)
 
@@ -343,11 +336,6 @@ def test_on_model4_subject(model, test_list, iters,
     print('Accuracy', Accuracy)
     print('Loss', mean_loss)
 
-    # txt_s4.write('acc:'+str(Accuracy) + '\n')
-    # txt_s4.write('spc:' + str(Specificity) + '\n')
-    # txt_s4.write('sen:' + str(Sensitivity) + '\n')
-    # txt_s4.write('auc:' + str(Aucc) + '\n')
-    # txt_s4.write('loss:' + str(mean_loss) + '\n')
 
 
     txt_id = open(id_savepath, 'a')
@@ -539,11 +527,7 @@ def test_on_model4_subject_4_miulti(model, test_list, iters,
     print('Accuracy', Accuracy)
     print('Loss', mean_loss)
 
-    # txt_s4.write('acc:'+str(Accuracy) + '\n')
-    # txt_s4.write('spc:' + str(Specificity) + '\n')
-    # txt_s4.write('sen:' + str(Sensitivity) + '\n')
-    # txt_s4.write('auc:' + str(Aucc) + '\n')
-    # txt_s4.write('loss:' + str(mean_loss) + '\n')
+
 
 
     txt_id = open(id_savepath, 'a')
@@ -687,153 +671,6 @@ def name2othermode(data_path, data_fullname, file_num_step):
     leave_str = tmp_str[len(subject_id):]
     final_path = data_path + '/' + str(int(subject_id)+file_num_step) + leave_str
     return  final_path
-
-
-
-# othermode_path:静脉其数据test的文件夹
-def test_on_model4_subject_4multi(model, test_list, iters, save_path, data_input_shape, front_name, othermode_path):
-    # 保存预测值,同时保存最终指标
-    # 精确到样本,指标计算单位为样本
-    data_input_1 = np.zeros([1] + data_input_shape + [1], dtype=np.float32)  # net input container
-    data_input_2 = np.zeros([1] + data_input_shape + [1], dtype=np.float32)  # net input container
-
-    pred_txt = save_path + '/' + front_name + 'predict_' + str(iters) + '.txt'
-    orgi_txt = save_path + '/' + front_name + 'orginal_' + str(iters) + '.txt'
-    id_txt = save_path + '/' + front_name + 'subjectid_' + str(iters) + '.txt'
-    value_txt = save_path + '/' + front_name + 'result_' + str(iters) + '.txt'
-
-    txt_s1 = open(pred_txt, 'w')
-    txt_s2 = open(orgi_txt, 'w')
-    txt_s3 = open(id_txt, 'w')
-    txt_s4 = open(value_txt, 'w')
-
-    testtset_num = len(test_list)
-    Num_list_test = list(range(testtset_num))
-    tp = 0
-    tn = 0
-    fp = 0
-    fn = 0
-    true_label = []
-    pred_value = []
-    final_true_label = []
-    final_pred_value = []
-
-    # 先储存所有结果，之后算出一个分样本的结果
-    for read_num in Num_list_test:
-        # a data read -----------------
-        read_name = test_list[read_num]
-        print(read_name)
-        H5_file = h5py.File(read_name, 'r')
-        batch_x = H5_file['data'][:]
-        batch_y = H5_file['label_2'][:]
-        print(batch_y)
-        batch_x_t = np.transpose(batch_x, (1, 2, 0))
-        data_input_1[0, :, :, :, 0] = batch_x_t[:, :, 0:16]
-        H5_file.close()
-
-        # v data read -----------------
-        read_name_v = name2othermode(othermode_path, read_name, 300)
-        print(read_name_v)
-        H5_file = h5py.File(read_name_v, 'r')
-        batch_x = H5_file['data'][:]
-        batch_y1 = H5_file['label_2'][:]
-        print(batch_y1)
-        batch_x_t = np.transpose(batch_x, (1, 2, 0))
-        data_input_2[0, :, :, :, 0] = batch_x_t[:, :, 0:16]
-        H5_file.close()
-
-
-
-
-        result_pre = model.predict_on_batch([data_input_1, data_input_2])
-
-        pred_value.append(float(result_pre[:]))
-        true_label.append(float(batch_y[:]))
-
-    patient_order = []
-    patient_index = []
-    # 算出样本数量和序号
-    for read_num in Num_list_test:
-        read_name = test_list[read_num]
-        patient_order_temp = read_name.split('/')[-1]  # Windows则为\\
-        patient_order_temp = patient_order_temp.split('_')[0]
-        # patient_order_temp = int(patient_order_temp)
-        if patient_order_temp not in patient_order:
-            patient_order.append(patient_order_temp)
-            patient_index.append(int(patient_order_temp))
-
-    # 根据样本序号分配并重新加入最终list，最后根据这个最终list来计算最终指标
-
-    patient_index.sort(reverse=False)
-    for patient_id in patient_index:
-        tmp_patient_prevalue = []
-        tmp_patient_reallabel = []
-        for read_num in Num_list_test:
-            read_name = test_list[read_num]
-            tmp_index = read_name.split('/')[-1]
-            tmp_index = tmp_index.split('_')[0]
-            tmp_index = int(tmp_index)
-            if tmp_index == patient_id:
-                # tmp_pre_value = pred_value
-                tmp_patient_prevalue.append(pred_value[read_num])
-                tmp_patient_reallabel.append(true_label[read_num])
-                # 此时已经获得了对应第patient_id个样本的全部预测值
-                # 暂时的策略为：计算预测均值，如果均值大于0.5则取最大值，反之取最小值 ； label任取一个加入
-        final_true_label.append(tmp_patient_reallabel[0])
-        mean_pre = np.mean(tmp_patient_prevalue)
-        if mean_pre > 0.5:
-            final_pred_value.append(np.max(tmp_patient_prevalue))
-        elif mean_pre < 0.5:
-            final_pred_value.append(np.min(tmp_patient_prevalue))
-        elif mean_pre == 0.5:
-            final_pred_value.append(0.5)
-
-    # 根据最终list来计算最终指标
-    patient_num = patient_index.__len__()
-    for nn in range(patient_num):
-        t_label = final_true_label[nn]  # true label
-        p_value = final_pred_value[nn]
-        ptnt_id = patient_index[nn]
-
-        txt_s1.write(str(float(p_value)) + '\n')
-        txt_s2.write(str(float(t_label)) + '\n')
-        txt_s3.write(str(float(ptnt_id)) + '\n')
-
-        p_label = sigmoid_y(p_value)
-
-        if (t_label == 1) and (t_label == p_label):
-            tp = tp + 1  # 真阳
-        elif (t_label == 0) and (t_label == p_label):
-            tn = tn + 1  # 真阴
-        elif (t_label == 1) and (p_label == 0):
-            fn = fn + 1  # 假阴
-        elif (t_label == 0) and (p_label == 1):
-            fp = fp + 1  # 假阳
-
-    Sensitivity = tp / ((tp + fn) + (1e-16))
-    Specificity = tn / ((tn + fp) + (1e-16))
-    Accuracy = (tp + tn) / ((tp + tn + fp + fn) + (1e-16))
-
-    if (sum(final_true_label) == patient_num) or (sum(final_true_label) == 0):
-        Aucc = 0
-        print('only one class')
-
-    else:
-        Aucc = metrics.roc_auc_score(final_true_label, final_pred_value)
-        print('AUC', Aucc)
-
-    print('Sensitivity', Sensitivity)
-    print('Specificity', Specificity)
-    print('Accuracy', Accuracy)
-
-    txt_s4.write('acc:' + str(Accuracy) + '\n')
-    txt_s4.write('spc:' + str(Specificity) + '\n')
-    txt_s4.write('sen:' + str(Sensitivity) + '\n')
-    txt_s4.write('auc:' + str(Aucc) + '\n')
-
-    return [Accuracy, Sensitivity, Specificity, Aucc]
-
-
 
 
 def lr_mod(iter,max_epoch,epoch_file_size,batch_size,init_lr ,doudong=0.1,min_lr_limitation=2.2,cos_ca=0.3):
@@ -1003,20 +840,6 @@ os_stage@L
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #判断变量类型的函数
 def typeof(variate):
     type=None
@@ -1035,12 +858,6 @@ def typeof(variate):
     elif isinstance(variate,set):
         type = "set"
     return type
-
-
-
-
-
-
 
 
 
@@ -1065,7 +882,7 @@ def char_color(s,front,word):
 
 # 现在只用这个
 # v2.0版本
-# 外部验证及专用,因为label当时搞反了,所以修正一下,断点地方就是修正的代码
+# 外部验证及专用,因为label当时搞反了,所以修正一下,断点地方就是修正的代码,之后的代码都不会用到了
 def test_on_model4_subject_waibu(model, test_list, iters,
                            data_input_shape, label_shape,
                            id_savepath, label_savepath, pre_savepath,
@@ -1240,4 +1057,241 @@ def test_on_model4_subject_waibu(model, test_list, iters,
     txt_pr.close()
 
     return [Accuracy, Sensitivity, Specificity, Aucc, mean_loss]
+
+
+
+
+# 从列表中获取batch的函数,专用于训练时H5文件的读取
+def get_batch_from_list(batch_size, index_flag, filepath_list, epoch, label_index, data_input_shape, label_shape):
+    # read data from h5
+    # new_epoch_flag = 0
+    filenamelist = []
+    labeel = []
+    data_input_c = np.zeros([batch_size] + data_input_shape + [1], dtype=np.float32)  # net input container
+    label_input_c = np.zeros([batch_size] + label_shape)
+
+    print('sub num:', len(filepath_list))
+
+    for ii in range(batch_size):
+        # read data from h5
+        read_name = filepath_list[index_flag]
+        # print(read_name)
+        filenamelist.append(read_name)
+        H5_file = h5py.File(read_name, 'r')
+        batch_x = H5_file['data'][:]
+        batch_y = H5_file[label_index][:]
+        H5_file.close()
+        labeel.append(batch_y)
+        # put data into container
+        batch_x_t = np.transpose(batch_x, (1, 2, 0))
+        data_input_c[ii, :, :, :, 0] = batch_x_t[:, :, 0:16]
+        label_input_c[ii] = batch_y  # 有点微妙啊这个地方,有点二元数组的感觉
+        # index plus 1 and check
+        index_flag = index_flag + 1
+
+        if index_flag == len(filepath_list):
+            index_flag = 0
+            epoch = epoch + 1
+            random.shuffle(filepath_list)  # new
+
+
+
+    return [epoch, index_flag, filepath_list, data_input_c, label_input_c, filenamelist, labeel]
+
+
+# 现在只用这个
+# v2.1版本  增加分batch跑的模式
+# 分batch的具体操作,加入总样本10个,batchsize为3,则首先10//3 = 3,然后先跑3-1 = 2个batch
+# 然后把最后一个batch和剩余一个余数为1的样本组合起来,变成一个batchsize = 原batchsize+余数
+def test_on_model4_subject_new(model, test_list, iters,
+                           data_input_shape, label_shape,
+                           id_savepath, label_savepath, pre_savepath,
+                           label_index='label_2',
+                           batch_size  = 3):
+    """
+
+    :param model: 
+    :param test_list: 
+    :param iters: 
+    :param save_path: 
+    :param data_input_shape: 
+    :param label_shape: 
+    :param front_name: 
+    :param id_savepath: 
+    :param label_savepath: 
+    :param pre_savepath: 
+    :param file_sep: 
+    :param label_index: 
+    :return:
+
+    保存预测值,同时保存最终指标
+    精确到样本,指标计算单位为样本
+    ps*写函数注释的时候,三个爽引号后直接回车就行,就会出现以上pycharm自动补充的函数说明
+    """
+
+    testtset_num = len(test_list)
+    Num_list_test = list(range(testtset_num))
+
+
+
+    true_label = []
+    pred_value = []
+    loss_temp = []
+
+
+    indexxx = 0
+    all_iters = testtset_num // batch_size  # 一共要迭代predict的次数
+    res_num = testtset_num % batch_size  # 不能纳入完整batch的剩余样本数
+
+    print(batch_size,testtset_num,res_num)
+    # 首先把前all_iters - 1次predict了,等到最后一个batch的时候,把它和剩余的结合起来=====================================
+    for iii in range(all_iters):
+        # 如果是最后一个batch,那么就吧剩下的也加上
+        if iii == all_iters-1:
+            real_batch_size = batch_size+res_num
+        else:
+            real_batch_size = batch_size
+
+        # 构建容器
+        data_input_1 = np.zeros([real_batch_size] + data_input_shape + [1], dtype=np.float32)  # net input container
+        label_input_1 = np.zeros([real_batch_size] + label_shape)
+
+        for ii in range(real_batch_size):
+            read_name = test_list[indexxx]
+            print(read_name)
+            H5_file = h5py.File(read_name, 'r')
+            batch_x = H5_file['data'][:]
+            batch_y = H5_file[label_index][:]
+            print(batch_y)
+            H5_file.close()
+            true_label.append(float(batch_y[0][0]))
+            # put data into container
+            batch_x_t = np.transpose(batch_x, (1, 2, 0))
+            data_input_1[ii, :, :, :, 0] = batch_x_t[:, :, 0:16]
+            label_input_1[ii] = batch_y  # 有点微妙啊这个地方,有点二元数组的感觉
+            # index plus 1 and check
+            indexxx = indexxx + 1
+        # 预测
+        result_pre = model.predict_on_batch(data_input_1)
+        result_loss = model.test_on_batch(data_input_1, label_input_1)
+        loss_temp.append(float(result_loss[0]))
+        for iiii in range(real_batch_size):
+            pred_value.append(result_pre[iiii][0])
+
+
+
+    patient_order = []
+    patient_index = []
+    # 算出样本数量和序号
+    for read_num in Num_list_test:
+        read_name = test_list[read_num]
+        patient_order_temp = read_name.split('/')[-1]  # Windows则为\\
+        patient_order_temp = patient_order_temp.split('_')[0]
+        # patient_order_temp = int(patient_order_temp)
+        if patient_order_temp not in patient_order:
+            patient_order.append(patient_order_temp)
+            patient_index.append(int(patient_order_temp))
+
+    # 整合patch到一病人为单位:
+    # 根据样本序号分配并重新加入最终list，最后根据这个最终list来计算最终指标
+    final_true_label = []
+    final_pred_value = []
+    patient_index.sort(reverse=False)
+    for patient_id in patient_index:  # 首先遍历所有病人序号
+        tmp_patient_prevalue = []
+        tmp_patient_reallabel = []
+        for read_num in Num_list_test:
+            # 在每个病人序号下,遍历所有patch的文件名对应的病例号,
+            # 如果属于该病人,则append到临时的list,最终在对这个临时的list操作,得到属于这个病人的一个值
+            read_name = test_list[read_num]
+            tmp_index = read_name.split('/')[-1]
+            tmp_index = tmp_index.split('_')[0]
+            tmp_index = int(tmp_index)
+            if tmp_index == patient_id:
+                # tmp_pre_value = pred_value
+                tmp_patient_prevalue.append(pred_value[read_num])
+                tmp_patient_reallabel.append(true_label[read_num])
+                # 此时已经获得了对应第patient_id个样本的全部预测值
+                # 暂时的策略为：计算预测均值，如果均值大于0.5则取最大值，反之取最小值 ； label任取一个加入
+        final_true_label.append(tmp_patient_reallabel[0])
+        mean_pre = np.mean(tmp_patient_prevalue)
+        if mean_pre > 0.5:
+            final_pred_value.append(np.max(tmp_patient_prevalue))
+        elif mean_pre < 0.5:
+            final_pred_value.append(np.min(tmp_patient_prevalue))
+        elif mean_pre == 0.5:
+            final_pred_value.append(0.5)
+
+    # 根据最终list来计算最终指标
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+    patient_num = patient_index.__len__()
+    for nn in range(patient_num):
+        t_label = final_true_label[nn]  # true label
+        p_value = final_pred_value[nn]
+        # ptnt_id = patient_index[nn]
+
+
+
+        p_label = sigmoid_y(p_value)
+
+        if (t_label == 1) and (t_label == p_label):
+            tp = tp + 1  # 真阳
+        elif (t_label == 0) and (t_label == p_label):
+            tn = tn + 1  # 真阴
+        elif (t_label == 1) and (p_label == 0):
+            fn = fn + 1  # 假阴
+        elif (t_label == 0) and (p_label == 1):
+            fp = fp + 1  # 假阳
+
+    Sensitivity = tp / ((tp + fn) + (1e-16))
+    Specificity = tn / ((tn + fp) + (1e-16))
+    Accuracy = (tp + tn) / ((tp + tn + fp + fn) + (1e-16))
+
+    if (sum(final_true_label) == patient_num) or (sum(final_true_label) == 0):
+        Aucc = 0
+        print('only one class')
+
+    else:
+        Aucc = metrics.roc_auc_score(final_true_label, final_pred_value)
+        print('AUC', Aucc)
+
+    # =====================================================
+    mean_loss = np.mean(loss_temp)
+
+    print('Sensitivity', Sensitivity)
+    print('Specificity', Specificity)
+    print('Accuracy', Accuracy)
+    print('Loss', mean_loss)
+
+    txt_id = open(id_savepath, 'a')
+    txt_lb = open(label_savepath, 'a')
+    txt_pr = open(pre_savepath, 'a')
+
+    txt_id.write(str(iters) + '@' + str(patient_index) + '\n')
+    txt_lb.write(str(iters) + '@' + str(final_true_label) + '\n')
+    txt_pr.write(str(iters) + '@' + str(final_pred_value) + '\n')
+
+    txt_id.close()
+    txt_lb.close()
+    txt_pr.close()
+
+    return [Accuracy, Sensitivity, Specificity, Aucc, mean_loss]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
