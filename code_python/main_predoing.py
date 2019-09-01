@@ -18,11 +18,13 @@ from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss,EuiLoss_new
 import keras.backend as K
 from function import *
 from sparsenet import SparseNetImageNet121
+import random
+import math
 # step2: import extra model finished
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
@@ -30,110 +32,118 @@ set_session(tf.Session(config=config))
 # from keras.utils.training_utils import multi_gpu_model   #导入keras多GPU函数
 
 
-from keras.layers import Lambda, concatenate
-from keras import Model
-import tensorflow as tf
-
-def multi_gpu_model(model, gpus):
-  if isinstance(gpus, (list, tuple)):
-    num_gpus = len(gpus)
-    target_gpu_ids = gpus
-  else:
-    num_gpus = gpus
-    target_gpu_ids = range(num_gpus)
-
-  def get_slice(data, i, parts):
-    shape = tf.shape(data)
-    batch_size = shape[:1]
-    input_shape = shape[1:]
-    step = batch_size // parts
-    if i == num_gpus - 1:
-      size = batch_size - step * i
-    else:
-      size = step
-    size = tf.concat([size, input_shape], axis=0)
-    stride = tf.concat([step, input_shape * 0], axis=0)
-    start = stride * i
-    return tf.slice(data, start, size)
-
-  all_outputs = []
-  for i in range(len(model.outputs)):
-    all_outputs.append([])
-
-  # Place a copy of the model on each GPU,
-  # each getting a slice of the inputs.
-  for i, gpu_id in enumerate(target_gpu_ids):
-    with tf.device('/gpu:%d' % gpu_id):
-      with tf.name_scope('replica_%d' % gpu_id):
-        inputs = []
-        # Retrieve a slice of the input.
-        for x in model.inputs:
-          input_shape = tuple(x.get_shape().as_list())[1:]
-          slice_i = Lambda(get_slice,
-                           output_shape=input_shape,
-                           arguments={'i': i,
-                                      'parts': num_gpus})(x)
-          inputs.append(slice_i)
-
-        # Apply model on slice
-        # (creating a model replica on the target device).
-        outputs = model(inputs)
-        if not isinstance(outputs, list):
-          outputs = [outputs]
-
-        # Save the outputs for merging back together later.
-        for o in range(len(outputs)):
-          all_outputs[o].append(outputs[o])
-
-  # Merge outputs on CPU.
-  with tf.device('/cpu:0'):
-    merged = []
-    for name, outputs in zip(model.output_names, all_outputs):
-      merged.append(concatenate(outputs,
-                                axis=0, name=name))
-    return Model(model.inputs, merged)
-
-
-
+# 训练集测试集分别存放在两个文件夹的读取代码 ===========================================================================================
 # 读取外部数据集到list里面
-test_path = r"/data/@data_pnens_recurrent_outside/a/4test"
-file_name = os.listdir(test_path)
-test_List = []
-for file in file_name:
-    if file.endswith('.h5'):
-        test_List.append(os.path.join(test_path, file))
+# test_path = r"/data/@data_pnens_recurrent_outside/a/4test"
+# file_name = os.listdir(test_path)
+# test_List = []
+# for file in file_name:
+#     if file.endswith('.h5'):
+#         test_List.append(os.path.join(test_path, file))
 
 
 # 读取内部训练数据集到list里面
-train_path = r"/data/@data_pnens_recurrent_new/data_test/a"
-file_name = os.listdir(train_path)
-train__List = []
+# train_path = r"/data/@data_pnens_recurrent_new/data_test/a"
+# file_name = os.listdir(train_path)
+# train__List = []
+# for file in file_name:
+#     if file.endswith('.h5'):
+#         train__List.append(os.path.join(train_path, file))
+
+# H5_List_train = train__List
+# trainset_num = len(H5_List_train)
+# H5_List_test = test_List
+
+
+
+
+
+# 训练集测试集都在一个文件夹的读取代码 ===========================================================================================
+# 将样本文件路径读到dict里面
+file_path = r"/data/@data_pnens_recurrent_outside/a/4test"
+file_name = os.listdir(file_path)
+H5file_List = []
 for file in file_name:
     if file.endswith('.h5'):
-        train__List.append(os.path.join(train_path, file))
+        H5file_List.append(os.path.join(file_path, file))
 
-H5_List_train = train__List
+patient_id = []
+patient_dict = {}
+# 算出样本数量和序号
+for file in H5file_List:
+    # read_name = file
+    id = file.split('/')[-1]  # Windows则为\\
+    id = int(id.split('_')[0])
+    # patient_order_temp = int(patient_order_temp)
+    if id not in patient_id:
+        patient_id.append(id)
+        patient_dict[id]=[]
+    patient_dict[id].append(file)
+patient_id.sort()
+
+print(patient_id)
+
+
+# 按照类别将文件名分到新的dict里,一级为类别,二级为病人,三级为文件名
+class_dict = {}
+class_dict[0]=list(np.array(list(range(9)))+1)
+class_dict[1]=list(np.array(list(range(9)))+10)
+
+# class_dict[0]=list(np.array([1,2,3,4,5,6,7,8,9,10,
+#                11,12,13,14,15,16,17,18,19,20,
+#                21,22,23,24,25,26,27,28,29,30,
+#                31,32,33,34,35,36,37,38,39,40,
+#                41,42,43,46,47,49]))
+# class_dict[1]=list(np.array(list(range(10)))+50)
+
+
+test_rate = 2/10
+train_id = []
+test_id = []
+for class_index in class_dict.keys():
+    random.shuffle(class_dict[class_index])
+    class_subject_num = len(class_dict[class_index])
+    test_id = test_id + class_dict[class_index][0:math.ceil(class_subject_num*test_rate)]
+    train_id = train_id + class_dict[class_index][math.ceil(class_subject_num*test_rate):]
+print('train',train_id)
+print('test',test_id)
+
+H5_List_test = []
+H5_List_train = []
+for id in patient_id:
+    if id not in train_id:
+        H5_List_test = H5_List_test + patient_dict[id]
+    else:
+        H5_List_train = H5_List_train + patient_dict[id]
+
+
 trainset_num = len(H5_List_train)
-H5_List_test = test_List
+
+
+
+
+
+
+
 # log的savepath
-Result_save_Path = r'/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu10'
+Result_save_Path = r'/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu16'
 
 
-multi_gpu_mode = True #是否开启多GPU数据并行模式
+multi_gpu_mode = False #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
 foldname = '1'  #暂时命名为1,不然观察不了
-batch_size = 20
+batch_size = 7
 label_index = 'label3'
 data_input_shape = [280,280,16]
 label_shape = [2]
-init_lr = 2e-5 # 初始学习率
+init_lr = 2e-8 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
 max_iter = 20000000 #最大迭代次数
 print_steps = 50 # 打印训练信息的步长
 task_name = 'test'  # 任务名称,自己随便定义
 min_verify_Iters = 1  # 最小测试和验证迭代数量
-verify_Iters_step = 50 # 测试和验证的步长
+verify_Iters_step = 20 # 测试和验证的步长
 
 model_save_step = 300 # 模型保存的步长
 
@@ -170,9 +180,10 @@ if __name__ == "__main__":
 
     if multi_gpu_mode:
         d_model = multi_gpu_model(d_model, gpus=gpu_munum)
-    d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    # d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # pause()  # identify
-    print(d_model.summary())  # view net
+    # print(d_model.summary())  # view net
     # pause()  # identify
     # extra param initialization:初始化一些用来记录和显示的参数
     Iter = 0
@@ -329,19 +340,19 @@ if __name__ == "__main__":
         # verify & test : only save result , no model will be saved (only use fuc 'test_on_model'or'test_on_model4_subject')
         if Iter >= min_verify_Iters and Iter % verify_Iters_step == 0:
             # # ver
-            vre_result = test_on_model4_subject_new(model=d_model,
-                                                test_list=H5_List_train,
-                                                iters=Iter,
-                                                data_input_shape=data_input_shape,
-                                                label_shape=label_shape,
-                                                id_savepath=ver_id_txt,
-                                                label_savepath=ver_label_txt,
-                                                pre_savepath=ver_pre_txt,
-                                                label_index=label_index,
-                                                batch_size=10)
-            # save
-            txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
-            txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
+            # vre_result = test_on_model4_subject_new(model=d_model,
+            #                                     test_list=H5_List_train,
+            #                                     iters=Iter,
+            #                                     data_input_shape=data_input_shape,
+            #                                     label_shape=label_shape,
+            #                                     id_savepath=ver_id_txt,
+            #                                     label_savepath=ver_label_txt,
+            #                                     pre_savepath=ver_pre_txt,
+            #                                     label_index=label_index,
+            #                                     batch_size=10)
+            # # save
+            # txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
+            # txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
 
             # test
             test_result = test_on_model4_subject_new(model=d_model,
@@ -372,21 +383,21 @@ if __name__ == "__main__":
 
 
             # 更新verify的以供打印的参数 =========================================================================
-            if vre_result[0] >= max_acc_verify:
-                max_acc_verify_iter = Iter
-                max_acc_verify = vre_result[0]
-            if vre_result[1] >= max_sen_verify:
-                max_sen_verify_iter = Iter
-                max_sen_verify = vre_result[1]
-            if vre_result[2] >= max_spc_verify:
-                max_spc_verify_iter = Iter
-                max_spc_verify = vre_result[2]
-            if vre_result[3] >= max_auc_verify:
-                max_auc_verify_iter = Iter
-                max_auc_verify = vre_result[3]
-            if vre_result[4] <= min_loss_verify:
-                min_loss_verify_iter = Iter
-                min_loss_verify = vre_result[4]
+            # if vre_result[0] >= max_acc_verify:
+            #     max_acc_verify_iter = Iter
+            #     max_acc_verify = vre_result[0]
+            # if vre_result[1] >= max_sen_verify:
+            #     max_sen_verify_iter = Iter
+            #     max_sen_verify = vre_result[1]
+            # if vre_result[2] >= max_spc_verify:
+            #     max_spc_verify_iter = Iter
+            #     max_spc_verify = vre_result[2]
+            # if vre_result[3] >= max_auc_verify:
+            #     max_auc_verify_iter = Iter
+            #     max_auc_verify = vre_result[3]
+            # if vre_result[4] <= min_loss_verify:
+            #     min_loss_verify_iter = Iter
+            #     min_loss_verify = vre_result[4]
 
             # 更新test的以供打印的参数 =========================================================================
             if test_result[0] >= max_acc_test:

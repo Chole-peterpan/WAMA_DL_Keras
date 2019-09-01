@@ -25,7 +25,7 @@ close all
 
 
 save_path = '/data/XS_Aug_model_result/model_templete/recurrent/test_waibu';
-log_path = '/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu9/log';%
+log_path = '/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu14/log';%
 fold_name = '1';
 a = 2;
 indexx = 8;%ʹ��ָ�����ţ�1���ǵ�1ָ��,���ջᰴ�����ָ����ѡ��Ȩ�أ�ָ��Խ���ʾģ��Խ�ã�����lossԽС��ʾģ��Խ�ã�
@@ -106,7 +106,7 @@ plot(loss_iter,(test_loss),'g');
 xlabel('iter');
 ylabel('loss');
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
-legend({'minibatch loss','test loss'},'Location','best');
+% legend({'minibatch loss','test loss'},'Location','best');
 subplot(2,1,2);
 plot(1:length(smooth(smooth(minibatch_loss,50))),smooth(smooth(minibatch_loss,50))/batch_size,'k');hold on;
 % plot(loss_iter,smooth(ver_loss,50),'r');hold on;
@@ -115,7 +115,7 @@ plot(loss_iter,smooth(test_loss,50),'g','LineWidth',1);
 xlabel('iter');
 ylabel('loss');
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
-legend({'minibatch loss','test loss trend'},'Location','best');
+% legend({'minibatch loss','test loss trend'},'Location','best');
 
 %% step3����ȡverify����result���
 % if exchange_flag == 0

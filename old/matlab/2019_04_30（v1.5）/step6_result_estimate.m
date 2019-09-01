@@ -1,49 +1,49 @@
-%% ÐèÒª¿´µÄÖ¸±ê
-% allv_select_num ¾­¹ýÉ¸Ñ¡ºó×îÖÕÁôÏÂµÄÑéÖ¤¼¯ÊýÁ¿
+%% ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+% allv_select_num ï¿½ï¿½ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 % 
 
-%% step1£º³õÊ¼»¯
+%% step1ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 clear;
 clc;
 close all
-%% step2£º²ÎÊýºÍÂ·¾¶ÉèÖÃ
-%µÚ1Ö¸±ê£ºacc
-%µÚ2Ö¸±ê£ºsen
-%µÚ3Ö¸±ê£ºspc
-%µÚ4Ö¸±ê£ºauc
-%µÚ5Ö¸±ê£ºloss
-%µÚ6Ö¸±ê£º£¨acc+sen+spc+auc£©/loss   ÕýÏà¹ØÖ¸±êÇóºÍºó£¬³ýÒÔloss
-%µÚ7Ö¸±ê£º£¨acc+sen+spc+auc£©+ a/loss £¨aÕâ¸ö²ÎÊý×Ô¼º¶¨£¬Ô½´ó±íÊ¾lossµÄ¹±Ï×Ô½´ó£©
-%µÚ8Ö¸±ê£º£¨acc+sen+spc+auc£©
-%µÚ9Ö¸±ê£º£¨acc*sen*spc*auc£©/loss 
-%µÚ10Ö¸±ê£º£¨acc*sen*spc*auc£©
-%µÚ11Ö¸±ê£º£¨sen+spc£©
-%µÚ12Ö¸±ê£º£¨sen+spc£©/loss
-%µÚ13Ö¸±ê£º£¨sen*spc£©
-%µÚ14Ö¸±ê£º£¨sen*spc£©/loss
-%µÚ15Ö¸±ê£ºsen+auc
+%% step2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+%ï¿½ï¿½1Ö¸ï¿½ê£ºacc
+%ï¿½ï¿½2Ö¸ï¿½ê£ºsen
+%ï¿½ï¿½3Ö¸ï¿½ê£ºspc
+%ï¿½ï¿½4Ö¸ï¿½ê£ºauc
+%ï¿½ï¿½5Ö¸ï¿½ê£ºloss
+%ï¿½ï¿½6Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½/loss   ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Íºó£¬³ï¿½ï¿½ï¿½loss
+%ï¿½ï¿½7Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½+ a/loss ï¿½ï¿½aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ê¾lossï¿½Ä¹ï¿½ï¿½ï¿½Ô½ï¿½ï¿½
+%ï¿½ï¿½8Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½
+%ï¿½ï¿½9Ö¸ï¿½ê£ºï¿½ï¿½acc*sen*spc*aucï¿½ï¿½/loss 
+%ï¿½ï¿½10Ö¸ï¿½ê£ºï¿½ï¿½acc*sen*spc*aucï¿½ï¿½
+%ï¿½ï¿½11Ö¸ï¿½ê£ºï¿½ï¿½sen+spcï¿½ï¿½
+%ï¿½ï¿½12Ö¸ï¿½ê£ºï¿½ï¿½sen+spcï¿½ï¿½/loss
+%ï¿½ï¿½13Ö¸ï¿½ê£ºï¿½ï¿½sen*spcï¿½ï¿½
+%ï¿½ï¿½14Ö¸ï¿½ê£ºï¿½ï¿½sen*spcï¿½ï¿½/loss
+%ï¿½ï¿½15Ö¸ï¿½ê£ºsen+auc
 
-% ½»²æÑéÖ¤£ºÃ»ÓÐÇ¨ÒÆÈ¨ÖØ
-% 33¡¢38¡¢39¡¢40¡¢41
+% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ã»ï¿½ï¿½Ç¨ï¿½ï¿½È¨ï¿½ï¿½
+% 33ï¿½ï¿½38ï¿½ï¿½39ï¿½ï¿½40ï¿½ï¿½41
 % 2   3   4   5   1
 % 
 % 
-% ½»²æÑéÖ¤£ºÇ¨ÒÆ3WµÄrecurrentÈ¨ÖØ
-% 37¡¢36¡¢35¡¢34¡¢27
+% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ç¨ï¿½ï¿½3Wï¿½ï¿½recurrentÈ¨ï¿½ï¿½
+% 37ï¿½ï¿½36ï¿½ï¿½35ï¿½ï¿½34ï¿½ï¿½27
 % 1   5   4   3   2
 
 
-save_path = 'H:\diploma_result\result\resnet';
-fold_path = 'H:\diploma_result\@test27';%
-fold_name = '2';
+save_path = '/data/XS_Aug_model_result/model_templete/recurrent/pnens_zhuanyi_resnet_a_new';
+fold_path = '/data/XS_Aug_model_result/model_templete/recurrent/pnens_zhuanyi_resnet_a_new/fold5';%
+fold_name = '5';
 a = 2;
-indexx = 7;%Ê¹ÓÃÖ¸±êµÄÐòºÅ£¬1¾ÍÊÇµÚ1Ö¸±ê,×îÖÕ»á°´ÕÕÕâ¸öÖ¸±êÀ´Ñ¡ÔñÈ¨ÖØ£¬Ö¸±êÔ½´ó±íÊ¾Ä£ÐÍÔ½ºÃ£¨³ýÁËlossÔ½Ð¡±íÊ¾Ä£ÐÍÔ½ºÃ£©
+indexx = 7;%Ê¹ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Å£ï¿½1ï¿½ï¿½ï¿½Çµï¿½1Ö¸ï¿½ï¿½,ï¿½ï¿½ï¿½Õ»á°´ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½È¨ï¿½Ø£ï¿½Ö¸ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ê¾Ä£ï¿½ï¿½Ô½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½lossÔ½Ð¡ï¿½ï¿½Ê¾Ä£ï¿½ï¿½Ô½ï¿½Ã£ï¿½
 batch_size = 6;
 finf = dir([fold_path,'\*.txt']);
-min_test_select_num = 40;%×îÖÕÌôÑ¡µÄ²âÊÔ¼¯µÄ½á¹ûÎÄ¼þµÄ×îÐ¡ÊýÁ¿£¨¼´²»Í¬iterationµÄÊýÁ¿£©
+min_test_select_num = 40;%ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½Ä²ï¿½ï¿½Ô¼ï¿½ï¿½Ä½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬iterationï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 iiindex = 39999;
-exchange_flag = 0;%1ÔòtestÓëver¼¯ºÏ»¥»»
-%% ÏÔÊ¾Ò»ÏÂminibatch_loss
+exchange_flag = 0;%1ï¿½ï¿½testï¿½ï¿½verï¿½ï¿½ï¿½Ï»ï¿½ï¿½ï¿½
+%% ï¿½ï¿½Ê¾Ò»ï¿½ï¿½minibatch_loss
 
 loss_path = strcat(fold_path,filesep,'@',fold_name,'_loss.txt');
 loss =  importdata(loss_path);
@@ -56,7 +56,7 @@ plot(smooth(smooth(loss,8)),'g');
 hold on;
 plot(smooth(smooth(loss,50)),'m');
 legend({'mini loss','smooth level1','smooth level2','smooth level3'},'Location','best');
-%% ÏÔÊ¾3¸öloss£ºµþ¼ÓÏÔÊ¾
+%% ï¿½ï¿½Ê¾3ï¿½ï¿½lossï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
 if exchange_flag == 0
     tmp_str_t = '_test_loss';
     tmp_str_v = '_ver_loss';
@@ -81,7 +81,7 @@ ver_loss = [];
 test_loss = [];
 loss_iter = [];
 
-%¿¼ÂÇµ½¿ÉÄÜÓÐÊý¾Ý±£´æ²»È«µÄÇé¿ö£¬±ÈÈçÔËÐÐµÄÊ±ºòÄ³Ê±¿ÌÖÐ¶Ï£¬ËùÒÔÈ¡minµü´úÊýÁ¿
+%ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý±ï¿½ï¿½æ²»È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ê±ï¿½ï¿½Ä³Ê±ï¿½ï¿½ï¿½Ð¶Ï£ï¿½ï¿½ï¿½ï¿½ï¿½È¡minï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 for ii= 1:min([length(or_train_loss_str),length(test_loss_str),length(verfiy_loss_str)])
     tmp_str_ortrain = or_train_loss_str{ii};
     tmp_str_ver = verfiy_loss_str{ii};
@@ -111,7 +111,7 @@ plot(loss_iter,smooth(ortrain_loss,50),'b');
 xlabel('iter');
 ylabel('loss');
 legend({'minibatch loss','ver loss trend','test loss trend','ortrain loss trend'},'Location','best'); 
-% legend({'ver loss','test loss','ortrain loss','minibatch loss','ver loss trend','test loss trend','ortrain loss trend'},'Location','best'); %ÒÀ¾Ý»æÍ¼µÄÏÈºóË³Ðò£¬Ò»´Î±ê×¢ÇúÏß¡£
+% legend({'ver loss','test loss','ortrain loss','minibatch loss','ver loss trend','test loss trend','ortrain loss trend'},'Location','best'); %ï¿½ï¿½ï¿½Ý»ï¿½Í¼ï¿½ï¿½ï¿½Èºï¿½Ë³ï¿½ï¿½Ò»ï¿½Î±ï¿½×¢ï¿½ï¿½ï¿½ß¡ï¿½
 
 ver_loss = smooth(ver_loss,50);
 test_loss = smooth(test_loss,50);
@@ -119,7 +119,7 @@ or_trainloss = smooth(ortrain_loss,50);
 minibatch_loss = smooth(smooth(loss,50))/batch_size;
 loss_iter_batch = 1:length(smooth(smooth(loss,50)));
 
-%% step3£º¶ÁÈ¡verifyµÄ×ÜÊý¾Ý
+%% step3ï¿½ï¿½ï¿½ï¿½È¡verifyï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 if exchange_flag == 0
     tmp_str_v = '_ver_result';
 else
@@ -160,7 +160,7 @@ for ii = 1:length(ver_result_str)
 end
 
 
-%% step4£º¶ÁÈ¡testµÄ×ÜÊý¾Ý
+%% step4ï¿½ï¿½ï¿½ï¿½È¡testï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 if exchange_flag == 0
     tmp_str_v = '_test_result';
 else
@@ -200,60 +200,60 @@ for ii = 1:length(test_result_str)
 end
 
 
-%% step5£ºÊý¾Ý½ØÈ¡£º    ÎªÉ¶Êý¾Ý±£´æ²»È«ÄØ£¿£¿£¿£¿ fuck
+%% step5ï¿½ï¿½ï¿½ï¿½Ý½ï¿½È¡ï¿½ï¿½    ÎªÉ¶ï¿½ï¿½Ý±ï¿½ï¿½æ²»È«ï¿½Ø£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ fuck
 cut_index = min(length(test_result_str),length(ver_result_str));
 if length(test_result_str) == cut_index
     ver_result = ver_result(1:cut_index,:);
 else
     test_result = test_result(1:cut_index,:);
 end
-%% step6£º¹¹½¨ÐÂÖ¸±ê£º£¨ÓÃÀ´ÌôÑ¡Ä£ÐÍµÄÖ¸±ê£©
-%ÒÑÓÐÖ¸±ê£º======================================
-%µÚ1Ö¸±ê£ºacc
-%µÚ2Ö¸±ê£ºsen
-%µÚ3Ö¸±ê£ºspc
-%µÚ4Ö¸±ê£ºauc
-%µÚ5Ö¸±ê£ºloss
-%ÐÂÖ¸±ê£º´ÓÏÂ±í7¿ªÊ¼£¬ÒòÎªÔ­¾ØÕóµÚÒ»ÁÐÊÇiters===========================================
-%µÚ6Ö¸±ê£º£¨acc+sen+spc+auc£©/loss   ÕýÏà¹ØÖ¸±êÇóºÍºó£¬³ýÒÔloss
-%µÚ7Ö¸±ê£º£¨acc+sen+spc+auc£©+ a/loss £¨aÕâ¸ö²ÎÊý×Ô¼º¶¨£¬Ô½´ó±íÊ¾lossµÄ¹±Ï×Ô½´ó£©
-%µÚ8Ö¸±ê£º£¨acc+sen+spc+auc£©
-%µÚ9Ö¸±ê£º£¨acc*sen*spc*auc£©/loss 
-%µÚ10Ö¸±ê£º£¨acc*sen*spc*auc£©
-%µÚ11Ö¸±ê£º£¨sen+spc£©
-%µÚ12Ö¸±ê£º£¨sen+spc£©/loss
-%µÚ13Ö¸±ê£º£¨sen*spc£©
-%µÚ14Ö¸±ê£º£¨sen*spc£©/loss
-%µÚ15Ö¸±ê£ºsen+auc
+%% step6ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ê£ºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡Ä£ï¿½Íµï¿½Ö¸ï¿½ê£©
+%ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ê£º======================================
+%ï¿½ï¿½1Ö¸ï¿½ê£ºacc
+%ï¿½ï¿½2Ö¸ï¿½ê£ºsen
+%ï¿½ï¿½3Ö¸ï¿½ê£ºspc
+%ï¿½ï¿½4Ö¸ï¿½ê£ºauc
+%ï¿½ï¿½5Ö¸ï¿½ê£ºloss
+%ï¿½ï¿½Ö¸ï¿½ê£ºï¿½ï¿½ï¿½Â±ï¿½7ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ÎªÔ­ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½iters===========================================
+%ï¿½ï¿½6Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½/loss   ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Íºó£¬³ï¿½ï¿½ï¿½loss
+%ï¿½ï¿½7Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½+ a/loss ï¿½ï¿½aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ê¾lossï¿½Ä¹ï¿½ï¿½ï¿½Ô½ï¿½ï¿½
+%ï¿½ï¿½8Ö¸ï¿½ê£ºï¿½ï¿½acc+sen+spc+aucï¿½ï¿½
+%ï¿½ï¿½9Ö¸ï¿½ê£ºï¿½ï¿½acc*sen*spc*aucï¿½ï¿½/loss 
+%ï¿½ï¿½10Ö¸ï¿½ê£ºï¿½ï¿½acc*sen*spc*aucï¿½ï¿½
+%ï¿½ï¿½11Ö¸ï¿½ê£ºï¿½ï¿½sen+spcï¿½ï¿½
+%ï¿½ï¿½12Ö¸ï¿½ê£ºï¿½ï¿½sen+spcï¿½ï¿½/loss
+%ï¿½ï¿½13Ö¸ï¿½ê£ºï¿½ï¿½sen*spcï¿½ï¿½
+%ï¿½ï¿½14Ö¸ï¿½ê£ºï¿½ï¿½sen*spcï¿½ï¿½/loss
+%ï¿½ï¿½15Ö¸ï¿½ê£ºsen+auc
 
-%µÚ6Ö¸±ê
+%ï¿½ï¿½6Ö¸ï¿½ï¿½
 ver_result(:,7)=(ver_result(:,2)+ver_result(:,3)+ ver_result(:,4)+ver_result(:,5))./ver_result(:,6);
 test_result(:,7)=(test_result(:,2)+test_result(:,3)+ test_result(:,4)+test_result(:,5))./test_result(:,6);
-%µÚ7Ö¸±ê
+%ï¿½ï¿½7Ö¸ï¿½ï¿½
 ver_result(:,8)=(ver_result(:,2)+ver_result(:,3)+ ver_result(:,4)+ver_result(:,5))+a./ver_result(:,6);
 test_result(:,8)=(test_result(:,2)+test_result(:,3)+ test_result(:,4)+test_result(:,5))+a./test_result(:,6);
-%µÚ8Ö¸±ê
+%ï¿½ï¿½8Ö¸ï¿½ï¿½
 ver_result(:,9)=(ver_result(:,2)+ver_result(:,3)+ ver_result(:,4)+ver_result(:,5));
 test_result(:,9)=(test_result(:,2)+test_result(:,3)+ test_result(:,4)+test_result(:,5));
-%µÚ9Ö¸±ê
+%ï¿½ï¿½9Ö¸ï¿½ï¿½
 ver_result(:,10)=(ver_result(:,2).*ver_result(:,3).* ver_result(:,4).*ver_result(:,5))./ver_result(:,6);
 test_result(:,10)=(test_result(:,2).*test_result(:,3).* test_result(:,4).*test_result(:,5))./test_result(:,6);
-%µÚ10Ö¸±ê
+%ï¿½ï¿½10Ö¸ï¿½ï¿½
 ver_result(:,11)=(ver_result(:,2).*ver_result(:,3).* ver_result(:,4).*ver_result(:,5));
 test_result(:,11)=(test_result(:,2).*test_result(:,3).* test_result(:,4).*test_result(:,5));  
-%µÚ11Ö¸±ê
+%ï¿½ï¿½11Ö¸ï¿½ï¿½
 ver_result(:,12)=(ver_result(:,3)+ ver_result(:,4));
 test_result(:,12)=(test_result(:,3)+ test_result(:,4));  
-%µÚ12Ö¸±ê
+%ï¿½ï¿½12Ö¸ï¿½ï¿½
 ver_result(:,13)=(ver_result(:,3)+ ver_result(:,4))./ver_result(:,6);
 test_result(:,13)=(test_result(:,3)+ test_result(:,4))./test_result(:,6); 
-%µÚ13Ö¸±ê
+%ï¿½ï¿½13Ö¸ï¿½ï¿½
 ver_result(:,14)=(ver_result(:,3).* ver_result(:,4));
 test_result(:,14)=(test_result(:,3).* test_result(:,4));  
-%µÚ14Ö¸±ê
+%ï¿½ï¿½14Ö¸ï¿½ï¿½
 ver_result(:,15)=(ver_result(:,3).* ver_result(:,4))./ver_result(:,6);
 test_result(:,15)=(test_result(:,3).* test_result(:,4))./test_result(:,6); 
-%µÚ15Ö¸±ê
+%ï¿½ï¿½15Ö¸ï¿½ï¿½
 ver_result(:,16)=(ver_result(:,3)+ ver_result(:,5));
 test_result(:,16)=(test_result(:,3)+ test_result(:,5)); 
 
@@ -310,10 +310,10 @@ figure;
 plot(test_result(:,1),test_result(:,2).*test_result(:,3).*test_result(:,4).*test_result(:,5),'b');hold on;
 plot(test_result(:,1),smooth(test_result(:,2).*test_result(:,3).*test_result(:,4).*test_result(:,5),20),'r');
 title('test miul');
-%% step7£º°´ÕÕµÚindexxÖ¸±êÉ¸Ñ¡×îÖÕiter
-%°´ÕÕµÚindexxÖ¸±êÅÅÐò²¢½ØÈ¡£ºÈ¡ÃûÎªallv
-%==========================================£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡£¡
-ver_result = ver_result(ver_result(:,1)>iiindex,:);%Ê×ÏÈ°ÑÐ¡ÓÚÒ»¶¨µü´úÊýµÄ¿¨µô
+%% step7ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½indexxÖ¸ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½ï¿½iter
+%ï¿½ï¿½ï¿½Õµï¿½indexxÖ¸ï¿½ï¿½ï¿½ï¿½ï¿½ò²¢½ï¿½È¡ï¿½ï¿½È¡ï¿½ï¿½Îªallv
+%==========================================ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ver_result = ver_result(ver_result(:,1)>iiindex,:);%ï¿½ï¿½ï¿½È°ï¿½Ð¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½
 
 ver_result_sort_by_allv = sortrows(ver_result,indexx+1);
 ver_result_sort_by_allv = ver_result_sort_by_allv(end:-1:1,:);
@@ -327,7 +327,7 @@ for ii = 1:size(ver_result_sort_by_allv,1)
 end
 allv_value = sort(allv_value,'descend');
 
-allv_select_num = 0;%¾­¹ýaccÉ¸Ñ¡µÄÑéÖ¤¼¯½á¹ûÎÄ¼þµÄÊýÁ¿
+allv_select_num = 0;%ï¿½ï¿½ï¿½ï¿½accÉ¸Ñ¡ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 for ii = 1:length(allv_value)
    tmp_index =  find(ver_result_sort_by_allv(:,indexx+1)==allv_value(ii));
    allv_select_num = allv_select_num+length(tmp_index);
@@ -337,12 +337,12 @@ for ii = 1:length(allv_value)
 end
 
 result_by_allv = ver_result_sort_by_allv(1:allv_select_num,:);
-%ÒòÎªÒ»¸öÖ¸±êÍ¬Ò»¸öÊý¿ÉÄÜ¶ÔÓ¦ºÜ¶àÎÄ¼þ£¬¾¡Á¿È¡¶à²»È¥ÉÙ(ÉÏÃæÄÇÒ»¾äÕâÖÖ¸ü¿ÆÑ§°¡£¡)£¬³ÉÎªadapt Ä£Ê½
-%result_by_allv = ver_result_sort_by_allv(1:min_test_select_num,:);%Ö±½ÓÈ¡×îÐ¡Öµ
-%°´ÕÕµÚ5Ö¸±êÅÅÐò²¢½ØÈ¡£º=====================================================
+%ï¿½ï¿½ÎªÒ»ï¿½ï¿½Ö¸ï¿½ï¿½Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½Ó¦ï¿½Ü¶ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½à²»È¥ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ï¿½ï¿½Îªadapt Ä£Ê½
+%result_by_allv = ver_result_sort_by_allv(1:min_test_select_num,:);%Ö±ï¿½ï¿½È¡ï¿½ï¿½Ð¡Öµ
+%ï¿½ï¿½ï¿½Õµï¿½5Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ò²¢½ï¿½È¡ï¿½ï¿½=====================================================
 
 
-%% step8£º°´ÕÕÉ¸Ñ¡ºóµÄiter£¬ÌáÈ¡test¼¯ºÏµÄËùÓÐÖ¸±ê
+%% step8ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½iterï¿½ï¿½ï¿½ï¿½È¡testï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 if exchange_flag == 0
     tmp_str_s = 'test';
 else
@@ -372,7 +372,7 @@ test_prevalue = importdata(test_prevalue_path);
 test_ID = importdata(test_subID_path);
 
 final_value = final_value(1:6);
-a_final_value = final_value;%ÒÔa¿ªÍ·copyÒÔÏÂ£¬·½±ã²é¿´¡£
+a_final_value = final_value;%ï¿½ï¿½aï¿½ï¿½Í·copyï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½é¿´ï¿½ï¿½
 a_iters = final_value(1);
 a_acc = final_value(2);
 a_sen = final_value(3);
