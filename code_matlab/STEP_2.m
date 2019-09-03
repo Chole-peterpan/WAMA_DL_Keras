@@ -4,8 +4,8 @@ clc;
 clear;
 
 %% 设置参数
-mat_path =       'H:\@data_NENs_response\EP\data\1mat';
-block_savepath = 'H:\@data_NENs_response\EP\data\2block';
+mat_path =       'H:\@data_NENs_recurrence\PNENs\data\1mat';
+block_savepath = 'H:\@data_NENs_recurrence\PNENs\data\2block';
 step = 5; % 分块的滑动步长
 
 %% 读取结构体数组信息文件

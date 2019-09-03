@@ -4,13 +4,13 @@ clc;
 clear;
 %% 设置路径参数H:\@data_NENs_recurrence\PNENs\data\a\0nii
 nii_path =           'H:\@data_NENs_recurrence\PNENs\data\0nii\a';
-adjust_window = [-30,280];
+adjust_window =            [-30,280];
 nii_othermode_path = 'H:\@data_NENs_recurrence\PNENs\data\0nii\v';
 adjust_window4_othermode = [-20,200];
 
 save_path =          'H:\@data_NENs_recurrence\PNENs\data\1mat';
 
-extend_pixel = 5;%抠出肿瘤时外扩的体素数量
+extend_pixel = 10;%抠出肿瘤时外扩的体素数量
 contain_orthermode = true;
 disp(strcat('is cantain othermode ? :',num2str(contain_orthermode)));
 
@@ -85,6 +85,10 @@ for i = 1:length(subject)
             end
             
             % 数据处理流现在开始 ============================
+            % ==============================================
+            % ==============================================
+            % ==============================================
+            % ==============================================
             % flow 1:使用抠出函数，基于mask将肿瘤从CT中抠出
             [tumor_mat, mask_mat, tumor_size,or_shape] = get_region_from_mask(Data_CT, Data_mask, extend_pixel);%参数：前者CT，后者mask
             if contain_orthermode
@@ -108,6 +112,10 @@ for i = 1:length(subject)
                 tumor_mat_other = tumor_preprocess(tumor_mat_other,'Linear_normalization');
             end
             % 数据处理流现在结束 ============================
+            % ==============================================
+            % ==============================================
+            % ==============================================
+            % ==============================================
 
             
             

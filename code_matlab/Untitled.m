@@ -31,8 +31,8 @@ subplot(1,2,2);imshow(data2(:,:,i),[]);
 end
 
 %%
-or_path = 'H:\@data_NENs_recurrence\PNENs\data\3aug20000\6_1_1.h5';
-wokspace = load('H:\@data_NENs_recurrence\PNENs\data\2block\6_1');
+or_path = 'H:\@data_NENs_recurrence\PNENs\data\4test\49_1.h5';
+wokspace = load('H:\@data_NENs_recurrence\PNENs\data\2block\49_1');
 data3 = wokspace.block;
 data4 = wokspace.block_othermode;
 
@@ -49,7 +49,7 @@ data1 = aug_data;
 data2 = aug_data_othermode;
 
 figure;
-for i = 1:size(data,3)
+for i = 1:size(data1,3)
 %    imshow(data(:,:,i),[0,1]);
 subplot(2,2,1);imshow(data1(:,:,i),[0,1]);
 subplot(2,2,2);imshow(data2(:,:,i),[0,1]);
@@ -59,7 +59,7 @@ subplot(2,2,4);imshow(data4(:,:,i),[0,1]);
 
 
 % imshowpair(data1)
-   pause(0.2);
+   pause(0.1);
    
 end
 
