@@ -6,7 +6,17 @@ block_mat_path = 'G:\@data_NENs_recurrence\PNENs\data\a\2block';%block
 mat_savepath = 'H:\@data_NENs_recurrent\3aug_35000';
 aug_num = 35000;%总扩增数量
 a_b_ratio = [1,1];%例如AB比例为1:2，则设置为[1,2],A是非PD，B是PD
- 
+
+
+method = {'rotation',''};
+%对比度调整的上界
+ad2_1 = 0.800; ad2_2 = 1.00;  
+%对比度调整的下届
+ad1_1 = 0;     ad1_2 = 0.1;  
+%旋转的上下界
+r_1   = 0;     r_2   = 40;    
+
+
 %==========================================================================
 aug_num_A = aug_num*(a_b_ratio(1)/sum(a_b_ratio));%A类样本扩增的总数量
 aug_num_B = aug_num*(a_b_ratio(2)/sum(a_b_ratio));%B类样本扩增的总数量
@@ -59,15 +69,19 @@ for i = 1:length(subject_all)
         per_sub_augnum = per_sub_augnum_B;
     end
     
+    
+    % 计算每个block扩增的数量
     per_block_augnum = (per_sub_augnum/blocks)/2;
     %per_block_augnum为每个块需要扩增的数量,这里需要注意，因为有翻转，所以这个需要再除以2
-    %再根据上面的块扩增数量，确定扩增的参数，旋转角度范围及步长，
+    
+    
+    %紧接着根据上面的块扩增数量，确定每种扩增方法扩增的次数（也即扩增的参数），旋转角度范围及步长，
     %三个扩增范围，也就是三个数量相乘，设定每种扩增方法扩增数量相同，则需要开三次方 
     per_method_num = floor(nthroot(per_block_augnum,3)); %计算每种扩增方法扩增的次数（设定每种方法扩增的次数相同）
     %ad那两个参数是对比度调节的参数（lowin和highin，因为图像已经归一化了，所以lowin在0到0.1中间取，highin在0.8到1之间取）
-    ad2_1 = 0.800; ad2_2 = 1.00;  ad2_step = abs((ad2_2-ad2_1)/(per_method_num-1));%需要-1，不然会使扩增数量增加               
-    ad1_1 = 0;     ad1_2 = 0.1;   ad1_step = abs((ad1_2-ad1_1)/(per_method_num-1));         
-    r_1   = 0;     r_2   = 40;    r_step   = abs((r_2-r_1)/(per_method_num-1));  
+    ad2_step = abs((ad2_2-ad2_1)/(per_method_num-1));%需要-1，也就是让步长大一点，让初步扩增的数量少一点               
+    ad1_step = abs((ad1_2-ad1_1)/(per_method_num-1));         
+    r_step   = abs((r_2-r_1)/(per_method_num-1));  
     %步长一定要加绝对值，不然当数量过小的时候，会出现负数步长的情况没这样会导致扩增数量为0
     %初步计算最后扩增数量
     flag1 = 0;
@@ -84,10 +98,10 @@ for i = 1:length(subject_all)
     end
     final_num = flag1*flag2*flag3;
     %=====================================================================================================
-    % 矫正：如果扩增数量与设定数量差距太大，则迭代适当减小步长（以下代码针对于角度），直到差距不断减小到可接受范围
+    % 矫正：如果扩增数量与设定数量差距太大，则迭代适当减小步长（以下仅仅代码针对于角度），直到差距不断减小到可接受范围
     % ps：以下只针对一个参数矫正，也可以针对多个，即逐级进行矫正，误差0.2级别的先利用一个参数矫正一次，之后误差减小到0.005级别则再用另外一个参数矫正
     r_num  =per_method_num-1;
-    for iiqweqwe = 1:99
+    for iiqweqwe = 1:999999
         %刚开始一定是小于设定数量的，所以如果差距比例大于0.05，则增大数量
         if (abs(per_block_augnum-final_num)/per_block_augnum)>0.05
             r_num=r_num+1;
@@ -115,10 +129,10 @@ for i = 1:length(subject_all)
     
     %%  aug 在病人单位下,以每个block为单位进行扩增
     aug_count_num = 0;
-    data_path=strcat(block_mat_path,filesep,num2str(subject_all(1).id),'_',num2str(1),'.mat');
-    workspaces = load(data_path);
-    data = workspaces.block;
-    image_roi_output = zeros(size(data));
+%     data_path=strcat(block_mat_path,filesep,num2str(subject_all(1).id),'_',num2str(1),'.mat');
+%     workspaces = load(data_path);
+%     data = workspaces.block;
+%     image_roi_output = zeros(size(data));
     
     for ii = 1:subject_all(i).blocks_num_all
         data_path=strcat(block_mat_path,filesep,num2str(subject_all(i).id),'_',num2str(ii),'.mat');
