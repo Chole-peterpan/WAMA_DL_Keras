@@ -27,7 +27,7 @@ if isfield(augdict,'gray_adjust')
         
         % 生成均匀分布的随机数
         current_p = unifrnd (0,1);
-                
+        
         if current_p <= augdict.gray_adjust.p
             % 如果抽中奖，那么就进行扩增
             current_low = unifrnd(augdict.gray_adjust.low(1),augdict.gray_adjust.low(2));
@@ -135,7 +135,10 @@ end
 %% 输出mode ，这个是必有的
 % mode 0，代表直接输出
 % mode 1，代表 3Dresize
-% mode 2，代表 容器居中
+% mode 2，代表 容器居中 （注意，这个模式下目标dim3要和block的dim3相同）
+% mode 3，代表 直接剪裁&填充 （当目标维度小于原始维度，则叫剪裁，当目标维度大于原始维度，则叫做填充padding）
+%          不建议在dim3 padding，因为这样做没有意义（不过如果是做检测任务的话，可能就是有意义的） 
+% mode 4，代表 居中剪裁&填充
 
 % 如果未设置输出格式，则默认为mode 0
 if ~isfield(augdict,'savefomat')
@@ -158,6 +161,14 @@ elseif augdict.savefomat.mode == 1
     
     
 elseif augdict.savefomat.mode == 2
+    % （注意，这个模式下目标dim3要和block的dim3相同,且目标size的横截面必须是正方形）
+    % 如果不是正方形，也可以正常运行，但是在逻辑上是错误的（逻辑错误出现在设置断点的那一句）
+    if augdict.savefomat.param(3) ~= size(aug_block,3)
+       error('dim3 between param & block shoud be same'); 
+    end
+    
+    
+    
     tmp_container = zeros(augdict.savefomat.param);
     if othermode_flag
         tmp_container_othermode = tmp_container;
@@ -168,7 +179,7 @@ elseif augdict.savefomat.mode == 2
     % 首先规定输出形状的横截面必须是正方形 ！
     % 如果x，y有任意一个维度是大于规定形状的，则必须先reshape,注意层数强制reshape为目标形状
     if max(size(aug_block,1),size(aug_block,2)) > param(1)
-        % reshape:有两种情况，因为输入可能是长方形，要保持原来的长宽比例来reshape
+        % reshape:有两种情况（因为输入可能是立着的或倒着的长方形）的长方形或正方形，要保持原来的长宽比例来reshape
         if size(aug_block,1)>=size(aug_block,2)
             rate = size(aug_block,2)/size(aug_block,1);
             target_dim = floor(param(1) * rate);
@@ -200,6 +211,78 @@ elseif augdict.savefomat.mode == 2
     if othermode_flag
         aug_block_othermode = tmp_container_othermode;
     end
+    
+% 直接剪裁，然后每个维度都从第一个开始放，具体对应到空间，matlab比较麻烦，暂时不对应    
+elseif augdict.savefomat.mode == 3
+    tmp_container = zeros(augdict.savefomat.param);
+    if othermode_flag
+        tmp_container_othermode = tmp_container;
+    end
+    
+    tmp_size = size(tmp_container);
+    or_size  = size(aug_block);
+    
+    dim1_end = min(tmp_size(1),or_size(1));
+    dim2_end = min(tmp_size(2),or_size(2));
+    dim3_end = min(tmp_size(3),or_size(3));
+    
+    tmp_container(1:dim1_end,  1:dim2_end,  1:dim3_end) = aug_block(1:dim1_end,  1:dim2_end,  1:dim3_end);
+    if othermode_flag
+        tmp_container_othermode(1:dim1_end,  1:dim2_end,  1:dim3_end) = aug_block_othermode(1:dim1_end,  1:dim2_end,  1:dim3_end);
+    end
+    
+    % 重新把填充好的容器赋给block
+    aug_block = tmp_container;
+    if othermode_flag
+        aug_block_othermode = tmp_container_othermode;
+    end
+    
+    
+    
+% 居中剪裁，其实就是 先居中剪裁  然后容器居中罢了
+% 这个模式，dim3可以不相等
+elseif augdict.savefomat.mode == 4
+    param = augdict.savefomat.param;
+    tmp_container = zeros(augdict.savefomat.param);
+    if othermode_flag
+        tmp_container_othermode = tmp_container;
+    end
+    
+    % 先求出剪裁的尺寸  （注意，和直接剪裁不一样，要在中间剪裁）
+    dim1_end = min(augdict.savefomat.param(1),size(aug_block,1));
+    dim2_end = min(augdict.savefomat.param(2),size(aug_block,2));
+    dim3_end = min(augdict.savefomat.param(3),size(aug_block,3));
+    
+    % 放入容器的最小index位置
+    d1_min = floor((param(1)-dim1_end)/2);
+    d2_min = floor((param(2)-dim2_end)/2);
+    d3_min = floor((param(3)-dim3_end)/2);
+    
+    % 应该从block中间位置剪裁的方块对应的最小index位置（因为其实相当于，把block的中间部分抠出来，然后放到容器的中间）
+    d1_min_4block = floor((size(aug_block,1)-dim1_end)/2);
+    d2_min_4block = floor((size(aug_block,2)-dim2_end)/2);
+    d3_min_4block = floor((size(aug_block,3)-dim3_end)/2);
+    
+    
+    % 把block的中间部分抠出来，然后放到容器的中间
+    tmp_container(d1_min+1:d1_min+dim1_end , d2_min+1:d2_min+dim2_end, d3_min+1:d3_min+dim3_end) = ...
+        aug_block(d1_min_4block+1:d1_min_4block+dim1_end , d2_min_4block+1:d2_min_4block+dim2_end, d3_min_4block+1:d3_min_4block+dim3_end);
+    if othermode_flag
+        tmp_container_othermode(d1_min+1:d1_min+dim1_end , d2_min+1:d2_min+dim2_end, d3_min+1:d3_min+dim3_end) = ...
+            aug_block_othermode(d1_min_4block+1:d1_min_4block+dim1_end , d2_min_4block+1:d2_min_4block+dim2_end, d3_min_4block+1:d3_min_4block+dim3_end);
+    end
+    
+   
+    % 重新把填充好的容器赋给block
+    aug_block = tmp_container;
+    if othermode_flag
+        aug_block_othermode = tmp_container_othermode;
+    end
+    
+    
+    
+    
+    
     
     
 else

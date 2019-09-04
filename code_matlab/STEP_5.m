@@ -12,10 +12,10 @@ clc
 %% 参数设置
 K_fold = 10;
 %rate2verify = 1/(K_fold-1);%验证集从非test集里再分出来,也就是在样本数量上，验证机和测试集相等
-savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow1\5folder';
+savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\5folder';
 %% AUG data（h5文件）
 % AUG ：all object fold in a cell
-AUG_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow1\4aug_h5';
+aug_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\4aug_h5';
 % AUG_fold_cell{2}='G:\diploma_project\data_huanhui\@aug_data\G2';
 % AUG_fold_cell{3}='G:\diploma_project\data_huanhui\@aug_data\G3';
 % p_fold_cell{4}='';
@@ -24,7 +24,7 @@ AUG_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow1\4aug_h5';
 
 %% or data（h5文件）
 % test ：all object fold in a cell
-test_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow1\3or_h5';
+or_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\3or_h5';
 % test_fold_cell{2}='G:\diploma_project\data_huanhui\@test_data\G2';
 % test_fold_cell{3}='G:\diploma_project\data_huanhui\@test_data\G3';
 % test_fold_cell{4}='';
@@ -73,8 +73,8 @@ test_filename_final = {};
 % cut_p_foldname_final = {};
 
 %AUG----------------------------------------------------------------
-for ii = 1:size(AUG_fold_cell,2)
-    tmp_filename = dir(strcat(AUG_fold_cell{ii},filesep,'*.h5'));
+for ii = 1:size(aug_fold_cell,2)
+    tmp_filename = dir(strcat(aug_fold_cell{ii},filesep,'*.h5'));
     aug_h5_filename = [aug_h5_filename;tmp_filename];
 end
 for ii = 1:size(aug_h5_filename,1)
@@ -83,8 +83,8 @@ end
 aug_filename_final = aug_filename_final';
 
 %TEST----------------------------------------------------------------
-for ii = 1:size(test_fold_cell,2)
-    tmp_filename = dir(strcat(test_fold_cell{ii},filesep,'*.h5'));
+for ii = 1:size(or_fold_cell,2)
+    tmp_filename = dir(strcat(or_fold_cell{ii},filesep,'*.h5'));
     or_h5_filename = [or_h5_filename;tmp_filename];
 end
 for ii = 1:size(or_h5_filename,1)

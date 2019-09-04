@@ -17,7 +17,7 @@ data = workspace.block;
 data = imresize3(data,  [size(data,1),size(data,2),size(data,3)],  'cubic');
 
 augdict.savefomat.mode = 4;
-augdict.savefomat.param = [500,500,60];
+augdict.savefomat.param = [500,50,60];
 
 [aug_data,~,~] = aug43D(data,  augdict, 0,  []);
 
