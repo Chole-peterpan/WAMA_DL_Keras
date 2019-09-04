@@ -1,4 +1,4 @@
-function [Data] = tumor_preprocess(data,varargin)
+function [Data] = CT_data_preprocess(data,varargin)
 %预处理函数
 disp('preprocessing...');
 
@@ -41,8 +41,35 @@ elseif strcmp(varargin{1},'Linear_normalization')
     % normolization (method 2)====================
     % data_no1 = mat2gray(data_nr);
 
+    
+%空间体素重采样（调整体素size）   
+%输入的第二、三个参数，应该是原体素的x，y，z尺寸，以及新体素的x，y，z尺寸
+%例子：[0.3,0.3,0.9]，[0.5,0.5,0.5]
+% 1,2,3  0.5,0.5,0.5
+elseif strcmp(varargin{1},'voxel_dim_resampling')
+    % 获得原尺寸以及原voxelsize
+    or_size = size(data);
+    or_dim = varargin{2};
+    % 获得目标voxelsize
+    target_dim = varargin{3};
+    % 计算各个dim的缩放比例
+    dim1_rate = or_dim(1)/target_dim(1);
+    dim2_rate = or_dim(2)/target_dim(2);
+    dim3_rate = or_dim(3)/target_dim(3);
+    % 求出最终resize的目标shape
+    new_size = or_size.*[dim1_rate,dim2_rate,dim3_rate];
+    % 3D reshape
+    Data = imresize3(data,  new_size,  'cubic');
+    
 else
     error('no specified method');
 end
 end
+
+
+
+
+
+
+
 

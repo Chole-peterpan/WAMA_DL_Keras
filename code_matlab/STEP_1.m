@@ -111,17 +111,17 @@ for i = 1:length(subject)
             end
             
             % flow 2:预处理：调整窗宽窗位
-            tumor_mat = tumor_preprocess(tumor_mat,'window_change',adjust_window);
+            tumor_mat = CT_data_preprocess(tumor_mat,'window_change',adjust_window);
             if contain_orthermode
                 % 静脉期可能需要不同的窗宽窗位：:9 220 [200 -20]
-                tumor_mat_other = tumor_preprocess(tumor_mat_other,'window_change',adjust_window4_othermode);
+                tumor_mat_other = CT_data_preprocess(tumor_mat_other,'window_change',adjust_window4_othermode);
             end
 
             
             % flow 3:预处理：线性归一化
-            tumor_mat = tumor_preprocess(tumor_mat,'Linear_normalization');
+            tumor_mat = CT_data_preprocess(tumor_mat,'Linear_normalization');
             if contain_orthermode
-                tumor_mat_other = tumor_preprocess(tumor_mat_other,'Linear_normalization');
+                tumor_mat_other = CT_data_preprocess(tumor_mat_other,'Linear_normalization');
             end
             % 数据处理流现在结束 ============================
             % ==============================================
