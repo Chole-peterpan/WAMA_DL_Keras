@@ -32,8 +32,9 @@ for i =1:length(subject_id_list)
     % 每个期像的每个文件，都有对应的mask（也就是肿瘤），每个CTid号，都可能对应对多个肿瘤
     subject(i).v_m_id = {};% 提前构建某期像对应肿瘤maskID号
     % 对于静脉期（其实三个期是一样的，所以只构建一个足矣）
-    subject(i).tumor = {};%储存肿瘤CT矩阵
-    subject(i).tumor_mask = {};%储存肿瘤mask矩阵
+    subject(i).voxel_size = {};%储存体素长宽高的cell
+%     subject(i).tumor = {};%储存肿瘤CT矩阵
+%     subject(i).tumor_mask = {};%储存肿瘤mask矩阵
     subject(i).tumor_shape = {};%储存肿瘤de粗略略形状
     subject(i).tumor_size = [];%对应肿瘤的粗略大小
     subject(i).tumor_size_all = [];%所有肿瘤大小之和

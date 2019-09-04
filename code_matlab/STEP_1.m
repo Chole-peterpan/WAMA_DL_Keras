@@ -8,7 +8,7 @@ adjust_window =            [-30,280];
 nii_othermode_path = 'H:\@data_NENs_recurrence\PNENs\data\0nii\v';
 adjust_window4_othermode = [-20,200];
 
-save_path =          'H:\@data_NENs_recurrence\PNENs\data\1mat';
+save_path =          'H:\@data_NENs_recurrence\PNENs\data\@flow2\1mat';
 
 extend_pixel = 10;%抠出肿瘤时外扩的体素数量
 contain_orthermode = true;
@@ -32,8 +32,12 @@ subject = get_subject_from_filename(filename_list,contain_orthermode);
 %请注意查看数据处理流
 for i = 1:length(subject)
     subject_ins =  subject(i);%单个病人的结构体，这个就是最终保存的单个病人mat文件
-    disp(['@ doing with subject:',num2str(subject(i).id),' ...']);
+    disp(['@ doing with subject:',num2str(subject_ins.id),' ...']);
     
+    
+    % 汇总文件不需要储存肿瘤，单个文件才需要，所以需要新建
+    subject_ins.tumor = {};%储存肿瘤CT矩阵
+    subject_ins.tumor_mask = {};%储存肿瘤mask矩阵
     %如果包含其他模态，则提前构建容器，并置位多modeflag  {}{}{}{}
     if contain_orthermode
         subject_ins.tumor_othermode = {};
@@ -48,15 +52,15 @@ for i = 1:length(subject)
         num_tumor=num_tumor+length(subject_ins.v_m_id{ii});
     end
     disp(['tumors num :',num2str(num_tumor)]);
-    subject(i).num_tumor = num_tumor;%将肿瘤个数保存到结构体数组中
+    
     subject_ins.num_tumor = num_tumor;
     
     
     tumor_index = 0;
     %提取CT
-    for ii = 1:length(subject(i).v_id)
-        sec_id = subject(i).v_id(ii);
-        CT_file_name =strcat('s',num2str(subject(i).id),'_','v',num2str(sec_id),'.nii');
+    for ii = 1:length(subject_ins.v_id)
+        sec_id = subject_ins.v_id(ii);
+        CT_file_name =strcat('s',num2str(subject_ins.id),'_','v',num2str(sec_id),'.nii');
         Vref = spm_vol(strcat(nii_path,filesep,CT_file_name));
         Data_CT = spm_read_vols(Vref);%加载完成CT图像，接下来加载CT并抠出
         tmp_mask_id_list = subject_ins.v_m_id{ii};%提取对应肿瘤的mask id 矩阵
@@ -67,6 +71,11 @@ for i = 1:length(subject)
             Data_CT_othermode = spm_read_vols(Vref);%加载完成CT图像，接下来加载CT并抠出
         end
         
+        %保存体素sieze
+        subject_ins.voxel_size{end+1} = abs([Vref.mat(1,1),Vref.mat(2,2),Vref.mat(3,3)]);
+        
+        
+        
         %在对应肿瘤的mask id 矩阵中循环，抠出，预处理，并保存到结构体
         for iii = 1:length(tmp_mask_id_list)
             tumor_index = tumor_index+1;
@@ -74,9 +83,12 @@ for i = 1:length(subject)
             trd_id = tmp_mask_id_list(iii);
             
             % 读取肿瘤mask
-            mask_file_name =strcat('s',num2str(subject(i).id),'_','v',num2str(sec_id),'_m',num2str(trd_id),'.nii');
+            mask_file_name =strcat('s',num2str(subject_ins.id),'_','v',num2str(sec_id),'_m',num2str(trd_id),'.nii');
             Vref = spm_vol(strcat(nii_path,filesep,mask_file_name));
             Data_mask = spm_read_vols(Vref);
+            
+            
+            
             
             %如果包括其他mode，则把其他mode的mask也提取出来
             if contain_orthermode
@@ -141,14 +153,16 @@ for i = 1:length(subject)
     save(strcat(save_path,filesep,num2str(subject_ins.id)),'subject_ins');   
     
     % 顺便把数据也保存到汇总用的那个结构体数组中
+    subject(i).num_tumor = subject_ins.num_tumor;%将肿瘤个数保存到结构体数组中
     subject(i).tumor_size = subject_ins.tumor_size;
     subject(i).tumor_size_all = subject_ins.tumor_size_all;
     subject(i).tumor_shape = subject_ins.tumor_shape;
+    subject(i).voxel_size = subject_ins.voxel_size;
 
 end
 
 mkdir(strcat(save_path,filesep,'subject_all'));
-save(strcat(save_path,filesep,'subject_all',filesep,'subject'),'subject'); 
+save(strcat(save_path,filesep,'subject_all',filesep,'subject'),'subject','adjust_window','adjust_window4_othermode'); 
 
 
 

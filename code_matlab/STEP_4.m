@@ -5,8 +5,8 @@ clc;
 clear;
 
 %% ²ÎÊıÉèÖÃ
-block_mat_path =       'H:\@data_NENs_recurrence\PNENs\data\2block';%block
-augdict.mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\3aug';
+block_mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow2\2block';%block
+augdict.mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\4aug_h5';
 
 augdict.aug_num = 20000;%×ÜÀ©ÔöÊıÁ¿
 augdict.class_a_id = 1:49;% ÊÖ¶¯´«ÈëaÀà²¡ÈËµÄid
@@ -16,13 +16,13 @@ augdict.a_b_ratio = [1,1];%×îÖÕÀ©ÔöÊıÁ¿a±Èb£¬ÀıÈçAB±ÈÀıÎª1:2£¬ÔòÉèÖÃÎª[1,2],AÊÇ·
 % À©Ôö£ºĞı×ª
 augdict.rotation.flag = true;%ÊÇ·ñÊ¹ÓÃĞı×ªÀ©Ôö
 augdict.rotation.range = [0,180];%Ğı×ªÀ©ÔöµÄ½Ç¶È·¶Î§
-augdict.rotation.p = 0.6;
+augdict.rotation.p = 0.7;
 
 % À©Ôö£º¶Ô±È¶Èµ÷Õû
 augdict.gray_adjust.flag = true;%ÊÇ·ñÊ¹ÓÃ¶Ô±È¶Èµ÷Õû
 augdict.gray_adjust.up = [0.85   ,   1];%¶Ô±È¶Èµ÷ÕûµÄÉÏ½ç·¶Î§
-augdict.gray_adjust.low = [0    ,   0.15];%¶Ô±È¶Èµ÷ÕûµÄÏÂ½ç·¶Î§
-augdict.gray_adjust.p = 0.5;
+augdict.gray_adjust.low = [0    ,   0.1];%¶Ô±È¶Èµ÷ÕûµÄÏÂ½ç·¶Î§
+augdict.gray_adjust.p = 0.7;
 
 % À©Ôö£º×óÓÒ·´×ª LEFT RIGHT
 % ÖÁÓÚ¸ÅÂÊ£¬Ëæ»úÉú³É¾ùÔÈ·Ö²¼µÄ0µ½1£¬Èç¹ûÊÇ°Ù·ÖÖ®5¸ÅÂÊ·­×ª£¬ÄÇ¾Í³öÏÖĞ¡ÓÚ0.05µÄÊı×Ö¾Í·­×ª
@@ -39,7 +39,7 @@ augdict.UD_overturn.p = 0.5;%ÉÏÏÂ·­×ªµÄ¸ÅÂÊ
 % mode 1 ÊÇ 3Dresize
 % mode 2 ÊÇ ÈİÆ÷¾ÓÖĞ
 augdict.savefomat.mode = 2;
-augdict.savefomat.param = [180,180,16];
+augdict.savefomat.param = [160,160,45];
 
 
 % Ëæ»úÊıÖÖ×Ó£¬ÒÔ±ã¸´ÏÖÊµÑé

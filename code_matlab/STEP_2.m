@@ -4,10 +4,10 @@ clc;
 clear;
 
 %% 设置参数
-mat_path =       'H:\@data_NENs_recurrence\PNENs\data\1mat';
-block_savepath = 'H:\@data_NENs_recurrence\PNENs\data\2block';
+mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow2\1mat';
+block_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\2block';
 step = 5; % 分块的滑动步长
-
+deepth = 45;% 分块的层厚
 %% 读取结构体数组信息文件
 subject_path = strcat(mat_path,filesep,'subject_all',filesep,'subject.mat');
 workspaces = load(subject_path);
@@ -36,9 +36,9 @@ for i = 1:length(subject)
         end
         
         %执行分块操作
-        [blocks_all,masks_all,~] = get_block_from_tumor(tumor,tumor_mask,step);%返回block的元组数组
+        [blocks_all,masks_all,~] = get_block_from_tumor(tumor,tumor_mask,step,deepth);%返回block的元组数组
         if subject_ins.othermode
-            [blocks_all_othermode,masks_all_othermode,~] = get_block_from_tumor(tumor_othermode,tumor_mask_othermode,step);%返回block的元组数组
+            [blocks_all_othermode,masks_all_othermode,~] = get_block_from_tumor(tumor_othermode,tumor_mask_othermode,step,deepth);%返回block的元组数组
         end
         
         
@@ -73,7 +73,7 @@ for i = 1:length(subject)
 end 
 
 mkdir(strcat(block_savepath,filesep,'subject'));
-save(strcat(block_savepath,filesep,'subject',filesep,'subject.mat'),'subject'); 
+save(strcat(block_savepath,filesep,'subject',filesep,'subject.mat'),'subject','step','deepth'); 
 
 
 

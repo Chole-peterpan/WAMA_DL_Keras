@@ -3,11 +3,11 @@ clc;
 clear;
 
 %%
-block_mat_path =     'H:\@data_NENs_recurrence\PNENs\data\2block';
-mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\4test';
+block_mat_path =  'H:\@data_NENs_recurrence\PNENs\data\@flow2\2block';
+mat_savepath =    'H:\@data_NENs_recurrence\PNENs\data\@flow2\3or_h5';
 filename_list = dir(strcat(block_mat_path,filesep,'*.mat'));
 augdict.savefomat.mode = 2;
-augdict.savefomat.param = [180,180,16];
+augdict.savefomat.param = [160,160,45];
 
 
 workspaces = load(strcat(block_mat_path,filesep,'subject',filesep,'subject.mat'));
