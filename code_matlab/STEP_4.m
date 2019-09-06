@@ -5,8 +5,8 @@ clc;
 clear;
 
 %% 参数设置
-block_mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow2\2block';%block
-augdict.mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\4aug_h5';
+block_mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow3\2block';%block
+augdict.mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow3\4aug_h5';
 
 augdict.aug_num = 20000;%总扩增数量
 augdict.class_a_id = 1:49;% 手动传入a类病人的id
@@ -20,7 +20,7 @@ augdict.rotation.p = 0.7;
 
 % 扩增：对比度调整
 augdict.gray_adjust.flag = true;%是否使用对比度调整
-augdict.gray_adjust.up = [0.85   ,   1];%对比度调整的上界范围
+augdict.gray_adjust.up = [0.9   ,   1];%对比度调整的上界范围
 augdict.gray_adjust.low = [0    ,   0.1];%对比度调整的下界范围
 augdict.gray_adjust.p = 0.7;
 
@@ -38,8 +38,8 @@ augdict.UD_overturn.p = 0.5;%上下翻转的概率
 % 0：不改变形状
 % mode 1 是 3Dresize
 % mode 2 是 容器居中
-augdict.savefomat.mode = 2;
-augdict.savefomat.param = [160,160,45];
+augdict.savefomat.mode = 4;
+augdict.savefomat.param = [180,180,20];
 
 
 % 随机数种子，以便复现实验

@@ -4,10 +4,10 @@ clc;
 clear;
 
 %% 设置参数
-mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow2\1mat';
-block_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\2block';
+mat_path =       'H:\@data_NENs_recurrence\PNENs\data_outside\@flow3\1mat';
+block_savepath = 'H:\@data_NENs_recurrence\PNENs\data_outside\@flow3\2block';
 step = 5; % 分块的滑动步长
-deepth = 45;% 分块的层厚
+deepth = 20;% 分块的层厚
 %% 读取结构体数组信息文件
 subject_path = strcat(mat_path,filesep,'subject_all',filesep,'subject.mat');
 workspaces = load(subject_path);

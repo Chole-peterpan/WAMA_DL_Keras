@@ -12,10 +12,10 @@ clc
 %% 参数设置
 K_fold = 10;
 %rate2verify = 1/(K_fold-1);%验证集从非test集里再分出来,也就是在样本数量上，验证机和测试集相等
-savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow2\5folder';
+savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow3\5folder_CV10';
 %% AUG data（h5文件）
 % AUG ：all object fold in a cell
-aug_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\4aug_h5';
+aug_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow3\5folder_CV5';
 % AUG_fold_cell{2}='G:\diploma_project\data_huanhui\@aug_data\G2';
 % AUG_fold_cell{3}='G:\diploma_project\data_huanhui\@aug_data\G3';
 % p_fold_cell{4}='';
@@ -24,7 +24,7 @@ aug_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\4aug_h5';
 
 %% or data（h5文件）
 % test ：all object fold in a cell
-or_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\3or_h5';
+or_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow3\3or_h5';
 % test_fold_cell{2}='G:\diploma_project\data_huanhui\@test_data\G2';
 % test_fold_cell{3}='G:\diploma_project\data_huanhui\@test_data\G3';
 % test_fold_cell{4}='';
@@ -43,7 +43,7 @@ or_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\@flow2\3or_h5';
 % p_fold_cell{4}='';
 
 
-augdict.class_a_id = 1:40;% 手动传入a类病人的id
+augdict.class_a_id = [[1:43],[46,47,49]];% 手动传入a类病人的id
 augdict.class_b_id = 50:59;% 手动传入b类病人的id
 
 cut_n_name_final = num2cell(augdict.class_a_id);
@@ -161,7 +161,7 @@ end
 %% 根据序号结构体数组，构建实际文件名数组
 folder_final = [];
 for iiii = 1:K_fold
-    disp(strcat('running fold:',num2str(iiii)));
+    disp(strcat('making fold:',num2str(iiii),'...'));
     % ==========================================================
     % test样本对应的h5文件名
     or_test = {};

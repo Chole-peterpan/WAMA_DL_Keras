@@ -3,12 +3,12 @@
 clc;
 clear;
 %% 设置路径参数H:\@data_NENs_recurrence\PNENs\data\a\0nii
-nii_path =           'H:\@data_NENs_recurrence\PNENs\data\0nii\a';
+nii_path =           'H:\@data_NENs_recurrence\PNENs\data_outside\0nii\a';
 adjust_window =            [-30,280];
-nii_othermode_path = 'H:\@data_NENs_recurrence\PNENs\data\0nii\v';
+nii_othermode_path = 'H:\@data_NENs_recurrence\PNENs\data_outside\0nii\v';
 adjust_window4_othermode = [-20,200];
 
-save_path =          'H:\@data_NENs_recurrence\PNENs\data\@flow2\1mat';
+save_path =          'H:\@data_NENs_recurrence\PNENs\data_outside\@flow3\1mat';
 
 extend_pixel = 10;%抠出肿瘤时外扩的体素数量
 contain_orthermode = true;
@@ -71,8 +71,9 @@ for i = 1:length(subject)
             Data_CT_othermode = spm_read_vols(Vref);%加载完成CT图像，接下来加载CT并抠出
         end
         
-        %保存体素sieze
-        subject_ins.voxel_size{end+1} = abs([Vref.mat(1,1),Vref.mat(2,2),Vref.mat(3,3)]);
+        %保存每个CT的体素sieze
+        voxel_size = abs([Vref.mat(1,1),Vref.mat(2,2),Vref.mat(3,3)]);
+        subject_ins.voxel_size{end+1} = voxel_size;
         
         
         
@@ -116,9 +117,20 @@ for i = 1:length(subject)
                 % 静脉期可能需要不同的窗宽窗位：:9 220 [200 -20]
                 tumor_mat_other = CT_data_preprocess(tumor_mat_other,'window_change',adjust_window4_othermode);
             end
-
             
-            % flow 3:预处理：线性归一化
+            % flow 3:预处理：空间体素重采样
+            tumor_mat = CT_data_preprocess(tumor_mat,'voxel_dim_resampling',voxel_size,[0.5,0.5,0.5]);
+            mask_mat = CT_data_preprocess(mask_mat,'voxel_dim_resampling',voxel_size,[0.5,0.5,0.5]);
+            if contain_orthermode
+                % 静脉期可能需要不同的窗宽窗位：:9 220 [200 -20]
+                tumor_mat_other = CT_data_preprocess(tumor_mat_other,'voxel_dim_resampling',voxel_size,[0.5,0.5,0.5]);
+                mask_mat_other = CT_data_preprocess(mask_mat_other,'voxel_dim_resampling',voxel_size,[0.5,0.5,0.5]);
+            end
+            
+            
+            
+            
+            % flow 4:预处理：线性归一化
             tumor_mat = CT_data_preprocess(tumor_mat,'Linear_normalization');
             if contain_orthermode
                 tumor_mat_other = CT_data_preprocess(tumor_mat_other,'Linear_normalization');
@@ -162,7 +174,7 @@ for i = 1:length(subject)
 end
 
 mkdir(strcat(save_path,filesep,'subject_all'));
-save(strcat(save_path,filesep,'subject_all',filesep,'subject'),'subject','adjust_window','adjust_window4_othermode'); 
+save(strcat(save_path,filesep,'subject_all',filesep,'subject'),'subject','adjust_window','adjust_window4_othermode','extend_pixel'); 
 
 
 

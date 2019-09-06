@@ -16,9 +16,200 @@ end
 % 比如0.1几率，那么就生成0,1之间的数，如果小于等于0.1，就do，否则就不do
 
 % 另外因为有双期同时输入的可能性存在，所以如果有双期，则生成一个随机数后，双期数据用同一参数扩增
+%% 随机剪裁
+% random_cut 参数说明
+% flag：是否进行剪裁
+% p ：裁剪的概率
+% dim：list，如果要裁剪第一维度，那就等于[1],如果裁剪全部维度，则等于[1,2,3]
+% range:list，裁剪随机比例的变化范围（或者说是去掉的范围），与dim对应，dim裁剪三个维度，则range也应该是长度为3的向量
+% 元素值为0~1，0不裁剪，1全裁剪（去掉）
+
+% 例子：augdict.random_cut.dim = [1,2,3]; augdict.random_cut.range = [0.1,0.2,0.3];
+% 即每个维度都裁剪，裁剪的范围是
+
+if isfield(augdict,'random_cut')
+    if ~isfield(augdict.random_cut,'flag')
+        augdict.random_cut.flag = 0;
+        warning('no setting for cut flag, set flag false');
+    end
+    
+    if augdict.random_cut.flag
+        % 如果未设置p，则自动补全为1
+        if ~isfield(augdict.random_cut,'p')
+            augdict.random_cut.p = 1;
+        end
+        % 生成均匀分布的随机数
+        current_p = unifrnd (0,1);
+        if current_p <= augdict.random_cut.p
+            % 如果抽中奖，那么就进行扩增
+            
+            % 获取随机裁剪的长度
+            if ismember(1,augdict.random_cut.dim)
+                dim1_cut = floor(size(aug_block,1) * unifrnd(0,augdict.random_cut.range(augdict.random_cut.dim == 1)));
+            else
+                dim1_cut = 0;
+            end
+            
+            if ismember(2,augdict.random_cut.dim)
+                dim2_cut = floor(size(aug_block,2) * unifrnd(0,augdict.random_cut.range(augdict.random_cut.dim == 2)));
+            else
+                dim2_cut = 0;
+            end
+            
+            if ismember(3,augdict.random_cut.dim)
+                dim3_cut = floor(size(aug_block,3) * unifrnd(0,augdict.random_cut.range(augdict.random_cut.dim == 3)));
+            else
+                dim3_cut = 0;
+            end
+            
+            
+            % 执行裁剪
+            aug_block = aug_block(1:end-dim1_cut, 1:end-dim2_cut, 1:end-dim3_cut);
+            if othermode_flag
+                aug_block_othermode = aug_block_othermode(1:end-dim1_cut, 1:end-dim2_cut, 1:end-dim3_cut);
+            end
+            
+            % 保存扩增的实际参数
+            augdict.random_cut.do = true;
+            augdict.random_cut.dim1_cut = dim1_cut;
+            augdict.random_cut.dim2_cut = dim2_cut;
+            augdict.random_cut.dim3_cut = dim3_cut;
+            
+        else
+            % 如果没扩增，也要记录下来
+            augdict.random_cut.do = false;
+            
+            
+            
+        end
+
+    end
+end
+
+
+
+
+
+%% 随机拉伸：参数参考随即剪切，
+% range 是 拉伸的比例
+% range_low为拉伸比例的下限，如果为0.5，那么就缩小到原来尺寸的一般
+% range_high为拉伸比例的上限
+% 例子
+% augdict.random_scale.dim = [1,2,3];
+% augdict.random_scale.range_low = [1.1, 1.2, 1.3];
+% augdict.random_scale.range_high = [1.1, 1.2, 1.3];
+
+if isfield(augdict,'random_scale')
+    if ~isfield(augdict.random_scale,'flag')
+        augdict.random_scale.flag = 0;
+        warning('no setting for scale flag, set flag false');
+    end
+    
+    if augdict.random_scale.flag
+        % 如果未设置p，则自动补全为1
+        if ~isfield(augdict.random_scale,'p')
+            augdict.random_scale.p = 1;
+        end
+        % 生成均匀分布的随机数
+        current_p = unifrnd (0,1);
+        if current_p <= augdict.random_scale.p
+            % 如果抽中奖，那么就进行扩增
+            
+            % 获取随机缩放的比例
+            if ismember(1,augdict.random_scale.dim)
+                index = augdict.random_scale.dim == 1;
+                dim1_scale = unifrnd(augdict.random_scale.range_low(index),augdict.random_scale.range_high(index));
+            else
+                dim1_scale = 1;
+            end
+            
+            if ismember(2,augdict.random_scale.dim)
+                index = augdict.random_scale.dim == 2;
+                dim2_scale = unifrnd(augdict.random_scale.range_low(index),augdict.random_scale.range_high(index));
+            else
+                dim2_scale = 1;
+            end
+            
+            if ismember(3,augdict.random_scale.dim)
+                index = augdict.random_scale.dim == 3;
+                dim3_scale = unifrnd(augdict.random_scale.range_low(index),augdict.random_scale.range_high(index));
+            else
+                dim3_scale = 1;
+            end
+            
+            
+            % 执行缩放
+            aug_block = imresize3(aug_block, floor(size(aug_block).*[dim1_scale, dim2_scale, dim3_scale]),  'cubic');
+            if othermode_flag
+                aug_block_othermode = imresize3(aug_block_othermode, floor(size(aug_block_othermode).*[dim1_scale, dim2_scale, dim3_scale]),  'cubic');
+            end
+            
+            % 保存扩增的实际参数
+            augdict.random_scale.do = true;
+            augdict.random_scale.dim1_scale = dim1_scale;
+            augdict.random_scale.dim2_scale = dim2_scale;
+            augdict.random_scale.dim3_scale = dim3_scale;
+            
+        else
+            % 如果没扩增，也要记录下来
+            augdict.random_scale.do = false;  
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+%% 扭曲
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%% 随即增加噪声-椒盐噪声
+
+
+
+
+
+
+%% 随机增加噪声-高斯噪声
+
+
+
+
+
+
+%% 随机挖洞
+% 挖什么样的洞，挖几个洞
+
+
+
+
+
 %% 对比度调整
 % 如果存在这个key，那么才操作，否则跳过
 if isfield(augdict,'gray_adjust')
+    if ~isfield(augdict.gray_adjust,'flag')
+        augdict.gray_adjust.flag = 0;
+        warning('no setting for gray_adjust flag, set flag false');
+    end
+    
     if augdict.gray_adjust.flag
         % 如果没规定p，则默认为1
         if ~isfield(augdict.gray_adjust,'p')
@@ -56,6 +247,10 @@ end
 %% 左右反转
 % qwe(:,end:-1:1)
 if isfield(augdict,'LR_overturn')
+    if ~isfield(augdict.LR_overturn,'flag')
+        augdict.LR_overturn.flag = 0;
+        warning('no setting for LR_overturn flag, set flag false');
+    end
     
     if augdict.LR_overturn.flag
         % 如果没规定p，则默认为1
@@ -96,6 +291,12 @@ end
 %% 上下翻转
 % (:,end:-1:1)
 if isfield(augdict,'UD_overturn')
+    if ~isfield(augdict.UD_overturn,'flag')
+        augdict.UD_overturn.flag = 0;
+        warning('no setting for UD_overturn flag, set flag false');
+    end
+    
+    
     if augdict.UD_overturn.flag
         % 如果没规定p，则默认为1
         if ~isfield(augdict.UD_overturn,'p')
@@ -132,12 +333,12 @@ end
 
 
 
-%% 输出mode ，这个是必有的
+%% 输出mode ，这个是必有的,所以不需要flag
 % mode 0，代表直接输出
 % mode 1，代表 3Dresize
 % mode 2，代表 容器居中 （注意，这个模式下目标dim3要和block的dim3相同）
 % mode 3，代表 直接剪裁&填充 （当目标维度小于原始维度，则叫剪裁，当目标维度大于原始维度，则叫做填充padding）
-%          不建议在dim3 padding，因为这样做没有意义（不过如果是做检测任务的话，可能就是有意义的） 
+%          不建议在dim3 padding，因为这样做没有意义（不过如果是做检测任务的话，可能就是有意义的）
 % mode 4，代表 居中剪裁&填充
 
 % 如果未设置输出格式，则默认为mode 0
@@ -164,7 +365,7 @@ elseif augdict.savefomat.mode == 2
     % （注意，这个模式下目标dim3要和block的dim3相同,且目标size的横截面必须是正方形）
     % 如果不是正方形，也可以正常运行，但是在逻辑上是错误的（逻辑错误出现在设置断点的那一句）
     if augdict.savefomat.param(3) ~= size(aug_block,3)
-       error('dim3 between param & block shoud be same'); 
+        error('dim3 between param & block shoud be same');
     end
     
     
@@ -212,7 +413,7 @@ elseif augdict.savefomat.mode == 2
         aug_block_othermode = tmp_container_othermode;
     end
     
-% 直接剪裁，然后每个维度都从第一个开始放，具体对应到空间，matlab比较麻烦，暂时不对应    
+    % 直接剪裁，然后每个维度都从第一个开始放，具体对应到空间，matlab比较麻烦，暂时不对应
 elseif augdict.savefomat.mode == 3
     tmp_container = zeros(augdict.savefomat.param);
     if othermode_flag
@@ -239,8 +440,8 @@ elseif augdict.savefomat.mode == 3
     
     
     
-% 居中剪裁，其实就是 先居中剪裁  然后容器居中罢了
-% 这个模式，dim3可以不相等
+    % 居中剪裁，其实就是 先居中剪裁  然后容器居中罢了
+    % 这个模式，dim3可以不相等
 elseif augdict.savefomat.mode == 4
     param = augdict.savefomat.param;
     tmp_container = zeros(augdict.savefomat.param);
@@ -272,7 +473,7 @@ elseif augdict.savefomat.mode == 4
             aug_block_othermode(d1_min_4block+1:d1_min_4block+dim1_end , d2_min_4block+1:d2_min_4block+dim2_end, d3_min_4block+1:d3_min_4block+dim3_end);
     end
     
-   
+    
     % 重新把填充好的容器赋给block
     aug_block = tmp_container;
     if othermode_flag
@@ -296,6 +497,11 @@ end
 
 %% 旋转：放在最后的原因是，返回mode可能是容器居中，先旋转会截断一部分，而先容器居中再旋转则不会
 if isfield(augdict,'rotation')
+    if ~isfield(augdict.rotation,'flag')
+        augdict.rotation.flag = 0;
+        warning('no setting for rotation flag, set flag false');
+    end
+    
     
     if augdict.rotation.flag
         % 如果没规定p，则默认为1
