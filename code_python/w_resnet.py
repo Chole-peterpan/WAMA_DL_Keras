@@ -611,7 +611,7 @@ def conv_block_or(x, nb_filters, name, kernel_size=3, use_bias_flag=True):
     return out
 
 
-def resnet_or(classes=2, use_bias_flag=True):
+def resnet_or(classes=2, use_bias_flag=True,inputshape=[1,1,1]):
     '''
     :param use_bias_flag: 是否使用偏置，包括卷积层与全连接层
     :param bn_flag: 是否使用bn层，全网络范围
@@ -619,7 +619,7 @@ def resnet_or(classes=2, use_bias_flag=True):
     :return:resnet模型
     '''
 
-    inputs = Input(shape=(280, 280, 16, 1), name='input1')
+    inputs = Input(shape=inputshape+[1], name='input1')
     # 256*256*128
     print("input shape:", inputs.shape)  # (?, 140, 140, 16, 64)
     out = Conv3D(64, 7, strides=(2, 2, 1), padding='same', kernel_initializer='he_normal', use_bias=use_bias_flag, name='conv1')(inputs)
@@ -629,10 +629,12 @@ def resnet_or(classes=2, use_bias_flag=True):
     out = MaxPooling3D((3, 3, 3), strides=(2, 2, 1), padding='same')(out)
     print("pooling1 shape:", out.shape)#(?, 70, 70, 16, 64)
 
+
     out = conv_block_or(out, [64, 64, 256], name='L1_block1', use_bias_flag=use_bias_flag)
     print("conv1 shape:", out.shape)
     out = identity_block_or(out, [64, 64, 256], name='L1_block2', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [64, 64, 256], name='L1_block3', use_bias_flag=use_bias_flag)
+
 
     out = conv_block_or(out, [128, 128, 512], name='L2_block1', use_bias_flag=use_bias_flag)
     print("conv2 shape:", out.shape)
@@ -649,14 +651,16 @@ def resnet_or(classes=2, use_bias_flag=True):
     out = identity_block_or(out, [256, 256, 1024], name='L3_block5', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [256, 256, 1024], name='L3_block6', use_bias_flag=use_bias_flag)
 
+
     out = conv_block_or(out, [512, 512, 2048], name='L4_block1', use_bias_flag=use_bias_flag)
     print("conv4 shape:", out.shape)
     out = identity_block_or(out, [512, 512, 2048], name='L4_block2', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [512, 512, 2048], name='L4_block3', use_bias_flag=use_bias_flag)
 
+
     out = GlobalAveragePooling3D(data_format='channels_last')(out)
     print("Gpooling shape:", out.shape)
-    out_drop = Dropout(rate=0.3)(out)
+    out_drop = Dropout(rate=0.5)(out)
 
 
     if classes == 1:

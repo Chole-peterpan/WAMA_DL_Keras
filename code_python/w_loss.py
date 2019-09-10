@@ -67,14 +67,7 @@ def EuclideanLoss(y_true, y_pred):
 
 
 
-#label_tensor.shape()
-#pre_tensor
-
-#label_tensor_f = K.flatten(label_tensor)
-#pre_tensor_f = K.flatten(pre_tensor)
-
-
-#这个loss只能同于labelshape为1的数据,即网络输出为一个神经元
+#这个loss只能同于labelshape为1的数据,即网络输出为一个神经元(和二元交叉商异曲同工)
 def EuiLoss_onelabel(y_true, y_pred):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)

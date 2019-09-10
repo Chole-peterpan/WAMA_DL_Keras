@@ -151,20 +151,7 @@ def SparseNet(input_shape=None, depth=40, nb_dense_block=3, growth_rate=12, nb_f
     if activation == 'sigmoid' and classes != 1:
         raise ValueError('sigmoid activation can only be used when classes = 1')
 
-    # Determine proper input shape
-    input_shape = _obtain_input_shape(input_shape,
-                                      default_size=32,
-                                      min_size=8,
-                                      data_format=K.image_data_format(),
-                                      require_flatten=include_top)
 
-    if input_tensor is None:
-        img_input = Input(shape=input_shape)
-    else:
-        if not K.is_keras_tensor(input_tensor):
-            img_input = Input(tensor=input_tensor, shape=input_shape)
-        else:
-            img_input = input_tensor
 
     img_input = Input(shape=(280, 280, 16, 1), name='data') #####wds
 
@@ -211,7 +198,6 @@ def SparseNetImageNet121(input_shape=None,
                          bottleneck=True,
                          reduction=0.5,
                          dropout_rate=0.0,
-
                          include_top=True,
                          weights=None,
                          input_tensor=None,
@@ -224,73 +210,6 @@ def SparseNetImageNet121(input_shape=None,
                      classes=classes, activation=activation)
 
 
-def SparseNetImageNet169(input_shape=None,
-                         bottleneck=True,
-                         reduction=0.5,
-                         dropout_rate=0.0,
-
-                         include_top=True,
-                         weights=None,
-                         input_tensor=None,
-                         classes=1000,
-                         activation='softmax'):
-    return SparseNet(input_shape, depth=169, nb_dense_block=4, growth_rate=32, nb_filter=64,
-                     nb_layers_per_block=[6, 12, 32, 32], bottleneck=bottleneck, reduction=reduction,
-                     dropout_rate=dropout_rate, subsample_initial_block=True,
-                     include_top=include_top, weights=weights, input_tensor=input_tensor,
-                     classes=classes, activation=activation)
-
-
-def SparseNetImageNet201(input_shape=None,
-                         bottleneck=True,
-                         reduction=0.5,
-                         dropout_rate=0.0,
-
-                         include_top=True,
-                         weights=None,
-                         input_tensor=None,
-                         classes=1000,
-                         activation='softmax'):
-    return SparseNet(input_shape, depth=201, nb_dense_block=4, growth_rate=32, nb_filter=64,
-                     nb_layers_per_block=[6, 12, 48, 32], bottleneck=bottleneck, reduction=reduction,
-                     dropout_rate=dropout_rate, subsample_initial_block=True,
-                     include_top=include_top, weights=weights, input_tensor=input_tensor,
-                     classes=classes, activation=activation)
-
-
-def SparseNetImageNet264(input_shape=None,
-                         bottleneck=True,
-                         reduction=0.5,
-                         dropout_rate=0.0,
-                         weight_decay=1e-4,
-                         include_top=True,
-                         weights=None,
-                         input_tensor=None,
-                         classes=1000,
-                         activation='softmax'):
-    return SparseNet(input_shape, depth=264, nb_dense_block=4, growth_rate=32, nb_filter=64,
-                     nb_layers_per_block=[6, 12, 64, 48], bottleneck=bottleneck, reduction=reduction,
-                     dropout_rate=dropout_rate, weight_decay=weight_decay, subsample_initial_block=True,
-                     include_top=include_top, weights=weights, input_tensor=input_tensor,
-                     classes=classes, activation=activation)
-
-
-def SparseNetImageNet161(input_shape=None,
-                         bottleneck=True,
-                         reduction=0.5,
-                         dropout_rate=0.0,
-                         weight_decay=1e-4,
-                         include_top=True,
-                         weights=None,
-                         input_tensor=None,
-                         classes=1000,
-                         activation='softmax'):
-    return SparseNet(input_shape, depth=161, nb_dense_block=4, growth_rate=48, nb_filter=96,
-                     nb_layers_per_block=[6, 12, 36, 24], bottleneck=bottleneck, reduction=reduction,
-                     dropout_rate=dropout_rate, weight_decay=weight_decay, subsample_initial_block=True,
-                     include_top=include_top, weights=weights, input_tensor=input_tensor,
-                     classes=classes, activation=activation)
-
 
 def _exponential_index_fetch(x_list):
     count = len(x_list)
@@ -302,7 +221,7 @@ def _exponential_index_fetch(x_list):
     return inputs
 
 
-def _conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None, weight_decay=1e-4):
+def _conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None):
     ''' Apply BatchNorm, Relu, 3x3 Conv2D, optional bottleneck block and dropout
     Args:
         ip: Input keras tensor
@@ -321,8 +240,7 @@ def _conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None, weight_decay
         if bottleneck:
             inter_channel = nb_filter * 4  # Obtained from https://github.com/liuzhuang13/DenseNet/blob/master/densenet.lua
 
-            x = Conv3D(inter_channel, (1, 1, 1), kernel_initializer='he_normal', padding='same', use_bias=False,
-                       kernel_regularizer=l2(weight_decay))(x)
+            x = Conv3D(inter_channel, (1, 1, 1), kernel_initializer='he_normal', padding='same', use_bias=False)(x)
             x = BatchNormalization(axis=concat_axis, epsilon=1e-5, momentum=0.1)(x)
             x = Activation('relu')(x)
 
@@ -333,8 +251,7 @@ def _conv_block(ip, nb_filter, bottleneck=False, dropout_rate=None, weight_decay
     return x
 
 
-def _dense_block(x, nb_layers, nb_filter, growth_rate, bottleneck=False, dropout_rate=None, weight_decay=1e-4,
-                 grow_nb_filters=True, return_concat_list=False):
+def _dense_block(x, nb_layers, nb_filter, growth_rate, bottleneck=False, dropout_rate=None, grow_nb_filters=True, return_concat_list=False):
     ''' Build a dense_block where the output of each conv_block is fed to subsequent ones
     Args:
         x: keras tensor
@@ -356,7 +273,7 @@ def _dense_block(x, nb_layers, nb_filter, growth_rate, bottleneck=False, dropout
     for i in range(nb_layers):
         #nb_channels = sum(_exponential_index_fetch(channel_list))
 
-        x = _conv_block(x, growth_rate, bottleneck, dropout_rate, weight_decay)
+        x = _conv_block(x, growth_rate, bottleneck, dropout_rate)
         x_list.append(x)
 
         fetch_outputs = _exponential_index_fetch(x_list)
@@ -373,7 +290,7 @@ def _dense_block(x, nb_layers, nb_filter, growth_rate, bottleneck=False, dropout
         return x, nb_filter
 
 
-def _transition_block(ip, nb_filter, compression=1.0, weight_decay=1e-4):
+def _transition_block(ip, nb_filter, compression=1.0):
     ''' Apply BatchNorm, Relu 1x1, Conv2D, optional compression, dropout and Maxpooling2D
     Args:
         ip: keras tensor
@@ -389,8 +306,7 @@ def _transition_block(ip, nb_filter, compression=1.0, weight_decay=1e-4):
     with K.name_scope('transition_block'):
         x = BatchNormalization(axis=concat_axis, epsilon=1e-5, momentum=0.1)(ip)
         x = Activation('relu')(x)
-        x = Conv3D(int(nb_filter * compression), (1, 1, 1), kernel_initializer='he_normal', padding='same', use_bias=False,
-                   kernel_regularizer=l2(weight_decay))(x)
+        x = Conv3D(int(nb_filter * compression), (1, 1, 1), kernel_initializer='he_normal', padding='same', use_bias=False)(x)
         x = AveragePooling3D((2, 2, 2), strides=(2, 2, 1))(x)
 
 
@@ -398,8 +314,7 @@ def _transition_block(ip, nb_filter, compression=1.0, weight_decay=1e-4):
 
 
 def _create_dense_net(nb_classes, img_input, include_top, depth=40, nb_dense_block=3, growth_rate=12, nb_filter=-1,
-                      nb_layers_per_block=-1, bottleneck=False, reduction=0.0, dropout_rate=None, weight_decay=1e-4,
-                      subsample_initial_block=False, activation='softmax'):
+                      nb_layers_per_block=-1, bottleneck=False, reduction=0.0, dropout_rate=None, subsample_initial_block=False, activation='softmax'):
     ''' Build the DenseNet model
     Args:
         nb_classes: number of classes

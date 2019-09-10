@@ -44,13 +44,7 @@ Result_save_Path = param_dict['result_save_path']
 foldname = param_dict['fold_name']
 task_name = param_dict['task_name']
 
-if os_stage == "W":
-    file_sep = r"\\"
-elif os_stage == "L":
-    file_sep = r'/'
-else:
-    file_sep = r'/'
-
+file_sep = os.sep
 
 # step4print(of iters)
 print_steps = 10

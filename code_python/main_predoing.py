@@ -6,8 +6,6 @@ import random
 import h5py
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
-# step1: import model finished
-from function import pause, test_on_model4_subject, test_on_model4_subject4_or_train, lr_mod, name2othermode
 from w_dualpathnet import dual_path_net
 from w_resnet import resnet_nobn, se_resnet, resnet_or
 from w_dense_net import dense_net,se_dense_net
@@ -23,129 +21,140 @@ import math
 # step2: import extra model finished
 
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
-# from keras.utils.training_utils import multi_gpu_model   #导入keras多GPU函数
+
+# ======================================================
+# ======================================================
+# ======================================================
+# ======================================================
+# ======================================================
+# 读取文件的第一种情况:训练集和测试集分别放在两个文件夹 ======================================================
+
+train_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
+test_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
+
+# 还可以指定病人id
+train_id =  [26, 43, 15, 47, 6, 14, 7, 10, 9, 4, 11, 37, 30, 22, 1, 33, 40, 3, 34, 17, 18, 2, 49, 5, 19, 23, 42, 8, 29, 20, 41, 46, 55, 50, 59, 52, 56, 51, 54]
+test_id =  [16, 31, 13, 27, 28, 39, 38, 25, 32, 36, 35, 24, 21, 12, 58, 57, 53]
 
 
-# 训练集测试集分别存放在两个文件夹的读取代码 ===========================================================================================
-# 读取外部数据集到list里面
-# test_path = r"/data/@data_pnens_recurrent_outside/a/4test"
-# file_name = os.listdir(test_path)
-# test_List = []
-# for file in file_name:
-#     if file.endswith('.h5'):
-#         test_List.append(os.path.join(test_path, file))
+H5_List_train = get_filelist_frompath(train_file_path,'h5',train_id)
+H5_List_test = get_filelist_frompath(test_file_path,'h5',test_id)
 
+trainset_num = len(H5_List_train)
 
-# 读取内部训练数据集到list里面
-# train_path = r"/data/@data_pnens_recurrent_new/data_test/a"
-# file_name = os.listdir(train_path)
-# train__List = []
-# for file in file_name:
-#     if file.endswith('.h5'):
-#         train__List.append(os.path.join(train_path, file))
-
-# H5_List_train = train__List
-# trainset_num = len(H5_List_train)
-# H5_List_test = test_List
-
-
-
-
-
-# 训练集测试集都在一个文件夹的读取代码 ===========================================================================================
-# 将样本文件路径读到dict里面
-file_path = r"/data/@data_pnens_recurrent_outside/a/4test"
-file_name = os.listdir(file_path)
-H5file_List = []
-for file in file_name:
-    if file.endswith('.h5'):
-        H5file_List.append(os.path.join(file_path, file))
-
-patient_id = []
-patient_dict = {}
-# 算出样本数量和序号
-for file in H5file_List:
-    # read_name = file
-    id = file.split('/')[-1]  # Windows则为\\
-    id = int(id.split('_')[0])
-    # patient_order_temp = int(patient_order_temp)
-    if id not in patient_id:
-        patient_id.append(id)
-        patient_dict[id]=[]
-    patient_dict[id].append(file)
-patient_id.sort()
-
-print(patient_id)
-
-
-# 按照类别将文件名分到新的dict里,一级为类别,二级为病人,三级为文件名
-class_dict = {}
-class_dict[0]=list(np.array(list(range(9)))+1)
-class_dict[1]=list(np.array(list(range(9)))+10)
-
+# 读取文件的第二种情况:把一个文件夹的数据分为训练集和测试集 ===================================================
+# 将样本文件路径读到dict里面保存
+# file_path = r"/data/@data_laowang/@@flow1/3or_h5"
+# H5file_List = get_filelist_frompath(file_path,'h5')
+# patient_id = []
+# patient_dict = {}
+# for file in H5file_List:# 算出样本数量和序号
+#     # read_name = file
+#     id = file.split('/')[-1]  # Windows则为\\
+#     id = int(id.split('_')[0])
+#     # patient_order_temp = int(patient_order_temp)
+#     if id not in patient_id:
+#         patient_id.append(id)
+#         patient_dict[id]=[]
+#     patient_dict[id].append(file)
+# patient_id.sort()
+# print(patient_id)
+#
+#
+# class_dict = {}
+# # class_dict[0]=list(np.array(list(range(49)))+1)
+# # class_dict[1]=list(np.array(list(range(10)))+50)
 # class_dict[0]=list(np.array([1,2,3,4,5,6,7,8,9,10,
 #                11,12,13,14,15,16,17,18,19,20,
 #                21,22,23,24,25,26,27,28,29,30,
 #                31,32,33,34,35,36,37,38,39,40,
 #                41,42,43,46,47,49]))
 # class_dict[1]=list(np.array(list(range(10)))+50)
+# # test_rate = 3/10
+# # train_id = []
+# # test_id = []
+# # for class_index in class_dict.keys():
+# #     random.shuffle(class_dict[class_index])
+# #     class_subject_num = len(class_dict[class_index])
+# #     test_id = test_id + class_dict[class_index][0:math.ceil(class_subject_num*test_rate)]
+# #     train_id = train_id + class_dict[class_index][math.ceil(class_subject_num*test_rate):]
+# # print('train',train_id)
+# # print('test',test_id)
+#
+# train_id =  [26, 43, 15, 47, 6, 14, 7, 10, 9, 4, 11, 37, 30, 22, 1, 33, 40, 3, 34, 17, 18, 2, 49, 5, 19, 23, 42, 8, 29, 20, 41, 46, 55, 50, 59, 52, 56, 51, 54]
+# test_id =  [16, 31, 13, 27, 28, 39, 38, 25, 32, 36, 35, 24, 21, 12, 58, 57, 53]
+#
+#
+# H5_List_test = []
+# H5_List_train = []
+# for id in patient_id:
+#     if id not in train_id:
+#         H5_List_test = H5_List_test + patient_dict[id]
+#     else:
+#         H5_List_train = H5_List_train + patient_dict[id]
+#
+#
+# # # 读取外部数据集到list里面
+# # test_pathouy = r"/data/@data_laowang/@@flow3/3or_h5_outside"
+# # test_Listou = get_filelist_frompath(test_pathouy,'h5')
+# # H5_List_train = H5_List_train+test_Listou
+#
+
+# trainset_num = len(H5_List_train)
 
 
-test_rate = 2/10
-train_id = []
-test_id = []
-for class_index in class_dict.keys():
-    random.shuffle(class_dict[class_index])
-    class_subject_num = len(class_dict[class_index])
-    test_id = test_id + class_dict[class_index][0:math.ceil(class_subject_num*test_rate)]
-    train_id = train_id + class_dict[class_index][math.ceil(class_subject_num*test_rate):]
-print('train',train_id)
-print('test',test_id)
-
-H5_List_test = []
-H5_List_train = []
-for id in patient_id:
-    if id not in train_id:
-        H5_List_test = H5_List_test + patient_dict[id]
-    else:
-        H5_List_train = H5_List_train + patient_dict[id]
 
 
-trainset_num = len(H5_List_train)
+# 读取文件的第三种情况:从分折文件中读取 ===================================================================
+# train_txt = r'/data/@data_laowang/@@flow1/5folder_CV10/fold_1_or_test.txt'
+# test_txt = r'/data/@data_laowang/@@flow1/5folder_CV10/fold_1_or_test.txt'
+# train_data_path = r'/data/@data_laowang/@@flow1/3or_h5'
+# test_data_path = r'/data/@data_laowang/@@flow1/3or_h5'
+#
+#
+# H5_List_train = get_filelist_fromTXT(train_data_path,train_txt)
+# H5_List_test = get_filelist_fromTXT(test_data_path,test_txt)
+# trainset_num = len(H5_List_train)
 
 
 
+# ======================================================
+# ======================================================
+# ======================================================
+# ======================================================
+# ======================================================
 
 
 
 
 # log的savepath
-Result_save_Path = r'/data/XS_Aug_model_result/model_templete/recurrent/test_waibu/test_waibu16'
+Result_save_Path = r'/data/@data_laowang/result/new_test6'
 
 
-multi_gpu_mode = False #是否开启多GPU数据并行模式
+multi_gpu_mode = True #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
 foldname = '1'  #暂时命名为1,不然观察不了
-batch_size = 7
+batch_size = 23
 label_index = 'label3'
 data_input_shape = [280,280,16]
 label_shape = [2]
-init_lr = 2e-8 # 初始学习率
+init_lr = 2e-5 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
-max_iter = 20000000 #最大迭代次数
-print_steps = 50 # 打印训练信息的步长
+max_iter = 400 #最大迭代次数
+print_steps = 10 # 打印训练信息的步长
 task_name = 'test'  # 任务名称,自己随便定义
-min_verify_Iters = 1  # 最小测试和验证迭代数量
+min_verify_Iters = 10  # 最小测试和验证迭代数量
 verify_Iters_step = 20 # 测试和验证的步长
 
-model_save_step = 300 # 模型保存的步长
+model_save_step = 200000 # 模型保存的步长
+model_save_step4_visualization = 200000 # 保存模型用来可视化的步长
 
 optimizer_switch_point = 10000000000000 # 优化器转换的迭代数时间点
 os_stage = "L"
@@ -171,7 +180,7 @@ if __name__ == "__main__":
 
     # 构建网络并compile
     # d_model_1 = vgg16_w_3d(use_bias_flag=True,classes=2)
-    d_model = resnet_or(use_bias_flag=False,classes=2)
+    d_model = resnet_or(use_bias_flag=False,classes=2,inputshape=data_input_shape)
     # d_model_1 = resnext(classes=2, use_bias_flag=True)
     # d_model_1 = SparseNetImageNet121(classes = 2,activation='softmax',dropout_rate = 0.5)
 
@@ -180,8 +189,9 @@ if __name__ == "__main__":
 
     if multi_gpu_mode:
         d_model = multi_gpu_model(d_model, gpus=gpu_munum)
-    # d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
-    d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    # d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    # d_model.compile(optimizer=SGD(lr=init_lr,momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # pause()  # identify
     # print(d_model.summary())  # view net
     # pause()  # identify
@@ -218,6 +228,7 @@ if __name__ == "__main__":
     test_result = [0, 0, 0, 0]  # acc,sen,spc,auc
     subject_num = 0
     # txt as a log
+    lr_txt = log_save_Path + file_sep[0] + '@' + foldname + '_lr.txt'  # 学习率曲线  txt_s11
     minibatch_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_loss.txt'  # minibatch上的loss  txt_minibatch_loss
     or_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_or_loss.txt'  # 在原未扩增训练集上的loss  txt_or_loss
     ver_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_loss.txt'  # 在验证集上的loss  txt_ver_loss
@@ -225,8 +236,6 @@ if __name__ == "__main__":
 
     verify_result_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_result.txt'  # 验证集的所有指标  txt_ver_result
     test_result_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_result.txt'  # 测试集的所有指标  txt_test_result
-
-    lr_txt = log_save_Path + file_sep[0]+'@' + foldname + '_lr.txt'  # 学习率曲线  txt_s11
 
     # new txt
     ver_id_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_id.txt'  #
@@ -241,7 +250,14 @@ if __name__ == "__main__":
     random.shuffle(H5_List_train)
     random.shuffle(H5_List_train)
     index_flag = 0  # 指向训练集列表的index,是更新epoch的依据
-    for i in range(max_iter):
+
+
+
+
+
+    # K.set_value(d_model.optimizer.lr, 2e-6)
+    # train
+    for i in range(400):
         txt_minibatch_loss = open(minibatch_loss_txt, 'a')
         txt_or_loss = open(or_loss_txt, 'a')
         txt_ver_loss = open(ver_loss_txt, 'a')
@@ -264,25 +280,8 @@ if __name__ == "__main__":
                                                                                                                   label_shape = label_shape)
         # 读取完成 =====================================================================================================================================
 
-
-
-
-        # train on model
-        # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-        # print(Iter,'before train :',losssss)
-
-        # 应该放在train前面,这样才和train返回的acc一样
-        # 但是有个问题,家了dropout可能会影响train前向传播后pre与预测时pre不一致,进而导致acc也不一直
         pre = d_model.predict_on_batch(data_input_c)
-        cost = d_model.train_on_batch(data_input_c, label_input_c)
-
-
-        # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-        # print(Iter,'after train :',losssss)
-        # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-        # print(Iter,'after train :',losssss)
-        # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-        # print(Iter,'after train :',losssss)
+        cost = d_model.train_on_batch(data_input_c, label_input_c,class_weight={0:1,1:1})
 
         # print the detail of this iter===============================================================
         if Iter % print_steps == 0:
@@ -364,7 +363,7 @@ if __name__ == "__main__":
                                                 label_savepath=test_label_txt,
                                                 pre_savepath=test_pre_txt,
                                                 label_index=label_index,
-                                                batch_size=10)
+                                                batch_size=6)
             # save
             txt_test_result.write(str(Iter) + '@' + str(test_result) + '\n')
             txt_test_loss.write(str(Iter) + '@' + str(test_result[4]) + '\n')
@@ -418,37 +417,18 @@ if __name__ == "__main__":
 
         # 保存尽量新模型,防止训练中断
         if Iter % model_save_step == 0:
-            # print(Iter)
-            # 保存模型前输出一下当前batch的loss
-            # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-            # print('before save loss from multigpu model: ',losssss)
-
             # 保存模型
             print('saving model')
             d_model.save(model_save_Path +file_sep +'m_' + 'newest_model.h5')
             print('already save')
-            # 加载模型权重并重构multiGPU
-            # d_model_1 = resnet_or(use_bias_flag=True, classes=2)
-            # d_model_1.load_weights(model_save_Path + '/m_' + 'newest_model.h5', by_name=True)
-            # d_model_1.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
-            # losssss = d_model_1.test_on_batch(data_input_c,label_input_c)
-            # print('after save loss from singlegpu model: ',losssss)
-            #
-
-
-            # d_model = multi_gpu_model(d_model_1, gpus=3)
-            # d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
-            # d_model.load_weights(model_save_Path + '/m_' + 'newest_model.h5', by_name=True)
-            # 用load后的权重输出一下loss,看模型保存前后loss是否相同
-            # losssss = d_model.test_on_batch(data_input_c,label_input_c)
-            # print('after load loss from multigpu model: ',losssss)
 
 
 
         # 每隔较长时间保存一次模型,用来做网络的可视化
+        if Iter % model_save_step4_visualization == 0:
+            d_model.save(model_save_Path +file_sep+'m_' + str(Iter) + '_model.h5')
 
-        # if Iter % model_save_step4_visualization == 0:
-        #     d_model.save(model_save_Path +file_sep+'m_' + str(Iter) + '_model.h5')
+
 
         # 优化策略:优化器变更以及学习率调整=========================================================================================
         # 开始的时候我们用的是adam,所以下面代码分为两部分,一部分是切换adam到sgd,另外一部分负责切换之后更新学习率
@@ -457,20 +437,11 @@ if __name__ == "__main__":
             print('saving model')
             d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
             print('saved succeed')
-
             lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
-            # d_model_1 = resnet_or(use_bias_flag=True, classes=2)
-
-            print('loading model weights')
-            d_model.load_weights(model_save_Path + '/m_' + 'newest_model.h5',by_name=True)
-            print('loaded succeed')
-
-            # d_model = multi_gpu_model(d_model_1, gpus=3)
             d_model.compile(optimizer=SGD(lr=lr_new, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
 
 
         if Iter > optimizer_switch_point:
-            #batch_num_perepoch = or_train_num // batch_size  # 每个epoch包含的迭代次数,也即batch的个数
             lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
             K.set_value(d_model.optimizer.lr, lr_new)
 

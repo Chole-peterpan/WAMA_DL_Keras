@@ -3,9 +3,9 @@
 clear;
 clc;
 close all
-while(1)
+% while(1)
 %% step2��set the log path and other parameter
-log_path = '/data/@data_laowang/result/new_test6/log';%
+log_path = '/data/@data_laowang/result/test4/log';%
 fold_name = '1';
 or_train_flag = 0;
 verify_flag = 0;
@@ -286,8 +286,8 @@ end
 
 
 
-pause(15)
-end
+% pause(15)
+% end
 
 
 
