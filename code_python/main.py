@@ -65,10 +65,10 @@ config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
 # 读取分折信息
-test_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_test.txt'
-verify_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_verify.txt'
-train_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_train.txt'
-or_train_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_ortrain.txt'  # 未扩增的训练集
+test_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_or_test.txt'
+verify_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_or_verify.txt'
+train_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_aug_train.txt'
+or_train_fold_file = folder_path + file_sep[0] + 'fold_' + foldname + '_or_train.txt'  # 未扩增的训练集
 
 H5_List_test = []
 H5_List_verify = []
@@ -112,24 +112,6 @@ print(H5_List_or_train)
 f.close()
 
 
-
-# 静脉期的id号比动脉期大300,所以需要调整下
-
-for i in range(H5_List_test.__len__()):
-    tmp = H5_List_test[i]
-    H5_List_test[i] = name2othermode(or_path, tmp, 300)
-
-for i in range(H5_List_verify.__len__()):
-    tmp = H5_List_verify[i]
-    H5_List_verify[i] = name2othermode(or_path, tmp, 300)
-
-for i in range(H5_List_train.__len__()):
-    tmp = H5_List_train[i]
-    H5_List_train[i] = name2othermode(aug_path, tmp, 300)
-
-for i in range(H5_List_or_train.__len__()):
-    tmp = H5_List_or_train[i]
-    H5_List_or_train[i] = name2othermode(or_path, tmp, 300)
 
 
 

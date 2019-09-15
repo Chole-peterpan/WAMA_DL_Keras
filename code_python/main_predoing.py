@@ -21,32 +21,39 @@ import math
 # step2: import extra model finished
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
 
 
-# ======================================================
+# ======================================================s
 # ======================================================
 # ======================================================
 # ======================================================
 # ======================================================
 # 读取文件的第一种情况:训练集和测试集分别放在两个文件夹 ======================================================
 
-train_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
-test_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
+# train_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
+# test_file_path = r'/data/@data_laowang/@@flow1/3or_h5'
+#
+# # 还可以指定病人id
+# train_id =  [26, 43, 15, 47, 6, 14, 7, 10, 9, 4, 11, 37, 30, 22, 1, 33, 40, 3, 34, 17, 18, 2, 49, 5, 19, 23, 42, 8, 29, 20, 41, 46, 55, 50, 59, 52, 56, 51, 54]
+# test_id =  [16, 31, 13, 27, 28, 39, 38, 25, 32, 36, 35, 24, 21, 12, 58, 57, 53]
+#
+#
+# H5_List_train = get_filelist_frompath(train_file_path,'h5',train_id)
+# H5_List_test = get_filelist_frompath(test_file_path,'h5',test_id)
+#
+# trainset_num = len(H5_List_train)
 
-# 还可以指定病人id
-train_id =  [26, 43, 15, 47, 6, 14, 7, 10, 9, 4, 11, 37, 30, 22, 1, 33, 40, 3, 34, 17, 18, 2, 49, 5, 19, 23, 42, 8, 29, 20, 41, 46, 55, 50, 59, 52, 56, 51, 54]
-test_id =  [16, 31, 13, 27, 28, 39, 38, 25, 32, 36, 35, 24, 21, 12, 58, 57, 53]
+
+# # test_pathouy = r"/data/@data_laowang/@@flow3/3or_h5_outside"
+# # test_Listou = get_filelist_frompath(test_pathouy,'h5')
+# # H5_List_train = H5_List_train+test_Listou
 
 
-H5_List_train = get_filelist_frompath(train_file_path,'h5',train_id)
-H5_List_test = get_filelist_frompath(test_file_path,'h5',test_id)
-
-trainset_num = len(H5_List_train)
 
 # 读取文件的第二种情况:把一个文件夹的数据分为训练集和测试集 ===================================================
 # 将样本文件路径读到dict里面保存
@@ -112,15 +119,37 @@ trainset_num = len(H5_List_train)
 
 
 # 读取文件的第三种情况:从分折文件中读取 ===================================================================
-# train_txt = r'/data/@data_laowang/@@flow1/5folder_CV10/fold_1_or_test.txt'
-# test_txt = r'/data/@data_laowang/@@flow1/5folder_CV10/fold_1_or_test.txt'
-# train_data_path = r'/data/@data_laowang/@@flow1/3or_h5'
-# test_data_path = r'/data/@data_laowang/@@flow1/3or_h5'
-#
-#
-# H5_List_train = get_filelist_fromTXT(train_data_path,train_txt)
-# H5_List_test = get_filelist_fromTXT(test_data_path,test_txt)
-# trainset_num = len(H5_List_train)
+
+train_list1 =get_filelist_fromTXT('/data/@data_keron/data/4aug_data','/data/@data_keron/data/CV10/fold_3_aug_train.txt')
+train_list2 =get_filelist_fromTXT('/data/@data_keron/data/4aug_data','/data/@data_keron/data/CV10/fold_3_aug_verify.txt')
+train_list3 =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_train.txt')
+train_list4 =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_verify.txt')
+
+
+test_list =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_test.txt')
+
+
+Result_save_Path = r'/data/@data_keron/test/fold3'
+# ver_pathouy = r"/data/@data_laowang/@@flow1/3or_h5_outside"
+# ver_list = get_filelist_frompath(ver_pathouy,'h5')
+
+
+
+
+
+
+H5_List_train =  train_list3 + train_list4 +train_list1+train_list2
+H5_List_test = test_list
+# H5_List_ver = ver_list
+
+
+trainset_num = len(H5_List_train)
+
+
+
+
+
+
 
 
 
@@ -134,36 +163,32 @@ trainset_num = len(H5_List_train)
 
 
 # log的savepath
-Result_save_Path = r'/data/@data_laowang/result/new_test6'
 
 
-multi_gpu_mode = True #是否开启多GPU数据并行模式
+
+multi_gpu_mode = False #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
 foldname = '1'  #暂时命名为1,不然观察不了
-batch_size = 23
+batch_size = 10
 label_index = 'label3'
-data_input_shape = [280,280,16]
+data_input_shape = [140,140,30]
 label_shape = [2]
-init_lr = 2e-5 # 初始学习率
+init_lr = 2e-4 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
-max_iter = 400 #最大迭代次数
-print_steps = 10 # 打印训练信息的步长
+max_iter = 400000 #最大迭代次数
+print_steps = 60 # 打印训练信息的步长
 task_name = 'test'  # 任务名称,自己随便定义
-min_verify_Iters = 10  # 最小测试和验证迭代数量
-verify_Iters_step = 20 # 测试和验证的步长
+min_verify_Iters = 1000  # 最小测试和验证迭代数量
+verify_Iters_step = 300 # 测试和验证的步长
+lr_decay_step = 10000
+decay_rate = 0.5
+model_save_step = 500 # 模型保存的步长
+model_save_step4_visualization = 2000 # 保存模型用来可视化的步长
 
-model_save_step = 200000 # 模型保存的步长
-model_save_step4_visualization = 200000 # 保存模型用来可视化的步长
+optimizer_switch_point = 2000000 # 优化器转换的迭代数时间点
 
-optimizer_switch_point = 10000000000000 # 优化器转换的迭代数时间点
-os_stage = "L"
-if os_stage == "W":
-    file_sep = r"\\"
-elif os_stage == "L":
-    file_sep = r'/'
-else:
-    file_sep = r'/'
+file_sep = os.sep
 log_save_Path = Result_save_Path + file_sep[0] + 'log'
 model_save_Path = Result_save_Path + file_sep[0] + 'model'
 
@@ -257,7 +282,7 @@ if __name__ == "__main__":
 
     # K.set_value(d_model.optimizer.lr, 2e-6)
     # train
-    for i in range(400):
+    for i in range(max_iter):
         txt_minibatch_loss = open(minibatch_loss_txt, 'a')
         txt_or_loss = open(or_loss_txt, 'a')
         txt_ver_loss = open(ver_loss_txt, 'a')
@@ -340,7 +365,7 @@ if __name__ == "__main__":
         if Iter >= min_verify_Iters and Iter % verify_Iters_step == 0:
             # # ver
             # vre_result = test_on_model4_subject_new(model=d_model,
-            #                                     test_list=H5_List_train,
+            #                                     test_list=H5_List_ver,
             #                                     iters=Iter,
             #                                     data_input_shape=data_input_shape,
             #                                     label_shape=label_shape,
@@ -363,22 +388,22 @@ if __name__ == "__main__":
                                                 label_savepath=test_label_txt,
                                                 pre_savepath=test_pre_txt,
                                                 label_index=label_index,
-                                                batch_size=6)
+                                                batch_size=2)
             # save
             txt_test_result.write(str(Iter) + '@' + str(test_result) + '\n')
             txt_test_loss.write(str(Iter) + '@' + str(test_result[4]) + '\n')
-            # print(str(Iter) + '@' + str(test_result[4]))
-            # print(test_result)
+
 
 
             # test or_train:这个函数不保存结果到文件,只返回loss
-            # or_train_result = test_on_model4_subject4_or_train(model=d_model,
-            #                                                    test_list=H5_List_or_train,
-            #                                                    data_input_shape=data_input_shape,
-            #                                                    label_shape=label_shape,
-            #                                                    label_index=label_index)
-            #
-            # txt_or_loss.write(str(Iter) + '@' + str(or_train_result) + '\n')  # 保存or train 的 loss
+            or_train_result = test_on_model4_subject_new(model=d_model,
+                                                test_list=train_list3,
+                                                iters=Iter,
+                                                data_input_shape=data_input_shape,
+                                                label_shape=label_shape,
+                                                label_index=label_index,
+                                                batch_size=2)
+            txt_or_loss.write(str(Iter) + '@' + str(or_train_result[4]) + '\n')  # 保存or train 的 loss
 
 
             # 更新verify的以供打印的参数 =========================================================================
@@ -437,13 +462,19 @@ if __name__ == "__main__":
             print('saving model')
             d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
             print('saved succeed')
-            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
-            d_model.compile(optimizer=SGD(lr=lr_new, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+            # lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
+            d_model.compile(optimizer=SGD(lr=trans_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
 
 
-        if Iter > optimizer_switch_point:
-            lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
-            K.set_value(d_model.optimizer.lr, lr_new)
+        # if Iter > optimizer_switch_point:
+        #     lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
+        #     K.set_value(d_model.optimizer.lr, lr_new)
+        if Iter % lr_decay_step == 0:
+            K.set_value(d_model.optimizer.lr, K.get_value(d_model.optimizer.lr)*decay_rate)
+
+
+
+
 
 
 

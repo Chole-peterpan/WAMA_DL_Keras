@@ -29,11 +29,11 @@ def vgg16_w_3d(classes=2,dropout_rate=0.3,use_bias_flag=False):
     # x = BatchNormalization(axis=-1, epsilon=1e-6, )(x)
     print("block4 shape:", x.shape)
     # Block 5
-    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv1', use_bias=use_bias_flag)(x)
-    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv2', use_bias=use_bias_flag)(x)
-    # x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv3', use_bias=use_bias_flag)(x)
-    # x = MaxPooling3D((2, 2, 2), strides=(2, 2, 2), name='block5_pool')(x)
-    # print("block5 shape:", x.shape)
+    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv1', use_bias=use_bias_flag)(x)
+    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv2', use_bias=use_bias_flag)(x)
+    x = Conv3D(512, (3, 3, 3), activation='relu', padding='same', name='block5_conv3', use_bias=use_bias_flag)(x)
+    x = MaxPooling3D((2, 2, 2), strides=(2, 2, 2), name='block5_pool')(x)
+    print("block5 shape:", x.shape)
     # dense
     x = Flatten(name='flatten')(x)
     # x = Dense(4096, activation='relu', name='fc1', use_bias=use_bias_flag)(x)

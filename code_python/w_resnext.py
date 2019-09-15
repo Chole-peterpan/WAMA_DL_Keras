@@ -30,19 +30,6 @@ def EuiLoss(y_true, y_pred):
     loss = (2 + 4 * a - 0.5 * b - 1 * c) * d + 0.2 * y_pred_f *d
     return loss
 
-def squeeze_excite_block3d(input, ratio=2):
-    nb_channel = int_shape(input)[-1]
-    se_shape = (1, 1, 1, nb_channel)
-
-    out = GlobalAveragePooling3D()(input)
-    out = Reshape(se_shape)(out)
-    out = Dense(nb_channel//ratio, activation='relu', kernel_initializer='he_normal', use_bias=False)(out)  # //表示相除并取整
-    out = Dense(nb_channel, activation='sigmoid', kernel_initializer='he_normal', use_bias=False)(out)
-
-    out = multiply([input, out])
-
-    return out
-
 
 # ----------------------------------------------------------------------------------
 # 分组卷积函数
@@ -110,35 +97,6 @@ def identity_block(x, nb_filters, name, cardinality=32):
     out = Activation('relu')(out)
     return out
 
-
-def se_identity_block(x, nb_filters, name, cardinality=32):
-    k1, k2, k3 = nb_filters
-    convname1 = name + 'conv1'
-    convname2 = name + 'conv2'
-    convname3 = name + 'conv3'
-    bnname1 = name + 'bn1'
-    bnname2 = name + 'bn2'
-    bnname3 = name + 'bn3'
-    out = Conv3D(k1, 1, strides=1, kernel_initializer='he_normal', name = convname1)(x)
-    out = BatchNormalization(axis = -1, epsilon = 1e-6,  name = bnname1)(out)
-    out = Activation('relu')(out)
-
-    grouped_channels = k2 // cardinality  # 除法运算并向下取整
-    out = _grouped_convolution_block_3D(out, grouped_channels, cardinality, strides=1,gpname=convname2)
-    #out = Conv3D(k2, kernel_size, strides=1, padding='same', kernel_initializer='he_normal', name = convname2)(out)
-    out = BatchNormalization(axis=-1, epsilon=1e-6,  name = bnname2)(out)
-    out = Activation('relu')(out)
-
-    out = Conv3D(k3, 1, strides=1, kernel_initializer='he_normal', name = convname3)(out)
-    out = BatchNormalization(axis=-1, epsilon=1e-6,  name=bnname3)(out)
-
-    out = squeeze_excite_block3d(out)
-
-    out = add([out, x])
-    #out = merge([out, x], mode='sum')
-    out = BatchNormalization()(out)
-    out = Activation('relu')(out)
-    return out
 
 
 #  先尺寸下降，再分组卷积
@@ -275,7 +233,7 @@ def resnext(classes=2,use_bias_flag=False):
 
 
 #  在分组卷积的时候尺寸下降
-def resnext_or(classes=2):
+def resnext_or(classes=2,use_bias_flag = False):
     inputs = Input(shape=(280, 280, 16, 1), name='input1')
     # 256*256*128
     print("input shape:", inputs.shape)  # (?, 140, 140, 16, 64)
@@ -336,59 +294,6 @@ def resnext_or(classes=2):
     return model
 
 
-#先尺寸下降，再分组卷积
-def se_resnext(classes=2):
-    inputs = Input(shape=(280, 280, 16, 1), name='input1')
-    # 256*256*128
-    print("input shape:", inputs.shape)  # (?, 140, 140, 16, 64)
-    out = Conv3D(64, 7, strides=(2, 2, 1), padding = 'same', kernel_initializer='he_normal', use_bias = False, name = 'conv1')(inputs)
-    print("conv0 shape:", out.shape)#(?, 140, 140, 16, 64)
-    out = BatchNormalization(axis = -1, epsilon = 1e-6, name = 'bn1')(out)
-    out = Activation('relu')(out)
-    out = MaxPooling3D((3, 3, 3), strides=(2, 2, 1), padding = 'same')(out)
-    print("pooling1 shape:", out.shape)#(?, 70, 70, 16, 64)
-
-
-    # stage1=================================================
-    out = conv_block(out, [64, 64, 256], name = 'L1_block1')
-    print("conv1 shape:", out.shape)
-    out = se_identity_block(out, [64, 64, 256], name = 'L1_block2')
-    out = se_identity_block(out, [64, 64, 256], name = 'L1_block3')
-
-    # stage2=================================================
-    out = conv_block(out, [128, 128, 512], name = 'L2_block1')
-    print("conv2 shape:", out.shape)
-    out = se_identity_block(out, [128, 128, 512], name = 'L2_block2')
-    out = se_identity_block(out, [128, 128, 512], name = 'L2_block3')
-    out = se_identity_block(out, [128, 128, 512], name = 'L2_block4')
-
-    # stage3=================================================
-    out = conv_block(out, [256, 256, 1024], name = 'L3_block1')
-    print("conv3 shape:", out.shape)
-    out = se_identity_block(out, [256, 256, 1024], name = 'L3_block2')
-    out = se_identity_block(out, [256, 256, 1024], name = 'L3_block3')
-    out = se_identity_block(out, [256, 256, 1024], name = 'L3_block4')
-    out = se_identity_block(out, [256, 256, 1024], name = 'L3_block5')
-    out = se_identity_block(out, [256, 256, 1024], name = 'L3_block6')
-
-    # stage4=================================================
-    out = conv_block(out, [512, 512, 2048], name = 'L4_block1')
-    print("conv4 shape:", out.shape)
-    out = se_identity_block(out, [512, 512, 2048], name = 'L4_block2')
-    out = se_identity_block(out, [512, 512, 2048], name = 'L4_block3')
-
-    out = GlobalAveragePooling3D(data_format = 'channels_last')(out)
-    print("Gpooling shape:", out.shape)
-    out_drop = Dropout(rate=0.3)(out)
-    out = Dense(classes, name = 'fc1')(out_drop)
-    print("out shape:", out.shape)
-    #out = Dense(1, name = 'fc1')(out)
-    output = Activation(activation = 'sigmoid')(out)
-
-    model = Model(input = inputs, output = output)
-    #mean_squared_logarithmic_error or binary_crossentropy
-    #model.compile(optimizer=SGD(lr = 1e-6, momentum = 0.9), loss = EuiLoss, metrics= [y_t, y_pre, Acc] )
-    return model
 
 
 # multi_input_net

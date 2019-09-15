@@ -5,9 +5,9 @@ clc;
 close all
 while(1)
 %% step2��set the log path and other parameter
-log_path = '/data/@data_laowang/result/new_test6/log';%
+log_path = '/data/@data_keron/test/fold3/log';%
 fold_name = '1';
-or_train_flag = 0;
+or_train_flag = 1;
 verify_flag = 0;
 test_flag = 1;
 %% show the LRate
@@ -238,7 +238,7 @@ if test_flag
         test_result(ii,:) = [iter,acc,sen,spc,auc,loss];
     end
     figure(5);
-    set(gcf,'position',[10,10,620,430]);
+    set(gcf,'position',[1200,10,620,430]);
     subplot(5,1,1);
     plot(test_result(:,1),test_result(:,2),'b');hold on;
     plot(test_result(:,1),smooth(test_result(:,2),20),'r');
