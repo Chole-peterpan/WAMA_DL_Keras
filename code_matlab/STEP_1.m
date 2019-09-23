@@ -3,12 +3,12 @@
 clc;
 clear;
 %% 设置路径参数H:\@data_NENs_recurrence\PNENs\data\a\0nii
-nii_path =           'H:\@data_NENs_recurrence\PNENs\data_outside\0nii\a';
+nii_path =           'G:\test\0nii\a';
 adjust_window =            [-30,280];
-nii_othermode_path = 'H:\@data_NENs_recurrence\PNENs\data_outside\0nii\v';
+nii_othermode_path = 'G:\test\0nii\v';
 adjust_window4_othermode = [-20,200];
 
-save_path =          'H:\@data_NENs_recurrence\PNENs\data_outside\@flow3\1mat';
+save_path =          'G:\test\1mat';
 
 extend_pixel = 10;%抠出肿瘤时外扩的体素数量
 contain_orthermode = true;
@@ -75,6 +75,18 @@ for i = 1:length(subject)
         voxel_size = abs([Vref.mat(1,1),Vref.mat(2,2),Vref.mat(3,3)]);
         subject_ins.voxel_size{end+1} = voxel_size;
         
+        %预构建储存tumorsize以及location的元祖，树状图储存（也就是分CT号储存，而不是像之前那样储存）
+        subject_ins.tumor_shape{ii}={};
+        subject_ins.tumor_location{ii}={};
+        
+        
+        %预构建储存tumor的元祖
+        subject_ins.tumor{ii} = {};
+        subject_ins.tumor_mask{ii} = {};
+        if contain_orthermode
+            subject_ins.tumor_othermode{ii} = {};
+            subject_ins.tumor_mask_othermode{ii} = {};
+        end
         
         
         %在对应肿瘤的mask id 矩阵中循环，抠出，预处理，并保存到结构体
@@ -103,10 +115,11 @@ for i = 1:length(subject)
             % ==============================================
             % ==============================================
             % flow 1:使用抠出函数，基于mask将肿瘤从CT中抠出
-            [tumor_mat, mask_mat, tumor_size,or_shape] = get_region_from_mask(Data_CT, Data_mask, extend_pixel);%参数：前者CT，后者mask
+            [tumor_mat, mask_mat, tumor_size,or_shape,or_location] = get_region_from_mask(Data_CT, Data_mask, extend_pixel);%参数：前者CT，后者mask
             if contain_orthermode
-                [tumor_mat_other, mask_mat_other,~,~] = get_region_from_mask(Data_CT_othermode, Data_mask_othermode, extend_pixel);
+                [tumor_mat_other, mask_mat_other,~,~,~] = get_region_from_mask(Data_CT_othermode, Data_mask_othermode, extend_pixel);
                 %因为动脉静脉期roi不一样，所以需要将二者resize为一样大小
+                %如果以后有配准的话，可能先配准，这样这里就不需要了（当然也可以直接在这里配准）
                 tumor_mat_other = imresize3(tumor_mat_other,or_shape,'cubic');
                 mask_mat_other = imresize3(mask_mat_other,or_shape,'cubic');
             end
@@ -144,18 +157,21 @@ for i = 1:length(subject)
             
             
             %保存到结构体
-            subject_ins.tumor{end+1}=tumor_mat;
-            subject_ins.tumor_mask{end+1}=mask_mat;
-            subject_ins.tumor_shape{end+1}=or_shape;
+            subject_ins.tumor{ii}{end+1}=tumor_mat;
+            subject_ins.tumor_mask{ii}{end+1}=mask_mat;
+            subject_ins.tumor_shape{ii}{end+1}=or_shape;
+            subject_ins.tumor_location{ii}{end+1}=or_location;
+%             subject_ins.tumor_shape{end+1}=or_shape;
             subject_ins.tumor_size(end+1)=tumor_size;%体素数量，不是真正体积
             
             if contain_orthermode
-                subject_ins.tumor_othermode{end+1}=tumor_mat_other;
-                subject_ins.tumor_mask_othermode{end+1}=mask_mat_other;
+                subject_ins.tumor_othermode{ii}{end+1}=tumor_mat_other;
+                subject_ins.tumor_mask_othermode{ii}{end+1}=mask_mat_other;
             end
             
 
         end
+%        subject(i).tumor_shape{ii} = subject_ins.tumor_shape;
         
     end
     % 当一个病人全部肿瘤都抠完之后，储存该病人所有肿瘤个数
@@ -170,7 +186,7 @@ for i = 1:length(subject)
     subject(i).tumor_size_all = subject_ins.tumor_size_all;
     subject(i).tumor_shape = subject_ins.tumor_shape;
     subject(i).voxel_size = subject_ins.voxel_size;
-
+    subject(i).tumor_location = subject_ins.tumor_location;
 end
 
 mkdir(strcat(save_path,filesep,'subject_all'));

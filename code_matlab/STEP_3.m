@@ -3,8 +3,8 @@ clc;
 clear;
 
 %%
-block_mat_path =  'H:\@data_NENs_recurrence\PNENs\data\@flow3\2block';
-mat_savepath =    'H:\@data_NENs_recurrence\PNENs\data\@flow3\3or_h5';
+block_mat_path =  'G:\test\2block';
+mat_savepath =    'G:\test\3or_h5';
 filename_list = dir(strcat(block_mat_path,filesep,'*.mat'));
 augdict.savefomat.mode = 4;
 augdict.savefomat.param = [180,180,20];
@@ -22,8 +22,8 @@ class_b_id = 50:59;% 手动传入b类病人的id
 for ii = 1:length(filename_list)
     filename = filename_list(ii,1).name;
     tmpcell = strsplit(filename,'_');
-    id = str2double(tmpcell{1});
-        %比如前20号是正样本，其余是负样本，实现如下
+    id = str2double(tmpcell{1}(2:end));
+    %比如前20号是正样本，其余是负样本，实现如下
     if ismember(id, class_a_id)
         label_1 = 0;label_2 = 0;label_3 = 1;%手动调整
     elseif ismember(id, class_b_id)
@@ -50,19 +50,12 @@ for ii = 1:length(filename_list)
         data_othermode = mat2gray(data_othermode);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
     end
 
-    
-    
     % 处理block，使之shape相同
     if subject(1).othermode
         [aug_data,aug_data_othermode,~] = aug43D(data,  augdict,  subject(1).othermode,  data_othermode);
     else
         [aug_data,~                 ,~] = aug43D(data,  augdict,  subject(1).othermode,  []);
     end
-    
-    
-    
-    
-    
     
     tmp_name = filename_list(ii,1).name;
     write_name = (tmp_name(1:end-4));
@@ -99,8 +92,6 @@ for ii = 1:length(filename_list)
     h5create(finalpath, '/label', size(label),'Datatype','single');
     h5write(finalpath, '/label', label);
 
-    
-    
 end
 
 

@@ -5,56 +5,50 @@ clc;
 clear;
 
 %% 参数设置
-block_mat_path =       'H:\@data_NENs_recurrence\PNENs\data\@flow3\2block';%block
-augdict.mat_savepath = 'H:\@data_NENs_recurrence\PNENs\data\@flow3\4aug_h5';
+block_mat_path =       'G:\test\2block';%block
+augdict.mat_savepath = 'G:\test\4aug_h5';
 
-augdict.aug_num = 20000;%总扩增数量
-augdict.class_a_id = 1:49;% 手动传入a类病人的id
-augdict.class_b_id = 50:59;% 手动传入b类病人的id
-augdict.a_b_ratio = [1,1];%最终扩增数量a比b，例如AB比例为1:2，则设置为[1,2],A是非PD，B是PD
+%构建此循环的目的仅仅是为了利用matlab的代码折叠功能
+%设置参数
+for i = 1:1
+    augdict.aug_num = 100;%总扩增数量
+    augdict.class_a_id = 1:49;% 手动传入a类病人的id
+    augdict.class_b_id = 50:59;% 手动传入b类病人的id
+    augdict.a_b_ratio = [1,1];%最终扩增数量a比b，例如AB比例为1:2，则设置为[1,2],A是非PD，B是PD
+    
+    % 扩增：旋转
+    augdict.rotation.flag = true;%是否使用旋转扩增
+    augdict.rotation.range = [0,180];%旋转扩增的角度范围
+    augdict.rotation.p = 0.7;
+    
+    % 扩增：对比度调整
+    augdict.gray_adjust.flag = true;%是否使用对比度调整
+    augdict.gray_adjust.up = [0.9   ,   1];%对比度调整的上界范围
+    augdict.gray_adjust.low = [0    ,   0.1];%对比度调整的下界范围
+    augdict.gray_adjust.p = 0.7;
+    
+    % 扩增：左右反转 LEFT RIGHT
+    % 至于概率，随机生成均匀分布的0到1，如果是百分之5概率翻转，那就出现小于0.05的数字就翻转
+    augdict.LR_overturn.flag = true;%是否使用左右翻转
+    augdict.LR_overturn.p = 0.5;%左右翻转的概率
+    
+    
+    % 扩增：上下翻转 UP DOWN
+    augdict.UD_overturn.flag = true;%是否使用上下翻转
+    augdict.UD_overturn.p = 0.5;%上下翻转的概率
+    
+    % 扩增最后返回的形式限制，输入是各种大小，要求返回的shape相同
+    % 0：不改变形状
+    % mode 1 是 3Dresize
+    % mode 2 是 容器居中
+    augdict.savefomat.mode = 4;
+    augdict.savefomat.param = [180,180,20];
+    
+    
+    % 随机数种子，以便复现实验
+    augdict.s = rng;
+end
 
-% 扩增：旋转
-augdict.rotation.flag = true;%是否使用旋转扩增
-augdict.rotation.range = [0,180];%旋转扩增的角度范围
-augdict.rotation.p = 0.7;
-
-% 扩增：对比度调整
-augdict.gray_adjust.flag = true;%是否使用对比度调整
-augdict.gray_adjust.up = [0.9   ,   1];%对比度调整的上界范围
-augdict.gray_adjust.low = [0    ,   0.1];%对比度调整的下界范围
-augdict.gray_adjust.p = 0.7;
-
-% 扩增：左右反转 LEFT RIGHT
-% 至于概率，随机生成均匀分布的0到1，如果是百分之5概率翻转，那就出现小于0.05的数字就翻转
-augdict.LR_overturn.flag = true;%是否使用左右翻转
-augdict.LR_overturn.p = 0.5;%左右翻转的概率
-
-
-% 扩增：上下翻转 UP DOWN
-augdict.UD_overturn.flag = true;%是否使用上下翻转
-augdict.UD_overturn.p = 0.5;%上下翻转的概率
-
-% 扩增最后返回的形式限制，输入是各种大小，要求返回的shape相同
-% 0：不改变形状
-% mode 1 是 3Dresize
-% mode 2 是 容器居中
-augdict.savefomat.mode = 4;
-augdict.savefomat.param = [180,180,20];
-
-
-% 随机数种子，以便复现实验
-augdict.s = rng;
-
-
-
-%% 预建立结构体数组，储存block名称以及该block的扩增参数，这样就能精确定位每一个block的扩增参数了
-block_detail = [];
-
-
-% 例子
-% qwe = []
-% qwe(end+1).name = 'qwe';
-% qwe(end).aug = augdict;
 
 
 %% 加载病人信息
@@ -100,7 +94,7 @@ per_sub_augnum_A = (aug_num_A/sub_num_A);%A类中每个样本扩增的大概数量
 per_sub_augnum_B = (aug_num_B/sub_num_B);%B类中每个样本扩增的大概数量
 
 
-%% 接下来以病人为单位进行操作
+%% 接下来以病人为单位进行操作，计算每个病人的每个block应该被扩增多少块并保存到结构体数组中
 for i = 1:length(subject)
     subject_ins = subject(i);
     blocks = subject_ins.blocks_num_all;
@@ -114,80 +108,89 @@ for i = 1:length(subject)
     
     %将信息储存到病人结构体数组中
     subject(i).per_block_aug_num = per_block_augnum;
-    subject(i).per_tumor_aug_num = per_block_augnum*(subject(i).blocks_num_per_tumor);
-    subject(i).all_aug_num = sum(subject(i).per_tumor_aug_num);
-    
-    
-    %在病人为首要单位前提下,以每个block为次要单位进行扩增
-    aug_count_num = 0;
-    for ii = 1:subject(i).blocks_num_all
-        data_path=strcat(block_mat_path,filesep,num2str(subject(i).id),'_',num2str(ii),'.mat');
-        workspaces = load(data_path);
-        data = workspaces.block;
-        data = mat2gray(data);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
-        
-        if subject(i).othermode
-            data_othermode = workspaces.block_othermode;
-            data_othermode = mat2gray(data_othermode);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
-        end
-        
-        
-        
-        
-%         [aug_block,aug_block_othermode,augdict] = aug43D(block, aug_dict,othermode_flag,block_othermode)
-        
-        
-        for iii = 1:per_block_augnum
-            % 扩增
-            if subject(i).othermode
-                [aug_data,aug_data_othermode,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  data_othermode);
-            else
-                [aug_data,~                 ,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  []);
-            end
-
-            aug_count_num = aug_count_num + 1;
-            
-            % 保存 到 detail里面           
-            tmp_name = strcat(num2str(subject(i).id),'_',num2str(ii),'_',num2str(aug_count_num));
-            block_detail(end+1).name = tmp_name;
-            block_detail(end).aug_detail = aug_detail;
-            
-            
-            write_name = strcat(tmp_name,'.h5');
-            fprintf('aug_num:%d    aug_file_name: %s\n',aug_count_num,write_name);
-            finalpath = strcat(augdict.mat_savepath,filesep,write_name);%最终储存路径
-            disp(finalpath);
-            % 写入H5
-            h5create(finalpath, '/data', size(aug_data),'Datatype','single');
-            h5write(finalpath, '/data', aug_data);
-                        
-            if subject(i).othermode
-                h5create(finalpath, '/data_othermode', size(aug_data_othermode),'Datatype','single');
-                h5write(finalpath, '/data_othermode', aug_data_othermode);
-            end
-            
-            
-            h5create(finalpath, '/label_1', size(subject(i).label_1),'Datatype','single');
-            h5write(finalpath, '/label_1', subject(i).label_1);
-            h5create(finalpath, '/label_2', size(subject(i).label_2),'Datatype','single');
-            h5write(finalpath, '/label_2', subject(i).label_2);
-            h5create(finalpath, '/label_3', size(subject(i).label_3),'Datatype','single');
-            h5write(finalpath, '/label_3', subject(i).label_3);
-            h5create(finalpath, '/label', size(subject(i).label),'Datatype','single');
-            h5write(finalpath, '/label', subject(i).label);
-            h5create(finalpath, '/label1', size(subject(i).label1),'Datatype','single');
-            h5write(finalpath, '/label1', subject(i).label1);
-            h5create(finalpath, '/label2', size(subject(i).label2),'Datatype','single');
-            h5write(finalpath, '/label2', subject(i).label2);
-            h5create(finalpath, '/label3', size(subject(i).label3),'Datatype','single');
-            h5write(finalpath, '/label3', subject(i).label3);
-            
-            
-        end
+    subject(i).per_tumor_aug_num = {};
+    all_aug_num = 0;
+    for ii = 1:length(subject(i).blocks_num_per_tumor)
+        subject(i).per_tumor_aug_num{ii}= per_block_augnum*(subject(i).blocks_num_per_tumor{ii});
+        all_aug_num  = all_aug_num + sum(subject(i).per_tumor_aug_num{ii});
     end
+    
+    subject(i).all_aug_num = all_aug_num;
+
 end
 
 
+%% 之后循环block列表，每读取一个block，就找到他的id对应的per_block_augnum，之后扩增就完事了，记得把扩增细节保存到block_detail
+block_detail = [];
+filename_list = dir(strcat(block_mat_path,filesep,'*.mat'));
+for ii = 1:length(filename_list)
+    filename = filename_list(ii,1).name;
+    data_path=strcat(block_mat_path,filesep,filename);
+    
+    workspaces = load(data_path);
+    data = workspaces.block;
+    data = mat2gray(data);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
+    if subject(i).othermode
+        data_othermode = workspaces.block_othermode;
+        data_othermode = mat2gray(data_othermode);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
+    end
+    
+
+    tmpcell = strsplit(filename,'_');
+    id = str2double(tmpcell{1}(2:end));
+    for id_index = 1:length(subject)
+       if id ==  subject(id_index).id
+          per_block_augnum =  subject(id_index).per_block_aug_num;
+       end
+    end
+    
+    
+    for iii = 1:per_block_augnum
+        % 扩增
+        if subject(i).othermode
+            [aug_data,aug_data_othermode,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  data_othermode);
+        else
+            [aug_data,~                 ,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  []);
+        end
+              
+        % 保存 到 detail里面
+        tmp_name = strcat(filename(1:end-4),'_e',num2str(iii));
+        block_detail(end+1).name = tmp_name;
+        block_detail(end).aug_detail = aug_detail;
+        
+        
+        write_name = strcat(tmp_name,'.h5');
+        fprintf('aug_num:%d    aug_file_name: %s\n',iii,write_name);
+        finalpath = strcat(augdict.mat_savepath,filesep,write_name);%最终储存路径
+        disp(finalpath);
+        % 写入H5
+        h5create(finalpath, '/data', size(aug_data),'Datatype','single');
+        h5write(finalpath, '/data', aug_data);
+        
+        if subject(i).othermode
+            h5create(finalpath, '/data_othermode', size(aug_data_othermode),'Datatype','single');
+            h5write(finalpath, '/data_othermode', aug_data_othermode);
+        end
+        
+        
+        h5create(finalpath, '/label_1', size(subject(i).label_1),'Datatype','single');
+        h5write(finalpath, '/label_1', subject(i).label_1);
+        h5create(finalpath, '/label_2', size(subject(i).label_2),'Datatype','single');
+        h5write(finalpath, '/label_2', subject(i).label_2);
+        h5create(finalpath, '/label_3', size(subject(i).label_3),'Datatype','single');
+        h5write(finalpath, '/label_3', subject(i).label_3);
+        h5create(finalpath, '/label', size(subject(i).label),'Datatype','single');
+        h5write(finalpath, '/label', subject(i).label);
+        h5create(finalpath, '/label1', size(subject(i).label1),'Datatype','single');
+        h5write(finalpath, '/label1', subject(i).label1);
+        h5create(finalpath, '/label2', size(subject(i).label2),'Datatype','single');
+        h5write(finalpath, '/label2', subject(i).label2);
+        h5create(finalpath, '/label3', size(subject(i).label3),'Datatype','single');
+        h5write(finalpath, '/label3', subject(i).label3);
+        
+        
+    end
+end
 mkdir(strcat(augdict.mat_savepath,filesep,'subject'));
 save(strcat(augdict.mat_savepath,filesep,'subject',filesep,'subject.mat'),'subject','augdict','block_detail');
 

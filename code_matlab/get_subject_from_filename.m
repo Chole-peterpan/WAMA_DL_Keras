@@ -36,8 +36,10 @@ for i =1:length(subject_id_list)
 %     subject(i).tumor = {};%储存肿瘤CT矩阵
 %     subject(i).tumor_mask = {};%储存肿瘤mask矩阵
     subject(i).tumor_shape = {};%储存肿瘤de粗略略形状
+    subject(i).tumor_location = {};%储存肿瘤de粗略位置
     subject(i).tumor_size = [];%对应肿瘤的粗略大小
     subject(i).tumor_size_all = [];%所有肿瘤大小之和
+    subject(i).blocks_num_per_tumor = {};%创建空矩阵储存每个肿瘤扩增的数量
     
     % 是否包含其他mode的flag，如果包含，则后续会置位
     subject(i).othermode = contain_orthermode;

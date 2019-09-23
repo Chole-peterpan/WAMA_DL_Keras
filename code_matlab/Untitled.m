@@ -169,5 +169,8 @@ subplot(2,2,4);imshow(aug_data_othermode(:,:,i),[0,1]);title('aug');
    
 end
 
-
+a = 0
+for i = 1 :length(subject)
+    a = a+subject(i).all_aug_num;
+end
 
