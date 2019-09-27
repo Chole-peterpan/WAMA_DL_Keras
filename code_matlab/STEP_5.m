@@ -10,15 +10,18 @@
 clear
 clc
 %% 参数设置
-K_fold = 3;
-savepath = 'G:\test\5cvfolder';
+K_fold = 8;
+savepath = 'H:\@data_NENs_recurrence\PNENs\data\flow1\5CV';
 %AUG data（h5文件）
-aug_fold_cell{1}='G:\test\4aug_h5';
+aug_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\flow1\4aug';
 %or data（h5文件）
-or_fold_cell{1}='G:\test\3or_h5';
+or_fold_cell{1}='H:\@data_NENs_recurrence\PNENs\data\flow1\3or';
+%根据已有folder文件分折
+have_folder = true;
+folder_file = 'H:\@data_NENs_recurrence\PNENs\data\flow1\5CV\mat_folder.mat';
 %% cut data 为了分折得到标签，前两个都是最后分折的结果(mat文件)
-augdict.class_a_id = [[1:43],[46,47,49]];% 手动传入a类病人的id
-augdict.class_b_id = 50:59;% 手动传入b类病人的id
+augdict.class_a_id = [[1:43],[46,47,49],[58,59]];% 手动传入a类病人的id
+augdict.class_b_id = 50:57;% 手动传入b类病人的id
 % augdict.class_a_id = 1:3;% 手动传入a类病人的id
 % augdict.class_b_id = 4:8;% 手动传入b类病人的id
 
@@ -68,37 +71,43 @@ test_filename_final = test_filename_final';
 
 
 %% 根据cut的数据名分折，构建序号结构体数组
-%交叉验证得到index
-n_index = crossvalind('kfold',size(cut_n_name_final,1),K_fold);
-p_index = crossvalind('kfold',size(cut_p_name_final,1),K_fold);
-
-%根据index，将样本序号放入fold结构体数组中test中
-for ii = 1:K_fold
-    n_tmp_index = (n_index==ii);
-    p_tmp_index = (p_index==ii);
-    test_data_n = cut_n_name_final(n_tmp_index,:);
-    test_data_p = cut_p_name_final(p_tmp_index,:);
-    folder(ii).test = [test_data_n;test_data_p];
-end
-
-%构建结构体中verify部分
-for ii = 1:K_fold-1
-    folder(ii).verify = folder(ii+1).test;
-end
-folder(K_fold).verify = folder(1).test;
-
-%构建结构体中train部分
-for ii = 1:K_fold
-    tmp_file = {};
-    for iii = 1:size(all_subject_name,1)
-       if  ~ismember(all_subject_name{iii},folder(ii).test) && ~ismember(all_subject_name{iii},folder(ii).verify) 
-          tmp_file = [tmp_file;all_subject_name{iii}];
-       end
-    end 
-    folder(ii).train = tmp_file; 
-end
+%如果已经有个，就别再重新分折了，直接用之前的
+if have_folder
+    wkspace = load(folder_file);
+    folder = wkspace.folder;
+else
     
-
+    %交叉验证得到index
+    n_index = crossvalind('kfold',size(cut_n_name_final,1),K_fold);
+    p_index = crossvalind('kfold',size(cut_p_name_final,1),K_fold);
+    
+    %根据index，将样本序号放入fold结构体数组中test中
+    for ii = 1:K_fold
+        n_tmp_index = (n_index==ii);
+        p_tmp_index = (p_index==ii);
+        test_data_n = cut_n_name_final(n_tmp_index,:);
+        test_data_p = cut_p_name_final(p_tmp_index,:);
+        folder(ii).test = [test_data_n;test_data_p];
+    end
+    
+    %构建结构体中verify部分
+    for ii = 1:K_fold-1
+        folder(ii).verify = folder(ii+1).test;
+    end
+    folder(K_fold).verify = folder(1).test;
+    
+    %构建结构体中train部分
+    for ii = 1:K_fold
+        tmp_file = {};
+        for iii = 1:size(all_subject_name,1)
+            if  ~ismember(all_subject_name{iii},folder(ii).test) && ~ismember(all_subject_name{iii},folder(ii).verify)
+                tmp_file = [tmp_file;all_subject_name{iii}];
+            end
+        end
+        folder(ii).train = tmp_file;
+    end
+    
+end
 %% 根据序号结构体数组，构建实际文件名数组
 folder_final = [];
 for iiii = 1:K_fold
@@ -244,9 +253,6 @@ for iii = 1:K_fold
 end
 
 save(strcat(savepath,filesep,'mat_folder'),'folder_final','folder','augdict','test_filename_final','aug_filename_final','K_fold'); 
-
-
-
 
 
 

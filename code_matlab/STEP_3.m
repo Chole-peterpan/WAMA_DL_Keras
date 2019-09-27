@@ -3,19 +3,22 @@ clc;
 clear;
 
 %%
-block_mat_path =  'G:\test\2block';
-mat_savepath =    'G:\test\3or_h5';
+block_mat_path =  'H:\@data_NENs_recurrence\PNENs\data_outside\flow2\2block';
+mat_savepath =    'H:\@data_NENs_recurrence\PNENs\data_outside\flow2\3or_out';
 filename_list = dir(strcat(block_mat_path,filesep,'*.mat'));
-augdict.savefomat.mode = 4;
-augdict.savefomat.param = [180,180,20];
+augdict.savefomat.mode = 1;
+augdict.savefomat.param = [150,150,80];
 
 
 workspaces = load(strcat(block_mat_path,filesep,'subject',filesep,'subject.mat'));
 subject = workspaces.subject;%记录所有统计信息的mat文件，为结构体数组。
 
 %% 数据标签
-class_a_id = 1:49;% 手动传入a类病人的id
-class_b_id = 50:59;% 手动传入b类病人的id
+% class_a_id = [[1:43],[46,47,49],[58,59]];% 手动传入a类病人的id
+% class_b_id = 50:57;% 手动传入b类病人的id
+
+class_a_id = 1:9;% 手动传入a类病人的id
+class_b_id = 10:18;% 手动传入b类病人的id
 
 %% 
 

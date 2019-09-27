@@ -105,14 +105,14 @@ for i = 1:length(subject)
     elseif  ismember(subject(i).id, augdict.class_b_id)
         per_sub_augnum = per_sub_augnum_B;
     end
-    per_block_aug_num = ceil(per_sub_augnum/blocks);
+    per_block_augnum = ceil(per_sub_augnum/blocks);
     
     %将信息储存到病人结构体数组中
-    subject(i).per_block_aug_num = per_block_aug_num;
+    subject(i).per_block_aug_num = per_block_augnum;
     subject(i).per_tumor_aug_num = {};
     all_aug_num = 0;
     for ii = 1:length(subject(i).blocks_num_per_tumor)
-        subject(i).per_tumor_aug_num{ii}= per_block_aug_num*(subject(i).blocks_num_per_tumor{ii});
+        subject(i).per_tumor_aug_num{ii}= per_block_augnum*(subject(i).blocks_num_per_tumor{ii});
         all_aug_num  = all_aug_num + sum(subject(i).per_tumor_aug_num{ii});
     end
     
@@ -128,33 +128,33 @@ for ii = 1:length(filename_list)
     filename = filename_list(ii,1).name;
     data_path=strcat(block_mat_path,filesep,filename);
     
-    tmpcell = strsplit(filename,'_');
-    id = str2double(tmpcell{1}(2:end));
-    for id_index = 1:length(subject)
-       if id == subject(id_index).id
-          subject_ins = subject(id_index);
-       end
-    end
-    
-
     workspaces = load(data_path);
     data = workspaces.block;
     data = mat2gray(data);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
-    if subject_ins.othermode
+    if subject(i).othermode
         data_othermode = workspaces.block_othermode;
         data_othermode = mat2gray(data_othermode);%一定要归一化，不然imadjust的时候会截断很大一部分值。！！！！！！！！
     end
-    per_block_aug_num =  subject_ins.per_block_aug_num;
+    
 
-
+    tmpcell = strsplit(filename,'_');
+    id = str2double(tmpcell{1}(2:end));
+    for id_index = 1:length(subject)
+       if id ==  subject(id_index).id
+          per_block_augnum =  subject(id_index).per_block_aug_num;
+          
+          
+          
+       end
+    end
     
     
-    for iii = 1:per_block_aug_num
+    for iii = 1:per_block_augnum
         % 扩增
-        if subject_ins.othermode
-            [aug_data,aug_data_othermode,aug_detail] = aug43D(data,  augdict,  subject_ins.othermode,  data_othermode);
+        if subject(i).othermode
+            [aug_data,aug_data_othermode,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  data_othermode);
         else
-            [aug_data,~                 ,aug_detail] = aug43D(data,  augdict,  subject_ins.othermode,  []);
+            [aug_data,~                 ,aug_detail] = aug43D(data,  augdict,  subject(i).othermode,  []);
         end
               
         % 保存 到 detail里面
@@ -171,26 +171,26 @@ for ii = 1:length(filename_list)
         h5create(finalpath, '/data', size(aug_data),'Datatype','single');
         h5write(finalpath, '/data', aug_data);
         
-        if subject_ins.othermode
+        if subject(i).othermode
             h5create(finalpath, '/data_othermode', size(aug_data_othermode),'Datatype','single');
             h5write(finalpath, '/data_othermode', aug_data_othermode);
         end
         
         
-        h5create(finalpath, '/label_1', size(subject_ins.label_1),'Datatype','single');
-        h5write(finalpath, '/label_1', subject_ins.label_1);
-        h5create(finalpath, '/label_2', size(subject_ins.label_2),'Datatype','single');
-        h5write(finalpath, '/label_2', subject_ins.label_2);
-        h5create(finalpath, '/label_3', size(subject_ins.label_3),'Datatype','single');
-        h5write(finalpath, '/label_3', subject_ins.label_3);
-        h5create(finalpath, '/label', size(subject_ins.label),'Datatype','single');
-        h5write(finalpath, '/label', subject_ins.label);
-        h5create(finalpath, '/label1', size(subject_ins.label1),'Datatype','single');
-        h5write(finalpath, '/label1', subject_ins.label1);
-        h5create(finalpath, '/label2', size(subject_ins.label2),'Datatype','single');
-        h5write(finalpath, '/label2', subject_ins.label2);
-        h5create(finalpath, '/label3', size(subject_ins.label3),'Datatype','single');
-        h5write(finalpath, '/label3', subject_ins.label3);
+        h5create(finalpath, '/label_1', size(subject(i).label_1),'Datatype','single');
+        h5write(finalpath, '/label_1', subject(i).label_1);
+        h5create(finalpath, '/label_2', size(subject(i).label_2),'Datatype','single');
+        h5write(finalpath, '/label_2', subject(i).label_2);
+        h5create(finalpath, '/label_3', size(subject(i).label_3),'Datatype','single');
+        h5write(finalpath, '/label_3', subject(i).label_3);
+        h5create(finalpath, '/label', size(subject(i).label),'Datatype','single');
+        h5write(finalpath, '/label', subject(i).label);
+        h5create(finalpath, '/label1', size(subject(i).label1),'Datatype','single');
+        h5write(finalpath, '/label1', subject(i).label1);
+        h5create(finalpath, '/label2', size(subject(i).label2),'Datatype','single');
+        h5write(finalpath, '/label2', subject(i).label2);
+        h5create(finalpath, '/label3', size(subject(i).label3),'Datatype','single');
+        h5write(finalpath, '/label3', subject(i).label3);
         
         
     end

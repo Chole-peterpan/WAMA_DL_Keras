@@ -4,10 +4,10 @@ clc;
 clear;
 
 %% 设置参数
-mat_path =       'G:\test\1mat';
-block_savepath = 'G:\test\2block';
+mat_path =       'H:\@data_NENs_recurrence\PNENs\data\flow2\1mat';
+block_savepath = 'H:\@data_NENs_recurrence\PNENs\data\flow2\2block';
 step = 5; % 分块的滑动步长
-deepth = 20;% 分块的层厚
+deepth = 0;% 分块的层厚
 % 上面两个参数注意，如果外扩20体素，那么就不要deepth为20，这样就没多少肿瘤了
 %% 读取结构体数组信息文件
 subject_path = strcat(mat_path,filesep,'subject_all',filesep,'subject.mat');
@@ -50,6 +50,8 @@ for i = 1:length(subject)
            
            
            %保存分块，并将分块信息保存到subject_all以供日后统计。
+           %注意，这里第一块和最后一块都不要，因为前面有外扩体素，所以边缘层其实是与肿瘤关系不大的组织（暂时外扩不外扩z轴，所以还是按照正常的来）
+%            for iiii = 2:length(blocks_all)-1
            for iiii = 1:length(blocks_all)
                fth_id = iiii;
                block = blocks_all{iiii};

@@ -58,7 +58,7 @@
 %%
 close all
 clear
-or_path =       'H:\@data_NENs_recurrence\PNENs\data\flow1\3or_out\s9_v1_m1_b1.h5';
+or_path =       'H:\@data_NENs_recurrence\PNENs\data\flow1\3or_out\s18_v1_m1_b1.h5';
 wokspace = load('H:\@data_NENs_recurrence\PNENs\data\flow1\2block\s58_v1_m1_b1.mat');
 data3 = wokspace.block;
 data4 = wokspace.block_othermode;
