@@ -7,9 +7,9 @@ import h5py
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 from w_dualpathnet import dual_path_net
-from w_resnet import resnet_nobn, se_resnet, resnet_or
+from w_resnet import resnet_or
 from w_dense_net import dense_net,se_dense_net
-from w_resnext import  resnext, resnext_or, se_resnext
+from w_resnext import  resnext, resnext_or
 from w_vggnet import vgg16_w_3d, vgg16_w_3d_gb
 from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss
 from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss,EuiLoss_new
@@ -18,6 +18,7 @@ from function import *
 from sparsenet import SparseNetImageNet121
 import random
 import math
+from keras.losses import categorical_crossentropy
 # step2: import extra model finished
 
 
@@ -119,19 +120,23 @@ set_session(tf.Session(config=config))
 
 
 # 读取文件的第三种情况:从分折文件中读取 ===================================================================
+file_sep = os.sep
+CV_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/5CV'
+foldname = '1'
+augdata_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/4aug'
+or_data_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/3or'
+out_or_path  = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/3or_out'
 
-train_list1 =get_filelist_fromTXT('/data/@data_keron/data/4aug_data','/data/@data_keron/data/CV10/fold_3_aug_train.txt')
-train_list2 =get_filelist_fromTXT('/data/@data_keron/data/4aug_data','/data/@data_keron/data/CV10/fold_3_aug_verify.txt')
-train_list3 =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_train.txt')
-train_list4 =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_verify.txt')
+train_list1 =get_filelist_fromTXT(augdata_path,CV_path+file_sep+'fold_'+foldname+'_aug_train.txt')
+train_list2 =get_filelist_fromTXT(augdata_path,CV_path+file_sep+'fold_'+foldname+'_aug_verify.txt')
+train_list3 =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_train.txt')
+train_list4 =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_verify.txt')
+test_list =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_test.txt')
+ver_list = get_filelist_frompath(out_or_path,'h5')
+
+Result_save_Path = r'/data/@data_laowang/new/test'
 
 
-test_list =get_filelist_fromTXT('/data/@data_keron/data/3or_h5','/data/@data_keron/data/CV10/fold_3_or_test.txt')
-
-
-Result_save_Path = r'/data/@data_keron/test/fold3'
-# ver_pathouy = r"/data/@data_laowang/@@flow1/3or_h5_outside"
-# ver_list = get_filelist_frompath(ver_pathouy,'h5')
 
 
 
@@ -140,7 +145,7 @@ Result_save_Path = r'/data/@data_keron/test/fold3'
 
 H5_List_train =  train_list3 + train_list4 +train_list1+train_list2
 H5_List_test = test_list
-# H5_List_ver = ver_list
+H5_List_ver = ver_list
 
 
 trainset_num = len(H5_List_train)
@@ -169,18 +174,19 @@ trainset_num = len(H5_List_train)
 multi_gpu_mode = False #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
-foldname = '1'  #暂时命名为1,不然观察不了
-batch_size = 10
+
+batch_size = 6
+test_batchsize = 4
 label_index = 'label3'
-data_input_shape = [140,140,30]
+data_input_shape = [200,200,20]
 label_shape = [2]
 init_lr = 2e-4 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
 max_iter = 400000 #最大迭代次数
 print_steps = 60 # 打印训练信息的步长
 task_name = 'test'  # 任务名称,自己随便定义
-min_verify_Iters = 1000  # 最小测试和验证迭代数量
-verify_Iters_step = 300 # 测试和验证的步长
+min_verify_Iters = 5  # 最小测试和验证迭代数量
+verify_Iters_step = 5 # 测试和验证的步长
 lr_decay_step = 10000
 decay_rate = 0.5
 model_save_step = 500 # 模型保存的步长
@@ -188,12 +194,16 @@ model_save_step4_visualization = 2000 # 保存模型用来可视化的步长
 
 optimizer_switch_point = 2000000 # 优化器转换的迭代数时间点
 
-file_sep = os.sep
-log_save_Path = Result_save_Path + file_sep[0] + 'log'
-model_save_Path = Result_save_Path + file_sep[0] + 'model'
+
+log_save_Path = Result_save_Path + file_sep + 'log'
+test_log_save_path = log_save_Path + file_sep + '@test'
+ver_log_save_path = log_save_Path + file_sep + '@ver'
+model_save_Path = Result_save_Path + file_sep + '@model'
 
 os.system('mkdir '+log_save_Path)
 os.system('mkdir '+model_save_Path)
+os.system('mkdir '+test_log_save_path)
+os.system('mkdir '+ver_log_save_path)
 # 开始训练:一下代码由main改变而来,但是不需要保存模型
 
 
@@ -214,13 +224,14 @@ if __name__ == "__main__":
 
     if multi_gpu_mode:
         d_model = multi_gpu_model(d_model, gpus=gpu_munum)
-    d_model.compile(optimizer=adam(lr=init_lr), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    d_model.compile(optimizer=adam(lr=init_lr), loss=categorical_crossentropy, metrics=[y_t, y_pre, Acc])
     # d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # d_model.compile(optimizer=SGD(lr=init_lr,momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # pause()  # identify
     # print(d_model.summary())  # view net
     # pause()  # identify
     # extra param initialization:初始化一些用来记录和显示的参数
+    have_test_flag = False # 是否已经进行过测试的flag
     Iter = 0
     epoch = 0
     max_acc_verify = 0.61
@@ -253,23 +264,40 @@ if __name__ == "__main__":
     test_result = [0, 0, 0, 0]  # acc,sen,spc,auc
     subject_num = 0
     # txt as a log
-    lr_txt = log_save_Path + file_sep[0] + '@' + foldname + '_lr.txt'  # 学习率曲线  txt_s11
-    minibatch_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_loss.txt'  # minibatch上的loss  txt_minibatch_loss
-    or_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_or_loss.txt'  # 在原未扩增训练集上的loss  txt_or_loss
-    ver_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_loss.txt'  # 在验证集上的loss  txt_ver_loss
-    test_loss_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_loss.txt'  # 在测试集上的loss  txt_test_loss
+    lr_txt = log_save_Path + file_sep + '@' + foldname + '_lr.txt'  # 学习率曲线  txt_s11
+    minibatch_loss_txt = log_save_Path + file_sep+'@' + foldname + '_loss.txt'  # minibatch上的loss  txt_minibatch_loss
+    or_loss_txt = log_save_Path + file_sep+'@' + foldname + '_loss_or.txt'  # 在原未扩增训练集上的loss  txt_or_loss
+    ver_loss_txt = log_save_Path + file_sep+'@' + foldname + '_loss_ver.txt'  # 在验证集上的loss  txt_ver_loss
+    test_loss_txt = log_save_Path + file_sep+'@' + foldname + '_loss_test.txt'  # 在测试集上的loss  txt_test_loss
 
-    verify_result_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_result.txt'  # 验证集的所有指标  txt_ver_result
-    test_result_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_result.txt'  # 测试集的所有指标  txt_test_result
+    verify_result_txt = log_save_Path + file_sep+'@' + foldname + '_result_ver.txt'  # 验证集的所有指标  txt_ver_result
+    test_result_txt = log_save_Path + file_sep+'@' + foldname + '_result_test.txt'  # 测试集的所有指标  txt_test_result
 
-    # new txt
-    ver_id_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_id.txt'  #
-    ver_label_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_label.txt'  #
-    ver_pre_txt = log_save_Path + file_sep[0]+'@' + foldname + '_ver_pre.txt'  #
+    # new txt ver
+    ver_id_txt = ver_log_save_path + file_sep+'@' + foldname + '_id_per_person.txt'  #
+    ver_label_txt = ver_log_save_path + file_sep+'@' + foldname + '_label_per_person.txt'  #
+    ver_pre_txt = ver_log_save_path + file_sep+'@' + foldname + '_pre_per_person.txt'  #
+    ver_loss_txt_per_p = ver_log_save_path + file_sep+'@' + foldname + '_loss_per_person.txt'  #
 
-    test_id_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_id.txt'  #
-    test_label_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_label.txt'  #
-    test_pre_txt = log_save_Path + file_sep[0]+'@' + foldname + '_test_pre.txt'  #
+    ver_name_per_block = ver_log_save_path + file_sep+'@' + foldname + '_@_name_per_block.txt'  #
+    ver_label_per_block = ver_log_save_path + file_sep+'@' + foldname + '_@_label_per_block.txt'  #
+    ver_pre_per_block = ver_log_save_path + file_sep+'@' + foldname + '_@_pre_per_block.txt'  #
+    ver_loss_per_block = ver_log_save_path + file_sep+'@' + foldname + '_@_loss_per_block.txt'  #
+
+    # new txt test
+    test_id_txt = test_log_save_path + file_sep+'@' + foldname + '_id_per_person.txt'  #
+    test_label_txt = test_log_save_path + file_sep+'@' + foldname + '_label_per_person.txt'  #
+    test_pre_txt = test_log_save_path + file_sep+'@' + foldname + '_pre_per_person.txt'  #
+    test_loss_txt_per_p = test_log_save_path + file_sep+'@' + foldname + '_loss_per_person.txt'  #
+
+    test_name_per_block = test_log_save_path + file_sep+'@' + foldname + '_@_name_per_block.txt'  #
+    test_label_per_block = test_log_save_path + file_sep+'@' + foldname + '_@_label_per_block.txt'  #
+    test_pre_per_block = test_log_save_path + file_sep+'@' + foldname + '_@_pre_per_block.txt'  #
+    test_loss_per_block = test_log_save_path + file_sep+'@' + foldname + '_@_loss_per_block.txt'  #
+
+
+
+
 
     # 开始run
     random.shuffle(H5_List_train)
@@ -295,20 +323,21 @@ if __name__ == "__main__":
         Iter = Iter + 1
         subject_num = subject_num + batch_size
 
-        # 读取batch ==================================================================================================================================
-        epoch, index_flag, H5_List_train, data_input_c, label_input_c, filenamelist, labeel = get_batch_from_list(batch_size = batch_size,
-                                                                                                                  index_flag = index_flag,
-                                                                                                                  filepath_list = H5_List_train,
-                                                                                                                  epoch = epoch,
-                                                                                                                  label_index = label_index,
-                                                                                                                  data_input_shape = data_input_shape,
-                                                                                                                  label_shape = label_shape)
-        # 读取完成 =====================================================================================================================================
+        # 读取batch =====================================================
+        epoch, index_flag, H5_List_train, data_input_c, \
+        label_input_c, filenamelist, labeel = get_batch_from_list(batch_size = batch_size,
+                                                                  index_flag = index_flag,
+                                                                  filepath_list = H5_List_train,
+                                                                  epoch = epoch,
+                                                                  label_index = label_index,
+                                                                  data_input_shape = data_input_shape,
+                                                                  label_shape = label_shape)
+        # 读取完成 =======================================================
 
         pre = d_model.predict_on_batch(data_input_c)
         cost = d_model.train_on_batch(data_input_c, label_input_c,class_weight={0:1,1:1})
 
-        # print the detail of this iter===============================================================
+        # print the detail of this iter===================================
         if Iter % print_steps == 0:
             # 打印第一组列表
             tb = pt.PrettyTable()
@@ -363,32 +392,50 @@ if __name__ == "__main__":
 
         # verify & test : only save result , no model will be saved (only use fuc 'test_on_model'or'test_on_model4_subject')
         if Iter >= min_verify_Iters and Iter % verify_Iters_step == 0:
+            # 先把保存的flag归零,防止保存多次id之类变量以浪费存储空间
+            have_test_flag = True
             # # ver
-            # vre_result = test_on_model4_subject_new(model=d_model,
-            #                                     test_list=H5_List_ver,
-            #                                     iters=Iter,
-            #                                     data_input_shape=data_input_shape,
-            #                                     label_shape=label_shape,
-            #                                     id_savepath=ver_id_txt,
-            #                                     label_savepath=ver_label_txt,
-            #                                     pre_savepath=ver_pre_txt,
-            #                                     label_index=label_index,
-            #                                     batch_size=10)
-            # # save
-            # txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
-            # txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
-
-            # test
-            test_result = test_on_model4_subject_new(model=d_model,
-                                                test_list=H5_List_test,
+            vre_result = test_on_model4_subject_new(model=d_model,
+                                                test_list=H5_List_ver,
                                                 iters=Iter,
                                                 data_input_shape=data_input_shape,
                                                 label_shape=label_shape,
-                                                id_savepath=test_id_txt,
-                                                label_savepath=test_label_txt,
-                                                pre_savepath=test_pre_txt,
+                                                id_savepath=ver_id_txt,
+                                                label_savepath=ver_label_txt,
+                                                pre_savepath=ver_pre_txt,
+                                                loss_savepath=ver_loss_txt_per_p,
+
+                                                per_block_label_savepath=ver_label_per_block,
+                                                per_block_loss_savepath=ver_loss_per_block,
+                                                per_block_name_savepath=ver_name_per_block,
+                                                per_block_pre_savepath=ver_pre_per_block,
+
                                                 label_index=label_index,
-                                                batch_size=2)
+                                                batch_size=test_batchsize,
+                                                lossfunc = categorical_crossentropy)
+            # save
+            txt_ver_result.write(str(Iter) + '@' + str(vre_result) + '\n')
+            txt_ver_loss.write(str(Iter) + '@' + str(vre_result[4]) + '\n')
+
+            # test
+            test_result = test_on_model4_subject_new(model=d_model,
+                                                 test_list=H5_List_test,
+                                                 iters=Iter,
+                                                 data_input_shape=data_input_shape,
+                                                 label_shape=label_shape,
+                                                 id_savepath=test_id_txt,
+                                                 label_savepath=test_label_txt,
+                                                 pre_savepath=test_pre_txt,
+                                                 loss_savepath=test_loss_txt_per_p,
+
+                                                 per_block_label_savepath=test_label_per_block,
+                                                 per_block_loss_savepath=test_loss_per_block,
+                                                 per_block_name_savepath=test_name_per_block,
+                                                 per_block_pre_savepath=test_pre_per_block,
+
+                                                 label_index=label_index,
+                                                 batch_size=test_batchsize,
+                                                 lossfunc = categorical_crossentropy)
             # save
             txt_test_result.write(str(Iter) + '@' + str(test_result) + '\n')
             txt_test_loss.write(str(Iter) + '@' + str(test_result[4]) + '\n')
@@ -402,26 +449,28 @@ if __name__ == "__main__":
                                                 data_input_shape=data_input_shape,
                                                 label_shape=label_shape,
                                                 label_index=label_index,
-                                                batch_size=2)
+                                                batch_size=test_batchsize,
+                                                or_train_flag=True,
+                                                lossfunc=categorical_crossentropy)
             txt_or_loss.write(str(Iter) + '@' + str(or_train_result[4]) + '\n')  # 保存or train 的 loss
 
 
             # 更新verify的以供打印的参数 =========================================================================
-            # if vre_result[0] >= max_acc_verify:
-            #     max_acc_verify_iter = Iter
-            #     max_acc_verify = vre_result[0]
-            # if vre_result[1] >= max_sen_verify:
-            #     max_sen_verify_iter = Iter
-            #     max_sen_verify = vre_result[1]
-            # if vre_result[2] >= max_spc_verify:
-            #     max_spc_verify_iter = Iter
-            #     max_spc_verify = vre_result[2]
-            # if vre_result[3] >= max_auc_verify:
-            #     max_auc_verify_iter = Iter
-            #     max_auc_verify = vre_result[3]
-            # if vre_result[4] <= min_loss_verify:
-            #     min_loss_verify_iter = Iter
-            #     min_loss_verify = vre_result[4]
+            if vre_result[0] >= max_acc_verify:
+                max_acc_verify_iter = Iter
+                max_acc_verify = vre_result[0]
+            if vre_result[1] >= max_sen_verify:
+                max_sen_verify_iter = Iter
+                max_sen_verify = vre_result[1]
+            if vre_result[2] >= max_spc_verify:
+                max_spc_verify_iter = Iter
+                max_spc_verify = vre_result[2]
+            if vre_result[3] >= max_auc_verify:
+                max_auc_verify_iter = Iter
+                max_auc_verify = vre_result[3]
+            if vre_result[4] <= min_loss_verify:
+                min_loss_verify_iter = Iter
+                min_loss_verify = vre_result[4]
 
             # 更新test的以供打印的参数 =========================================================================
             if test_result[0] >= max_acc_test:
@@ -478,7 +527,26 @@ if __name__ == "__main__":
 
 
 
-        # 关闭文件,以供实时查看结果
+
+        # 某些变量如测试集id等,之保存一次就够了==============================
+        if have_test_flag:
+            # new txt ver
+            ver_id_txt = None
+            ver_label_txt = None
+            ver_name_per_block =None
+            ver_label_per_block = None
+            # new txt test
+            test_id_txt = None
+            test_label_txt = None
+            test_name_per_block = None
+            test_label_per_block = None
+
+
+
+
+
+
+        # 关闭文件,以供实时查看结果======================================
         txt_minibatch_loss.close()
         txt_ver_result.close()
         txt_test_result.close()

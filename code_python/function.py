@@ -263,11 +263,18 @@ def get_batch_from_list(batch_size, index_flag, filepath_list, epoch, label_inde
 # v2.2版本  测试函数,增加分batch跑的模式
 # 分batch的具体操作,加入总样本10个,batchsize为3,则首先10//3 = 3,然后先跑3-1 = 2个batch
 # 然后把最后一个batch和剩余一个余数为1的样本组合起来,变成一个batchsize = 原batchsize+余数
-def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_shape,label_index,
+def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_shape,label_index,lossfunc,
+                           batch_size  = 3,
                            id_savepath = None,
                            pre_savepath = None,
                            label_savepath = None,
-                           batch_size  = 3):
+                           loss_savepath = None,
+
+                           per_block_name_savepath = None,
+                           per_block_pre_savepath = None,
+                           per_block_label_savepath = None,
+                           per_block_loss_savepath = None,
+                           or_train_flag = False):
     """
 
     :param model: 
@@ -282,6 +289,7 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
     :param pre_savepath: 
     :param file_sep: 
     :param label_index: 
+    :param mode:batch的模式
     :return:
 
     保存预测值,同时保存最终指标
@@ -293,10 +301,11 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
     Num_list_test = list(range(testtset_num))
 
 
-
+    # 以block为单位的,需要储存
     true_label = []
     pred_value = []
     loss_temp = []
+    file_name = []
 
 
     indexxx = 0
@@ -318,6 +327,11 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
 
         for ii in range(real_batch_size):
             read_name = test_list[indexxx]
+
+            # 储存文件名时候记得去除路径和扩展名
+            tmpname = read_name.split('/')[-1]
+            file_name.append(tmpname.split('.')[0])
+
             print(read_name)
             H5_file = h5py.File(read_name, 'r')
             batch_x = H5_file['data'][:]
@@ -338,6 +352,22 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
         for iiii in range(real_batch_size):
             pred_value.append(result_pre[iiii][0])
 
+    # 重新得到每个block的label的预测值,注意,是onehot形式的,而且只是用于二分类,多分类需要修改代码
+    true_label_onehot = np.zeros([testtset_num] + label_shape)
+    pred_value_onehot = np.zeros([testtset_num] + label_shape)
+    pred_value_onehot[:, 0]=(np.array(pred_value))
+    pred_value_onehot[:, 1] = (1-np.array(pred_value))
+    true_label_onehot[:, 0] = (np.array(true_label))
+    true_label_onehot[:, 1] = (1-np.array(true_label))
+
+    per_block_loss = lossfunc(tf.convert_to_tensor(true_label_onehot),tf.convert_to_tensor(pred_value_onehot))
+    with tf.Session() as sess:
+        loss_temp_perblock = (per_block_loss.eval())
+    loss_temp_perblock = list(loss_temp_perblock) # 针对到每个block的loss
+
+
+
+
 
 
     patient_order = []
@@ -346,7 +376,7 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
     for read_num in Num_list_test:
         read_name = test_list[read_num]
         patient_order_temp = read_name.split('/')[-1]  # Windows则为\\
-        patient_order_temp = patient_order_temp.split('_')[0]
+        patient_order_temp = patient_order_temp.split('_')[0][1:] # 清除前缀s
         # patient_order_temp = int(patient_order_temp)
         if patient_order_temp not in patient_order:
             patient_order.append(patient_order_temp)
@@ -356,24 +386,28 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
     # 根据样本序号分配并重新加入最终list，最后根据这个最终list来计算最终指标
     final_true_label = []
     final_pred_value = []
+    final_loss = [] #精确到每个病人的loss
+
     patient_index.sort(reverse=False)
     for patient_id in patient_index:  # 首先遍历所有病人序号
         tmp_patient_prevalue = []
         tmp_patient_reallabel = []
+        tmp_patient_loss = []
         for read_num in Num_list_test:
             # 在每个病人序号下,遍历所有patch的文件名对应的病例号,
             # 如果属于该病人,则append到临时的list,最终在对这个临时的list操作,得到属于这个病人的一个值
             read_name = test_list[read_num]
             tmp_index = read_name.split('/')[-1]
-            tmp_index = tmp_index.split('_')[0]
+            tmp_index = tmp_index.split('_')[0][1:] # [1:]是为了清除前缀s
             tmp_index = int(tmp_index)
             if tmp_index == patient_id:
-                # tmp_pre_value = pred_value
                 tmp_patient_prevalue.append(pred_value[read_num])
                 tmp_patient_reallabel.append(true_label[read_num])
+                tmp_patient_loss.append(loss_temp_perblock[read_num])
                 # 此时已经获得了对应第patient_id个样本的全部预测值
                 # 暂时的策略为：计算预测均值，如果均值大于0.5则取最大值，反之取最小值 ； label任取一个加入
         final_true_label.append(tmp_patient_reallabel[0])
+        final_loss.append(np.mean(tmp_patient_loss))
         mean_pre = np.mean(tmp_patient_prevalue)
         if mean_pre > 0.5:
             final_pred_value.append(np.max(tmp_patient_prevalue))
@@ -419,12 +453,14 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
         print('AUC', Aucc)
 
     # =====================================================
-    mean_loss = np.mean(loss_temp)
+    mean_loss_per_block = np.mean(loss_temp) #以block为单位的loss
+    mean_loss = np.mean(final_loss) #以病人为单位的loss
 
     print('Sensitivity', Sensitivity)
     print('Specificity', Specificity)
     print('Accuracy', Accuracy)
     print('Loss', mean_loss)
+    print('Loss(blocks)', mean_loss_per_block)
 
 
     if id_savepath is not None:
@@ -442,7 +478,38 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
         txt_pr.write(str(iters) + '@' + str(final_pred_value) + '\n')
         txt_pr.close()
 
-    return [Accuracy, Sensitivity, Specificity, Aucc, mean_loss]
+    if loss_savepath is not None:
+        txt_pr = open(loss_savepath, 'a')
+        txt_pr.write(str(iters) + '@' + str(final_loss) + '\n')
+        txt_pr.close()
+
+    # 还需要保存病人为单位的loss,所以需要新增一个文件名
+    if per_block_name_savepath is not None:
+        txt_pr = open(per_block_name_savepath, 'a')
+        txt_pr.write(str(iters) + '@' + str(file_name) + '\n')
+        txt_pr.close()
+
+    if per_block_pre_savepath is not None:
+        txt_pr = open(per_block_pre_savepath, 'a')
+        txt_pr.write(str(iters) + '@' + str(pred_value) + '\n')
+        txt_pr.close()
+
+    if per_block_label_savepath is not None:
+        txt_pr = open(per_block_label_savepath, 'a')
+        txt_pr.write(str(iters) + '@' + str(true_label) + '\n')
+        txt_pr.close()
+
+    if per_block_loss_savepath is not None:
+        txt_pr = open(per_block_loss_savepath, 'a')
+        txt_pr.write(str(iters) + '@' + str(loss_temp) + '\n')
+        txt_pr.close()
+
+
+
+    if or_train_flag: # 如果是对ortrain进行测试,那么只返回以block为单位的loss就好
+        return [Accuracy, Sensitivity, Specificity, Aucc, mean_loss_per_block]
+    else:
+        return [Accuracy, Sensitivity, Specificity, Aucc, mean_loss]
 
 
 

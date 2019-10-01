@@ -200,3 +200,15 @@ H5_file.close()
 batch_y = batch_y[0]
 batch_y = abs(1- batch_y)
 label_input_c[3]=batch_y
+
+ver_name_per_block
+ver_label_per_block
+ver_pre_per_block =  + file_sep[0] + '@' + foldname + '_ver_pre_per_block.txt'  #
+ver_loss_per_block =  + file_sep[0] + '@' + foldname + '_ver_loss_per_block.txt'  #
+
+
+
+test_name_per_block = log_save_Path + file_sep[0] + '@' + foldname + '_test_name_per_block.txt'  #
+test_label_per_block = log_save_Path + file_sep[0] + '@' + foldname + '_test_label_per_block.txt'  #
+test_pre_per_block = log_save_Path + file_sep[0] + '@' + foldname + '_test_pre_per_block.txt'  #
+test_loss_per_block = log_save_Path + file_sep[0] + '@' + foldname + '_test_loss_per_block.txt'  #

@@ -1,18 +1,18 @@
-%% Í³¼Æ¸÷¸öÑù±¾µÄÐÅÏ¢
-% ³õÊ¼»¯
+%% Í³ï¿½Æ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
+% ï¿½ï¿½Ê¼ï¿½ï¿½
 % clear;
 % clc;
 % close all;
 
-%% load ÎÄ¼þ
-subject_log_path = 'H:\@data_NENs_response\EP\data\3Aug20000\subject';
+%% load ï¿½Ä¼ï¿½
+subject_log_path = '/data/@data_laowang/old/@@flow2/4aug_h5/subject';
 wkspace = load(strcat(subject_log_path,filesep,'subject.mat'));
 subject = wkspace.subject;
 
-augdict.class_a_id = wkspace.augdict.class_a_id;% ÊÖ¶¯´«ÈëaÀà²¡ÈËµÄid
-augdict.class_b_id = wkspace.augdict.class_b_id;% ÊÖ¶¯´«ÈëbÀà²¡ÈËµÄid
+augdict.class_a_id = wkspace.augdict.class_a_id;% ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½aï¿½à²¡ï¿½Ëµï¿½id
+augdict.class_b_id = wkspace.augdict.class_b_id;% ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½bï¿½à²¡ï¿½Ëµï¿½id
 
-%% ÌáÈ¡ÐÅÏ¢
+%% ï¿½ï¿½È¡ï¿½ï¿½Ï¢
 id = {};
 num_id = [];
 tumor_size = [];
@@ -20,7 +20,7 @@ tumor_size_all = [];
 voxel_size = {};
 label = [];
 for i = 1:length(subject)
-   % ÌáÈ¡id
+   % ï¿½ï¿½È¡id
    id{end+1} =  num2str(subject(i).id);
    num_id(end+1) = subject(i).id;
    if ismember(subject(i).id, augdict.class_a_id)
@@ -28,16 +28,16 @@ for i = 1:length(subject)
    else
        label(end+1) = 2;
    end
-   % ÌáÈ¡¸÷¸öÖ×Áö´ÖÂÔ´óÐ¡
+   % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½Ð¡
    tumor_size = autoadd(tumor_size,subject(i).tumor_size);
-   % ÌáÈ¡ËùÓÐÖ×Áö´ÖÂÔ´óÐ¡µÄºÍ
+   % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´ï¿½Ð¡ï¿½Äºï¿½
    tumor_size_all(end+1) = subject(i).tumor_size_all; 
-   % ÌáÈ¡ÌåËØÔ­Ê¼¿Õ¼ä´óÐ¡ÐÅÏ¢
+   % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½Õ¼ï¿½ï¿½Ð¡ï¿½ï¿½Ï¢
    voxel_size{end+1} =  subject(i).voxel_size; 
 end
 
-%% voxel ³ß´ç
-voxel_volume = [];%ÌåËØµÄÊµ¼ÊÌå»ý£¨Á¢·½mm£©
+%% voxel ï¿½ß´ï¿½
+voxel_volume = [];%ï¿½ï¿½ï¿½Øµï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mmï¿½ï¿½
 voxel_x = [];
 voxel_z = [];
 
@@ -48,7 +48,7 @@ for i  = 1:length(subject)
     tmp_z = [];
     for ii = 1:length(tmp_voxel_size)
         tmp_voxel = tmp_voxel_size{ii};
-        tmpcolume = cumprod(tmp_voxel);% ¼ÆËãÌåËØµÄÊµ¼ÊÌå»ý£¨Á¢·½mm£©
+        tmpcolume = cumprod(tmp_voxel);% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mmï¿½ï¿½
         tmp_volume = [tmp_volume,tmpcolume(end)];
         tmp_x = [tmp_x,tmp_voxel(1)];
         tmp_z = [tmp_z,tmp_voxel(3)];
@@ -60,47 +60,47 @@ for i  = 1:length(subject)
    
 end
 
-%Öù×´Í¼
+%ï¿½ï¿½×´Í¼
 figure;
-subplot(2,1,1);% ÌåËØµÄÈý¸öÎ¬¶ÈµÄ³ß´ç
-bar(voxel_x,'group','EdgeColor','y');% Ò²¾ÍÊÇºá½ØÃæµÄ·Ö±æÂÊ
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt-0.1;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+subplot(2,1,1);% ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Î¬ï¿½ÈµÄ³ß´ï¿½
+bar(voxel_x,'group','EdgeColor','y');% Ò²ï¿½ï¿½ï¿½Çºï¿½ï¿½ï¿½ï¿½Ä·Ö±ï¿½ï¿½ï¿½
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt-0.1;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷CTµÄºá½ØÃæ·Ö±æÂÊ£¨mm£©');
-ylabel('·Ö±æÂÊ(mm)');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½CTï¿½Äºï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Ê£ï¿½mmï¿½ï¿½');
+ylabel('ï¿½Ö±ï¿½ï¿½ï¿½(mm)');
 
-subplot(2,1,2);% ÌåËØµÄÈý¸öÎ¬¶ÈµÄ³ß´ç
-bar(voxel_z,'group','EdgeColor','y'); % Ò²¾ÍÊÇ²ãºñ
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt-0.1;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+subplot(2,1,2);% ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Î¬ï¿½ÈµÄ³ß´ï¿½
+bar(voxel_z,'group','EdgeColor','y'); % Ò²ï¿½ï¿½ï¿½Ç²ï¿½ï¿½
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt-0.1;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷CTµÄ²ãºñ£¨mm£©');
-ylabel('²ãºñ(mm)');
-%% ¸÷²¡ÈË¸÷¸öÖ×ÁöµÄÊµ¼ÊÌå»ý£¨Á¢·½cm£©ÓëÏñËØÊýÁ¿
-tumor_size = [];% ÌåËØÊýÁ¿
-tumor_voxel_volume = [];% Ã¿¸öÖ×ÁöµÄÌåËØÊµ¼ÊÌå»ý
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½CTï¿½Ä²ï¿½ï¿½mmï¿½ï¿½');
+ylabel('ï¿½ï¿½ï¿½(mm)');
+%% ï¿½ï¿½ï¿½ï¿½ï¿½Ë¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cmï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+tumor_size = [];% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+tumor_voxel_volume = [];% Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½
 tumor_num = [];
 for i  = 1:length(subject)
     tumor_size = autoadd(tumor_size,subject(i).tumor_size);
     tmp_tumor_num = [];
     voxel_size_per_tumor = [];
-    for ii = 1:length(subject(i).v_m_id) % ±éÀúÃ¿Ò»¸öv
-       v_tumor_num = length(subject(i).v_m_id{ii}) ; % Çó³öµ±Ç°v¹²ÓÐ¶àÉÙ¸öÖ×Áö
+    for ii = 1:length(subject(i).v_m_id) % ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½v
+       v_tumor_num = length(subject(i).v_m_id{ii}) ; % ï¿½ï¿½ï¿½ï¿½ï¿½Ç°vï¿½ï¿½ï¿½Ð¶ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½ï¿½ï¿½
        tmp_tumor_num = [tmp_tumor_num,v_tumor_num];
-       voxel_size_per_tumor = [voxel_size_per_tumor,ones(1,v_tumor_num)*voxel_volume(i,ii)];% ii¾ÍÊÇvµÄÐòºÅ
+       voxel_size_per_tumor = [voxel_size_per_tumor,ones(1,v_tumor_num)*voxel_volume(i,ii)];% iiï¿½ï¿½ï¿½ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½
     end
     tumor_voxel_volume = autoadd(tumor_voxel_volume,voxel_size_per_tumor);
     tumor_num = autoadd(tumor_num,tmp_tumor_num);
@@ -108,58 +108,58 @@ for i  = 1:length(subject)
 end
 
 
-tumor_volume = (tumor_size.*tumor_voxel_volume)/1e3;% Êµ¼ÊÌå»ý(Á¢·½cm)
+tumor_volume = (tumor_size.*tumor_voxel_volume)/1e3;% Êµï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½cm)
 
-%Öù×´Í¼
+%ï¿½ï¿½×´Í¼
 figure;
-subplot(3,1,1);% ÌåËØµÄÈý¸öÎ¬¶ÈµÄ³ß´ç
+subplot(3,1,1);% ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Î¬ï¿½ÈµÄ³ß´ï¿½
 bar(tumor_size,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷CTµÄ¸÷Ö×ÁöÌåËØÊýÁ¿');
-ylabel('ÌåËØÊý');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½CTï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
+ylabel('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
 
 
-subplot(3,1,2);% ÌåËØµÄÈý¸öÎ¬¶ÈµÄ³ß´ç
+subplot(3,1,2);% ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Î¬ï¿½ÈµÄ³ß´ï¿½
 bar(tumor_volume,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷CTµÄ¸÷¸öÖ×ÁöµÄÊµ¼ÊÌå»ý');
-ylabel('Ìå»ý£¨Á¢·½cm£©');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½CTï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½');
+ylabel('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cmï¿½ï¿½');
 
 
-subplot(3,1,3);% ÌåËØµÄÈý¸öÎ¬¶ÈµÄ³ß´ç
+subplot(3,1,3);% ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½Î¬ï¿½ÈµÄ³ß´ï¿½
 bar(tumor_num,'group','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷CTµÄÖ×Áö¸öÊý');
-ylabel('Ö×Áö¸öÊý');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½CTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
+ylabel('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
 
 
 
-%% É¢µãÍ¼»òÖ±·½Í¼£¬°ÑËùÓÐÖ×Áö£¬µ¥¶ÀÒ»ÀàµÄÖ×Áö¶¼¿´¿´·Ö²¼
-%ËùÓÐÖ×ÁöµÄÌå»ý£¬ÂÒÐò
+%% É¢ï¿½ï¿½Í¼ï¿½ï¿½Ö±ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½
+%ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 all_tumor_volume = tumor_volume(tumor_volume ~= 0);
 figure;
 subplot(3,1,1);
@@ -169,10 +169,10 @@ set(h,'facecolor','r')
 h = findobj(gca,'Type','patch');
 h.EdgeColor = 'y';
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
-title('ËùÓÐÖ×ÁöÌå»ýÖ±·½Í¼');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Í¼');
 
 
-%µ¥¶ÀÒ»ÀàµÄÖ±·½Í¼
+%ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Í¼
 class_a_tumor_volume = tumor_volume(label==1,:);
 class_b_tumor_volume = tumor_volume(label==2,:);
 a_all_tumor_volume = class_a_tumor_volume(class_a_tumor_volume ~= 0);
@@ -185,7 +185,7 @@ set(h,'facecolor','r')
 h = findobj(gca,'Type','patch');
 h.EdgeColor = 'y';
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
-title(strcat('AÀàÖÐËùÓÐÖ×ÁöÌå»ýÖ±·½Í¼,Ñù±¾Êý£º',num2str(size(a_all_tumor_volume,1))));
+title(strcat('Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Í¼,ï¿½ï¿½ï¿½ï¿½',num2str(size(a_all_tumor_volume,1))));
 
 subplot(3,1,3);
 [n1,x1] = hist(b_all_tumor_volume);
@@ -194,18 +194,18 @@ set(h,'facecolor','r')
 h = findobj(gca,'Type','patch');
 h.EdgeColor = 'y';
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
-title(strcat('BÀàÖÐËùÓÐÖ×ÁöÌå»ýÖ±·½Í¼,Ñù±¾Êý£º',num2str(size(b_all_tumor_volume,1))));
+title(strcat('Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½Í¼,ï¿½ï¿½ï¿½ï¿½',num2str(size(b_all_tumor_volume,1))));
 
-%% À©ÔöÇ°ºóblockµÄÊýÁ¿¶Ô±È£¬ÒÔ¼°Ìå»ý¶Ô±È£¨²»¹ýÓÐ¿ÉÄÜÒ»¸ö²¡ÈËÓÐ¶à¸öÍ¼Ïñ£¬¶à¸öÖ×Áö£¬ËùÒÔÉ¢µãÍ¼Ã»Ê²Ã´ÒâÒåÃ²ËÆ£¬Ö»×öÖ±·½Í¼¾ÍÐÐÁË£©
-% À©ÔöºóµÄ×ÜÌå»ýµÈÓÚ¿éÊý³ËÒÔxxx
+%% ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½blockï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô±È£ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½Ô±È£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¿ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½ï¿½Í¼ï¿½ñ£¬¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¢ï¿½ï¿½Í¼Ã»Ê²Ã´ï¿½ï¿½ï¿½ï¿½Ã²ï¿½Æ£ï¿½Ö»ï¿½ï¿½Ö±ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½
+% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½xxx
 
-adjust_voxelsize = wkspace.adjust_voxelsize;% ÖØ²ÉÑùºó·Ö±æÂÊ
+adjust_voxelsize = wkspace.adjust_voxelsize;% ï¿½Ø²ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½
 
-or_block = [];%Ã¿¸öÑù±¾µÄÃ¿¸öÖ×Áö±»·Ö³ÉÁË¶àÉÙ¿é
+or_block = [];%Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö³ï¿½ï¿½Ë¶ï¿½ï¿½Ù¿ï¿½
 
-aug_block = [];%Ã¿¸öÑù±¾Ò»¹²±» À©Ôö¶àÉÙ¿é
-aug_tumor_block = [];%Ã¿¸öÑù±¾µÄÃ¿¸öÖ×ÁöÒ»¹²±» À©ÔöÁË¶àÉÙ¿é
-aug_volume = [];% Ã¿¸öÑù±¾µÄÃ¿¸öÖ×Áö×îÖÕ±» À©ÔöµÄÌå»ý
+aug_block = [];%Ã¿ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½
+aug_tumor_block = [];%Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½Ù¿ï¿½
+aug_volume = [];% Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 
 
@@ -216,7 +216,7 @@ for i  = 1:length(subject)
 
     tmp_blocks = [];
     tmp_blocks_aug = [];
-    for ii = 1:length(subject(i).v_m_id) % ±éÀúÃ¿Ò»¸öv
+    for ii = 1:length(subject(i).v_m_id) % ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½v
        tmp_blocks = [tmp_blocks,blocks_per_tumor{ii}];
        tmp_blocks_aug = [tmp_blocks_aug,blocks_per_tumor_aug{ii}];
     end
@@ -229,67 +229,67 @@ for i  = 1:length(subject)
 end
 
 
-tmpcolume = cumprod(adjust_voxelsize);% ¼ÆËãÌåËØµÄÊµ¼ÊÌå»ý£¨Á¢·½mm£©
-tmp_voxel_num = cumprod(wkspace.augdict.savefomat.param);% µ¥¸öÀ©ÔöblockµÄÌå»ý£¨×¢Òâ£¬²»ÊÇÑÏ¸ñµÄ£¬ÒòÎª·Ö¿éµÄÊ±ºòÓÐpadding£©
-aug_volume = aug_tumor_block*tmpcolume(end)*tmp_voxel_num(end)/1e3;% Á¢·½cm
+tmpcolume = cumprod(adjust_voxelsize);% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mmï¿½ï¿½
+tmp_voxel_num = cumprod(wkspace.augdict.savefomat.param);% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½blockï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½Ä£ï¿½ï¿½ï¿½Îªï¿½Ö¿ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½paddingï¿½ï¿½
+aug_volume = aug_tumor_block*tmpcolume(end)*tmp_voxel_num(end)/1e3;% ï¿½ï¿½ï¿½ï¿½cm
 
 
 
 figure;
 subplot(2,2,1);
 bar(or_block,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷¸öÖ×ÁöµÄ·Ö¿éÊý');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·Ö¿ï¿½ï¿½ï¿½');
 
 
 subplot(2,2,2);
 bar(aug_tumor_block,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËµÄ¸÷¸öÖ×ÁöÀ©ÔöºóµÄµÄ·Ö¿éÊý');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ËµÄ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄµÄ·Ö¿ï¿½ï¿½ï¿½');
 
 
 subplot(2,2,3);
 bar(aug_block,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËÀ©ÔöºóµÄ×Ü¿éÊý');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½');
 
 subplot(2,2,4);
 bar(aug_volume,'stack','EdgeColor','y');
-xtb = get(gca,'XTickLabel');% »ñÈ¡ºá×ø±êÖá±êÇ©¾ä±ú
-xt = 1:length(subject);% »ñÈ¡ºá×ø±êÖá¿Ì¶È¾ä±ú
-yt = xt*0.01; % »ñÈ¡×Ý×ø±êÖá¿Ì¶È¾ä±ú
-xtextp=xt;%Ã¿¸ö±êÇ©·ÅÖÃÎ»ÖÃµÄºá×ø±ê£¬Õâ¸ö×ÔÈ»Ó¦¸ÃºÍÔ­À´µÄÒ»ÑùÁË¡£                    
+xtb = get(gca,'XTickLabel');% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½
+xt = 1:length(subject);% ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+yt = xt*0.01; % ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¶È¾ï¿½ï¿½
+xtextp=xt;%Ã¿ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½ï¿½ï¿½Î»ï¿½ÃµÄºï¿½ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½È»Ó¦ï¿½Ãºï¿½Ô­ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¡ï¿½                    
 ytextp=-0.6*yt(3)*ones(1,length(xt));
 text(xtextp,ytextp,id,'HorizontalAlignment','right','rotation',90)
 set(gca,'XTickLabel',[]);
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 grid on;
-title('¸÷²¡ÈËÀ©Ôöºó¸÷¸öÖ×ÁöµÄ×Ü¿éÊýÌå»ý');
-ylabel('Ìå»ý£¨Á¢·½cm£©');
+title('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
+ylabel('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cmï¿½ï¿½');
 
 
 
