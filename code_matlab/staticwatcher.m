@@ -1,8 +1,8 @@
 %% 统计各个样本的信息
 % 初始化
-clear;
-clc;
-close all;
+% clear;
+% clc;
+% close all;
 
 %% load 文件
 subject_log_path = 'H:\@data_NENs_response\EP\data\3Aug20000\subject';
@@ -63,7 +63,7 @@ end
 %柱状图
 figure;
 subplot(2,1,1);% 体素的三个维度的尺寸
-bar(voxel_x,'stack','EdgeColor','y');% 也就是横截面的分辨率
+bar(voxel_x,'group','EdgeColor','y');% 也就是横截面的分辨率
 xtb = get(gca,'XTickLabel');% 获取横坐标轴标签句柄
 xt = 1:length(subject);% 获取横坐标轴刻度句柄
 yt = xt*0.01; % 获取纵坐标轴刻度句柄
@@ -77,7 +77,7 @@ title('各病人的各CT的横截面分辨率（mm）');
 ylabel('分辨率(mm)');
 
 subplot(2,1,2);% 体素的三个维度的尺寸
-bar(voxel_z,'stack','EdgeColor','y'); % 也就是层厚
+bar(voxel_z,'group','EdgeColor','y'); % 也就是层厚
 xtb = get(gca,'XTickLabel');% 获取横坐标轴标签句柄
 xt = 1:length(subject);% 获取横坐标轴刻度句柄
 yt = xt*0.01; % 获取纵坐标轴刻度句柄
