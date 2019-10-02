@@ -453,7 +453,7 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
         print('AUC', Aucc)
 
     # =====================================================
-    mean_loss_per_block = np.mean(loss_temp) #以block为单位的loss
+    mean_loss_per_block = np.mean(loss_temp_perblock) #以block为单位的loss
     mean_loss = np.mean(final_loss) #以病人为单位的loss
 
     print('Sensitivity', Sensitivity)
@@ -501,7 +501,7 @@ def test_on_model4_subject_new(model, test_list, iters, data_input_shape, label_
 
     if per_block_loss_savepath is not None:
         txt_pr = open(per_block_loss_savepath, 'a')
-        txt_pr.write(str(iters) + '@' + str(loss_temp) + '\n')
+        txt_pr.write(str(iters) + '@' + str(loss_temp_perblock) + '\n')
         txt_pr.close()
 
 

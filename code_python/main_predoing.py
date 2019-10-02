@@ -134,7 +134,7 @@ train_list4 =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname
 test_list =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_test.txt')
 ver_list = get_filelist_frompath(out_or_path,'h5')
 
-Result_save_Path = r'/data/@data_laowang/new/test'
+Result_save_Path = r'/media/root/老王3号/qwe'
 
 
 
