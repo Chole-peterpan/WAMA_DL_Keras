@@ -127,7 +127,7 @@ backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 legend(legend_str,'Location','best');
 title('or loss with smooth');
 hold off;
-%% step3����ȡverify����result���?
+%% step3����ȡverify����result���??
 if verify_flag
     tmp_str_v = '_ver_result';
     
@@ -201,7 +201,7 @@ if verify_flag
 %     title('ver miul');
     
 end
-%% step4����ȡtest����result���?
+%% step4����ȡtest����result���??
 if test_flag
     tmp_str_v = '_test_result';
     
@@ -269,20 +269,6 @@ if test_flag
 %     plot(test_result(:,1),smooth(test_result(:,2).*test_result(:,3).*test_result(:,4).*test_result(:,5),20),'r');
 %     title('test miul');
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
