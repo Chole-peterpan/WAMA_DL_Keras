@@ -41,9 +41,6 @@ person_label = importdata(peron_label_path);
 person_pre = importdata(peron_pre_path);
 
 loss_all = importdata(loss_path);
-clear per_block_loss_path per_block_name_path per_block_label_path per_block_pre_path
-clear peron_loss_path peron_id_path peron_label_path peron_pre_path
-clear loss_path
 
 
 %% person_id ‘§¥¶¿Ì
