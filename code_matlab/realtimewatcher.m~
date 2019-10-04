@@ -129,7 +129,7 @@ title('or loss with smooth');
 hold off;
 %% step3����ȡverify����result���??
 if verify_flag
-    tmp_str_v = '_result_ver';
+    tmp_str_v = '@ver';
     
     
     file_name = strcat(log_path,filesep,'@',fold_name,tmp_str_v,'.txt');
@@ -203,7 +203,7 @@ if verify_flag
 end
 %% step4����ȡtest����result���??
 if test_flag
-    tmp_str_v = '_result_test';
+    tmp_str_v = '_test_result';
     
     
     file_name = strcat(log_path,filesep,'@',fold_name,tmp_str_v,'.txt');
