@@ -49,11 +49,7 @@ import h5py
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 # step1: import model finished
-from function import pause, test_on_model4_subject, test_on_model4_subject4_or_train
-from w_dualpathnet import dual_path_net
-from w_resnet import resnet, resnet_nobn, se_resnet
-from w_dense_net import dense_net,se_dense_net
-from w_resnext import  resnext, resnext_or, se_resnext
+
 from w_vggnet import vgg16_w_3d, vgg16_w_3d_gb
 from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss
 from keras.applications.vgg16 import VGG16
@@ -98,11 +94,7 @@ import h5py
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 # step1: import model finished
-from function import pause, test_on_model4_subject, test_on_model4_subject4_or_train
-from w_dualpathnet import dual_path_net
-from w_resnet import resnet, resnet_nobn, se_resnet
-from w_dense_net import dense_net,se_dense_net
-from w_resnext import  resnext, resnext_or, se_resnext
+
 from w_vggnet import vgg16_w_3d, vgg16_w_3d_gb
 from w_loss import  EuiLoss, y_t, y_pre, Acc, EuclideanLoss
 from keras.applications.vgg16 import VGG16

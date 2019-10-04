@@ -22,8 +22,8 @@ from keras.losses import categorical_crossentropy
 # step2: import extra model finished
 
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
@@ -136,17 +136,9 @@ ver_list = get_filelist_frompath(out_or_path,'h5')
 
 Result_save_Path = r'/media/root/老王3号/qwe'
 
-
-
-
-
-
-
-
 H5_List_train =  train_list3 + train_list4 +train_list1+train_list2
 H5_List_test = test_list
 H5_List_ver = ver_list
-
 
 trainset_num = len(H5_List_train)
 
@@ -165,13 +157,7 @@ trainset_num = len(H5_List_train)
 # ======================================================
 
 
-
-
-# log的savepath
-
-
-
-multi_gpu_mode = False #是否开启多GPU数据并行模式
+multi_gpu_mode = True #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
 
@@ -183,7 +169,7 @@ label_shape = [2]
 init_lr = 2e-4 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
 max_iter = 400000 #最大迭代次数
-print_steps = 60 # 打印训练信息的步长
+print_steps = 1 # 打印训练信息的步长
 task_name = 'test'  # 任务名称,自己随便定义
 min_verify_Iters = 5  # 最小测试和验证迭代数量
 verify_Iters_step = 5 # 测试和验证的步长
@@ -231,6 +217,28 @@ if __name__ == "__main__":
     # print(d_model.summary())  # view net
     # pause()  # identify
     # extra param initialization:初始化一些用来记录和显示的参数
+
+
+    # 寻找最佳学习率
+    random.shuffle(H5_List_train)
+    finder_loss, finder_loss_smooth, finder_lr = lr_finder(d_model, Result_save_Path, H5_List_train, batch_size, 2, label_shape,
+                  data_input_shape, label_index, inc_mode='mult',show_flag=True,iter = 300,lr_low=1e-20)
+
+
+    # 键盘手动输入lr_high和low
+    keyboard_input=input(r'pls enter lr_high and lr_low') # exp.   1e-6, 1e-11
+    lr_high,lr_low = [float(i)  for i in (keyboard_input.split(',')[:])]
+    # 获取cos退火的学习率list
+    lr_sgdr = lr_mod_cos(epoch_file_size = len(train_list3)+len(train_list4),
+                         batchsize = batch_size,
+                         lr_high = lr_high,
+                         lr_low = lr_low,
+                         warmup_epoch=5,
+                         loop_step=[1, 2, 4, 16],
+                         max_contrl_epoch=65,
+                         show_flag= True)
+
+    # 初始化一些参数
     have_test_flag = False # 是否已经进行过测试的flag
     Iter = 0
     epoch = 0
@@ -307,8 +315,7 @@ if __name__ == "__main__":
 
 
 
-
-    # K.set_value(d_model.optimizer.lr, 2e-6)
+    K.set_value(d_model.optimizer.lr, lr_mod_4sgdr(Iter, lr_sgdr))
     # train
     for i in range(max_iter):
         txt_minibatch_loss = open(minibatch_loss_txt, 'a')
@@ -489,41 +496,38 @@ if __name__ == "__main__":
                 min_loss_test_iter = Iter
                 min_loss_test = test_result[4]
 
-        # 保存尽量新模型,防止训练中断
+        # 每隔较短时间保存一次模型,防止训练中断
         if Iter % model_save_step == 0:
             # 保存模型
             print('saving model')
             d_model.save(model_save_Path +file_sep +'m_' + 'newest_model.h5')
             print('already save')
-
-
-
         # 每隔较长时间保存一次模型,用来做网络的可视化
         if Iter % model_save_step4_visualization == 0:
             d_model.save(model_save_Path +file_sep+'m_' + str(Iter) + '_model.h5')
 
 
 
-        # 优化策略:优化器变更以及学习率调整=========================================================================================
-        # 开始的时候我们用的是adam,所以下面代码分为两部分,一部分是切换adam到sgd,另外一部分负责切换之后更新学习率
-        # 如果到达转换点,那么就开始转换,以防万一,先保存权重,之后重新编译模型,之后加载权重
+        # 转换优化器
         if Iter == optimizer_switch_point:
-            print('saving model')
+            print('optimizer_switch_point saving model')
             d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
-            print('saved succeed')
-            # lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
-            d_model.compile(optimizer=SGD(lr=trans_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+            print('optimizer_switch_point saved succeed')
+            d_model.compile(optimizer=SGD(lr=K.get_value(d_model.optimizer.lr), momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
 
 
+
+        # 学习率策略:抖动循环退火
         # if Iter > optimizer_switch_point:
         #     lr_new = lr_mod(Iter, max_epoch=50, epoch_file_size=trainset_num, batch_size=batch_size, init_lr=trans_lr)
         #     K.set_value(d_model.optimizer.lr, lr_new)
-        if Iter % lr_decay_step == 0:
-            K.set_value(d_model.optimizer.lr, K.get_value(d_model.optimizer.lr)*decay_rate)
 
+        # 学习率策略:固定补偿衰减
+        # if Iter % lr_decay_step == 0:
+        #     K.set_value(d_model.optimizer.lr, K.get_value(d_model.optimizer.lr)*decay_rate)
 
-
-
+        # 学习率策略:cos循环退火
+        K.set_value(d_model.optimizer.lr,lr_mod_4sgdr(Iter, lr_sgdr))
 
 
 

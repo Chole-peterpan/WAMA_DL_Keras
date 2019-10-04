@@ -49,6 +49,20 @@ def lr_mod(iter,max_epoch,epoch_file_size,batch_size,init_lr ,doudong=0.1,min_lr
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 从这个函数开始,就要规范一下写代码的格式了
 # 必要的参数之类的解释,必须要加上
 def get_param_from_txt(txt_path, print_param = True):
@@ -623,5 +637,129 @@ def get_filelist_fromTXT(filepath, txt_path, sample_id = None):
 
 
     return file_List
+
+
+
+
+import keras.backend as K
+import matplotlib.pyplot as plt
+file_sep = os.sep
+# 运行后需要重新compile一次
+def lr_finder(model, tmp_weight_path, filelist, batchsize, Epoch, label_shape,
+              data_input_shape, label_index, iter = None, beta = 0.98, inc_mode = 'mult',
+              lr_low=1e-6, lr_high=10,show_flag = False):
+
+
+    model.save(tmp_weight_path + file_sep + 'tmp.h5')
+
+
+    file_num = len(filelist)
+    loss = []
+    loss_smooth = []
+    lr = []
+
+    iternum = (Epoch*file_num)/batchsize
+    if iter is not None:
+        iternum = iter
+
+    if inc_mode == 'mult':
+        mult = (lr_high / lr_low) ** (1/iternum)
+    elif inc_mode ==  'inc':
+        inc = (lr_high - lr_low) * (1 / iternum)
+
+    avg_loss = 0.
+    index_flag = 0
+    epoch = 0
+    print('train_num is :',file_num,' all iters are:', int(iternum))
+    K.set_value(model.optimizer.lr, lr_low)
+
+
+    for i in range(int(iternum)+1):
+        # 读取batch
+        epoch, index_flag, filelist, data_input_c, \
+        label_input_c, filenamelist, labeel = get_batch_from_list(batch_size = batchsize,
+                                                                  index_flag = index_flag,
+                                                                  filepath_list = filelist,
+                                                                  epoch = epoch,
+                                                                  label_index = label_index,
+                                                                  data_input_shape = data_input_shape,
+                                                                  label_shape = label_shape)
+
+        # 训练
+        cost = model.train_on_batch(data_input_c, label_input_c,class_weight={0:1,1:1})
+
+        print('epoch:', epoch, r'/', Epoch, ',  iter',i + 1, r"/", int(iternum)+1, ',  loss:', cost[0])
+
+
+        loss.append(cost[0])
+        avg_loss = beta * avg_loss + (1 - beta) * cost[0]
+        loss_smooth.append(avg_loss / (1 - beta ** i))
+
+        now_lr = K.get_value(model.optimizer.lr)
+        lr.append(now_lr)
+
+        if inc_mode == 'mult':
+            K.set_value(model.optimizer.lr, now_lr * mult)
+        elif inc_mode == 'inc':
+            K.set_value(model.optimizer.lr, now_lr + inc)
+
+
+
+    # 还原权重
+    model.load_weights(filepath=tmp_weight_path + file_sep + 'tmp.h5', by_name=True)
+
+
+    if show_flag:
+        plt.figure()
+        loss = np.array(loss)
+        loss_smooth = np.array(loss_smooth)
+        lr = np.array(lr)
+        plt.plot(lr, loss)
+        plt.plot(lr, loss_smooth)
+        plt.xscale('log')
+        plt.show()
+
+    return [loss,loss_smooth,lr]
+
+
+# cos退火 + 循环(sgdr)
+def lr_mod_cos(epoch_file_size, batchsize, lr_high, lr_low, warmup_epoch=5, loop_step=[1, 2, 4],
+               max_contrl_epoch=65, show_flag = False):
+    iternum = int((epoch_file_size * max_contrl_epoch) / batchsize) + 1
+
+    pi = math.pi
+    loop_step = np.array(loop_step)
+    loop_num = len(loop_step)
+    # 求出各个loop的iter数量
+    warmup_iternum = int((epoch_file_size * warmup_epoch) / batchsize)  # 热身需要的迭代次数
+    all_loop_iternum = iternum - warmup_iternum  # 循环退火的总迭代次数
+    each_loop_iter = [int((i * all_loop_iternum) / np.sum(loop_step)) for i in loop_step]
+
+    lr_new = []
+    tmp_lr = (np.array(range(warmup_iternum)) / warmup_iternum) * (lr_high - lr_low) + lr_low
+    lr_new = lr_new + list(tmp_lr)
+
+    for i in range(loop_num):
+        tmp_iter = (np.array(range(each_loop_iter[i])) / each_loop_iter[i])
+        tmp_lr = (((np.cos(tmp_iter * pi) + 1) / 2) * (lr_high - lr_low)) + lr_low
+        lr_new = lr_new + list(tmp_lr)
+
+
+    if show_flag:
+        plt.figure()
+        loss = np.array(lr_new)
+        plt.plot(lr_new)
+        plt.show()
+    # 一次性返回所有lr的list
+
+    return lr_new
+
+def lr_mod_4sgdr(iter, lr_list):
+    if iter >= len(lr_list):
+        return np.array(lr_list).min()
+    else:
+        return lr_list[iter]
+
+
 
 
