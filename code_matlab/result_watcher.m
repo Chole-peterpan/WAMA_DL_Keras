@@ -7,9 +7,9 @@ clear;
 clc;
 
 %% 指定参数
-logpath = 'H:\qwe\log';
+logpath = 'F:\test\log\test1\log';
 foldname = 1;
-test_flag = true;
+test_flag = false;
 acc_thresold = 0.5;% 准确率阈值
 
 %% 加载数据
@@ -17,7 +17,7 @@ result_watcher_1
 
 %% 第一级别显示：以人为单位的loss，pre，acc（以块做平均）
 % 设定参数
-scale_size = 300;%loss热力图缩放的比例
+scale_size = 1;%loss热力图缩放的比例
 % 显示loss以及acc
 result_watcher_2;
 

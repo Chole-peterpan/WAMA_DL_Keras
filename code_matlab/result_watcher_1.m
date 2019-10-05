@@ -44,9 +44,16 @@ loss_all = importdata(loss_path);
 
 
 %% person_id 预处理
+% 新增，修复bug ----------------------------
 person_id = person_id{1};
-person_id = person_id(4:end-1);
+person_id = split(person_id,'@');
+person_id = person_id{2};
+person_id = person_id(2:end-1);
 person_id = split(person_id,',');
+% -----------------------------------------
+% person_id = person_id{1};
+% person_id = person_id(4:end-1);
+% person_id = split(person_id,',');
 % 把字符串前面的空格去掉
 for i = 2:length(person_id)
    person_id{i} = person_id{i}(2:end); 
@@ -54,7 +61,10 @@ end
 
 %% per_block_name 预处理，输出为name_mat
 block_name = per_block_name{1};
-block_name = block_name(4:end-1);
+block_name = split(block_name,'@');
+block_name = block_name{2};
+block_name = block_name(2:end-1);
+% block_name = block_name(4:end-1);
 block_name = split(block_name,',');
 per_block_name = block_name;% 预处理
 % 把字符串前面的空格去掉
@@ -161,7 +171,10 @@ clear per_block_loss
 person_pre_label = double(person_pre_all >= acc_thresold);
 person_true_label = [];
 person_label = person_label{1};
-person_label = person_label(4:end-1);
+person_label = split(person_label,'@');
+person_label = person_label{2};
+person_label = person_label(2:end-1);
+% person_label = person_label(4:end-1);
 person_label = split(person_label,',');
 % 把字符串前面的空格去掉
 for i = 1:length(person_label)
@@ -183,10 +196,13 @@ person_true_label = tmp_label;clear tmp_label;
 block_pre_label = double(block_pre>=acc_thresold);
 block_true_label = [];
 block_label = per_block_label{1};
-block_label = block_label(4:end-1);
+block_label = split(block_label,'@');
+block_label = block_label{2};
+block_label = block_label(2:end-1);
+% block_label = block_label(4:end-1);
 block_label = split(block_label,',');
 % 把字符串前面的空格去掉
-for i = 1:length(block_label)
+for i = 2:length(block_label)
    block_true_label(i) = str2double(block_label{i}); 
 end
 block_true_label = block_true_label';

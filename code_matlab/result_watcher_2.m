@@ -38,11 +38,11 @@ colorbar('location','SouthOutside');
 ylabel('subject id');
 xlabel('iters');
 
-ytick = floor(1:(size(person_loss_all,1)*scale_size/length(person_id))+0.1:size(person_loss_all,1)*scale_size);
+ytick = floor(1:(size(person_loss_all,1)*scale_size/length(person_id)):size(person_loss_all,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',person_id)
 
-xtick = floor(1:(size(person_loss_all,2)*scale_size/length(all_loss_iter))+0.1:size(person_loss_all,2)*scale_size);
+xtick = floor(1:(size(person_loss_all,2)*scale_size/length(all_loss_iter)):size(person_loss_all,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
@@ -56,11 +56,11 @@ colorbar('location','SouthOutside');
 ylabel('block name');
 xlabel('iters');
 
-ytick = floor(1:(size(block_loss,1)*scale_size/length(per_block_name))+0.1:size(block_loss,1)*scale_size);
+ytick = floor(1:(size(block_loss,1)*scale_size/length(per_block_name)):size(block_loss,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',per_block_name)
 
-xtick = floor(1:(size(block_loss,2)*scale_size/length(all_loss_iter))+0.1:size(block_loss,2)*scale_size);
+xtick = floor(1:(size(block_loss,2)*scale_size/length(all_loss_iter)):size(block_loss,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
@@ -78,11 +78,11 @@ colorbar('location','SouthOutside');
 ylabel('id');
 xlabel('iters');
 
-ytick = floor(1:(size(block_pre,1)*scale_size/length(per_block_name))+0.1:size(block_pre,1)*scale_size);
+ytick = floor(1:(size(block_pre,1)*scale_size/length(per_block_name)):size(block_pre,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',per_block_name)
 
-xtick = floor(1:(size(block_pre,2)*scale_size/length(all_loss_iter))+0.1:size(block_pre,2)*scale_size);
+xtick = floor(1:(size(block_pre,2)*scale_size/length(all_loss_iter)):size(block_pre,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
@@ -96,11 +96,11 @@ colorbar('location','SouthOutside');
 ylabel('id');
 xlabel('iters');
 
-ytick = floor(1:(size(person_pre_all,1)*scale_size/length(person_id))+0.1:size(person_pre_all,1)*scale_size);
+ytick = floor(1:(size(person_pre_all,1)*scale_size/length(person_id)):size(person_pre_all,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',person_id)
 
-xtick = floor(1:(size(person_pre_all,2)*scale_size/length(all_loss_iter))+0.1:size(person_pre_all,2)*scale_size);
+xtick = floor(1:(size(person_pre_all,2)*scale_size/length(all_loss_iter)):size(person_pre_all,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
@@ -118,11 +118,11 @@ colorbar('location','SouthOutside');
 ylabel('id');
 xlabel('iters');
 
-ytick = floor(1:(size(person_right,1)*scale_size/length(person_id))+0.1:size(person_right,1)*scale_size);
+ytick = floor(1:(size(person_right,1)*scale_size/length(person_id)):size(person_right,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',person_id)
 
-xtick = floor(1:(size(person_right,2)*scale_size/length(all_loss_iter))+0.1:size(person_right,2)*scale_size);
+xtick = floor(1:(size(person_right,2)*scale_size/length(all_loss_iter)):size(person_right,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
@@ -147,11 +147,11 @@ colorbar('location','SouthOutside');
 ylabel('id');
 xlabel('iters');
 
-ytick = floor(1:(size(person_block_acc,1)*scale_size/length(person_id))+0.1:size(person_block_acc,1)*scale_size);
+ytick = floor(1:(size(person_block_acc,1)*scale_size/length(person_id)):size(person_block_acc,1)*scale_size);
 set(gca, 'yTick', ytick);
 set(gca,'YTickLabel',person_id)
 
-xtick = floor(1:(size(person_block_acc,2)*scale_size/length(all_loss_iter))+0.1:size(person_block_acc,2)*scale_size);
+xtick = floor(1:(size(person_block_acc,2)*scale_size/length(all_loss_iter)):size(person_block_acc,2)*scale_size);
 set(gca, 'xTick', xtick);
 set(gca,'XTickLabel',all_loss_iter)
 
