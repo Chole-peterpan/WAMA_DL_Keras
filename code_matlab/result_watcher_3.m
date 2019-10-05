@@ -37,11 +37,11 @@ if s_id ~= 0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name))+0.1:size(s_loss,1)*scale_size);
+        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name)):size(s_loss,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter))+0.1:size(s_loss,2)*scale_size);
+        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter)):size(s_loss,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
@@ -56,11 +56,11 @@ if s_id ~= 0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name))+0.1:size(s_pre,1)*scale_size);
+        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name)):size(s_pre,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter))+0.1:size(s_pre,2)*scale_size);
+        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter)):size(s_pre,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
@@ -110,11 +110,11 @@ if v_id ~=0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name))+0.1:size(s_loss,1)*scale_size);
+        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name)):size(s_loss,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter))+0.1:size(s_loss,2)*scale_size);
+        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter)):size(s_loss,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
@@ -129,11 +129,11 @@ if v_id ~=0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name))+0.1:size(s_pre,1)*scale_size);
+        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name)):size(s_pre,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter))+0.1:size(s_pre,2)*scale_size);
+        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter)):size(s_pre,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
@@ -184,11 +184,11 @@ if m_id ~= 0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name))+0.1:size(s_loss,1)*scale_size);
+        ytick = floor(1:(size(s_loss,1)*scale_size/length(s_block_name)):size(s_loss,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter))+0.1:size(s_loss,2)*scale_size);
+        xtick = floor(1:(size(s_loss,2)*scale_size/length(all_loss_iter)):size(s_loss,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
@@ -203,11 +203,11 @@ if m_id ~= 0
         ylabel('block name');
         xlabel('iters');
         
-        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name))+0.1:size(s_pre,1)*scale_size);
+        ytick = floor(1:(size(s_pre,1)*scale_size/length(s_block_name)):size(s_pre,1)*scale_size);
         set(gca, 'yTick', ytick);
         set(gca,'YTickLabel',s_block_name)
         
-        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter))+0.1:size(s_pre,2)*scale_size);
+        xtick = floor(1:(size(s_pre,2)*scale_size/length(all_loss_iter)):size(s_pre,2)*scale_size);
         set(gca, 'xTick', xtick);
         set(gca,'XTickLabel',all_loss_iter)
         
