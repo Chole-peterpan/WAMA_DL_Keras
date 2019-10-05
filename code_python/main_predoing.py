@@ -22,8 +22,8 @@ from keras.losses import categorical_crossentropy
 # step2: import extra model finished
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 set_session(tf.Session(config=config))
@@ -121,20 +121,25 @@ set_session(tf.Session(config=config))
 
 # 读取文件的第三种情况:从分折文件中读取 ===================================================================
 file_sep = os.sep
-CV_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/5CV'
-foldname = '1'
-augdata_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/4aug'
-or_data_path = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/3or'
-out_or_path  = '/media/root/老王3号/@data_NENs_recurrence/PNENs/data/flow1/3or_out'
+CV_path = '/data/@data_laowang/new/flow1/5CV'
+foldname = '3'# 注意修改!!!
+task_name = 'fold3'  # 任务名称,自己随便定义# 注意修改!!!
+augdata_path = '/data/@data_laowang/new/flow1/4aug'
+or_data_path = '/data/@data_laowang/new/flow1/3or'
+out_or_path  = '/data/@data_laowang/new/flow1/3or_out'
+Result_save_Path = r'/data/@data_laowang/new/result/test'# 注意修改!!!
+
+
 
 train_list1 =get_filelist_fromTXT(augdata_path,CV_path+file_sep+'fold_'+foldname+'_aug_train.txt')
 train_list2 =get_filelist_fromTXT(augdata_path,CV_path+file_sep+'fold_'+foldname+'_aug_verify.txt')
 train_list3 =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_train.txt')
 train_list4 =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_verify.txt')
+
 test_list =get_filelist_fromTXT(or_data_path,CV_path+file_sep+'fold_'+foldname+'_or_test.txt')
 ver_list = get_filelist_frompath(out_or_path,'h5')
 
-Result_save_Path = r'/media/root/老王3号/qwe'
+
 
 H5_List_train =  train_list3 + train_list4 +train_list1+train_list2
 H5_List_test = test_list
@@ -157,11 +162,11 @@ trainset_num = len(H5_List_train)
 # ======================================================
 
 
-multi_gpu_mode = True #是否开启多GPU数据并行模式
+multi_gpu_mode = False #是否开启多GPU数据并行模式
 gpu_munum = 3 #多GPU并行指定GPU数量
 
 
-batch_size = 6
+batch_size = 7
 test_batchsize = 4
 label_index = 'label3'
 data_input_shape = [200,200,20]
@@ -169,12 +174,12 @@ label_shape = [2]
 init_lr = 2e-4 # 初始学习率
 trans_lr = 2e-5 # 转换后学习率
 max_iter = 400000 #最大迭代次数
-print_steps = 1 # 打印训练信息的步长
-task_name = 'test'  # 任务名称,自己随便定义
-min_verify_Iters = 5  # 最小测试和验证迭代数量
-verify_Iters_step = 5 # 测试和验证的步长
-lr_decay_step = 10000
-decay_rate = 0.5
+print_steps = 50 # 打印训练信息的步长
+
+min_verify_Iters = 500  # 最小测试和验证迭代数量
+verify_Iters_step = 100 # 测试和验证的步长
+# lr_decay_step = 10000
+# decay_rate = 0.5
 model_save_step = 500 # 模型保存的步长
 model_save_step4_visualization = 2000 # 保存模型用来可视化的步长
 
@@ -211,7 +216,7 @@ if __name__ == "__main__":
     if multi_gpu_mode:
         d_model = multi_gpu_model(d_model, gpus=gpu_munum)
     d_model.compile(optimizer=adam(lr=init_lr), loss=categorical_crossentropy, metrics=[y_t, y_pre, Acc])
-    # d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+    # d_model.compile(optimizer=SGD(lr=init_lr, momentum=0.9), loss=categorical_crossentropy, metrics=[y_t, y_pre, Acc])
     # d_model.compile(optimizer=SGD(lr=init_lr,momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
     # pause()  # identify
     # print(d_model.summary())  # view net
@@ -221,25 +226,34 @@ if __name__ == "__main__":
 
     # 寻找最佳学习率
     random.shuffle(H5_List_train)
-    finder_loss, finder_loss_smooth, finder_lr = lr_finder(d_model, Result_save_Path, H5_List_train, batch_size, 2, label_shape,
-                  data_input_shape, label_index, inc_mode='mult',show_flag=True,iter = 300,lr_low=1e-20)
+    finder_loss, finder_loss_smooth, finder_lr = lr_finder(d_model,
+                                                           Result_save_Path,
+                                                           H5_List_train,
+                                                           batch_size, 2, label_shape,
+                                                           data_input_shape,
+                                                           label_index,
+                                                           inc_mode='mult',
+                                                           show_flag=True,
+                                                           iter = 300,
+                                                           lr_low=1e-12,
+                                                           lr_high=1)
 
 
     # 键盘手动输入lr_high和low
     keyboard_input=input(r'pls enter lr_high and lr_low') # exp.   1e-6, 1e-11
     lr_high,lr_low = [float(i)  for i in (keyboard_input.split(',')[:])]
-    # 获取cos退火的学习率list
+    # 获取cos退火的学习率list,注意,这里的epoch file size以未扩增的为准
     lr_sgdr = lr_mod_cos(epoch_file_size = len(train_list3)+len(train_list4),
                          batchsize = batch_size,
                          lr_high = lr_high,
                          lr_low = lr_low,
                          warmup_epoch=5,
                          loop_step=[1, 2, 4, 16],
-                         max_contrl_epoch=65,
+                         max_contrl_epoch=165,
                          show_flag= True)
 
     # 初始化一些参数
-    have_test_flag = False # 是否已经进行过测试的flag
+    have_test_flag = False # 是否已经进行过测试的flag,如果已经测试过,那么就么必要在保存name和id之类的了
     Iter = 0
     epoch = 0
     max_acc_verify = 0.61
@@ -509,12 +523,12 @@ if __name__ == "__main__":
 
 
         # 转换优化器
-        if Iter == optimizer_switch_point:
-            print('optimizer_switch_point saving model')
-            d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
-            print('optimizer_switch_point saved succeed')
-            d_model.compile(optimizer=SGD(lr=K.get_value(d_model.optimizer.lr), momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
-
+        # if Iter == optimizer_switch_point:
+        #     print('optimizer_switch_point saving model')
+        #     d_model.save(model_save_Path + '/m_' + 'newest_model.h5')
+        #     print('optimizer_switch_point saved succeed')
+        #     d_model.compile(optimizer=SGD(lr=K.get_value(d_model.optimizer.lr), momentum=0.9), loss='categorical_crossentropy', metrics=[y_t, y_pre, Acc])
+        #
 
 
         # 学习率策略:抖动循环退火

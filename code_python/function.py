@@ -723,8 +723,8 @@ def lr_finder(model, tmp_weight_path, filelist, batchsize, Epoch, label_shape,
 
 
 # cos退火 + 循环(sgdr)
-def lr_mod_cos(epoch_file_size, batchsize, lr_high, lr_low, warmup_epoch=5, loop_step=[1, 2, 4],
-               max_contrl_epoch=65, show_flag = False):
+def lr_mod_cos(epoch_file_size, batchsize, lr_high = 1e-3, lr_low = 1e-7, warmup_epoch=5, loop_step=[1, 2, 4],
+               max_contrl_epoch=65, show_flag = False, decay = 0.8):
     iternum = int((epoch_file_size * max_contrl_epoch) / batchsize) + 1
 
     pi = math.pi
@@ -741,7 +741,7 @@ def lr_mod_cos(epoch_file_size, batchsize, lr_high, lr_low, warmup_epoch=5, loop
 
     for i in range(loop_num):
         tmp_iter = (np.array(range(each_loop_iter[i])) / each_loop_iter[i])
-        tmp_lr = (((np.cos(tmp_iter * pi) + 1) / 2) * (lr_high - lr_low)) + lr_low
+        tmp_lr = ((((np.cos(tmp_iter * pi) + 1) / 2) * (lr_high*(decay**(i)) - lr_low)) + lr_low)
         lr_new = lr_new + list(tmp_lr)
 
 

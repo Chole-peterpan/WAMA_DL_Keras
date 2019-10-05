@@ -5,7 +5,7 @@ clc;
 close all
 % while(1)
 %% step2��set the log path and other parameter
-log_path = '/media/root/老王3号/qwe/log';%
+log_path = '/data/@data_laowang/new/result/fold2/log';%
 fold_name = '1';
 or_train_flag = 1;
 verify_flag = 1;
@@ -129,7 +129,7 @@ title('or loss with smooth');
 hold off;
 %% step3����ȡverify����result���??
 if verify_flag
-    tmp_str_v = '@ver';
+    tmp_str_v = '_result_ver';
     
     
     file_name = strcat(log_path,filesep,'@',fold_name,tmp_str_v,'.txt');
@@ -203,7 +203,7 @@ if verify_flag
 end
 %% step4����ȡtest����result���??
 if test_flag
-    tmp_str_v = '_test_result';
+    tmp_str_v = '_result_test';
     
     
     file_name = strcat(log_path,filesep,'@',fold_name,tmp_str_v,'.txt');

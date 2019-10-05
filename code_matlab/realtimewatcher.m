@@ -5,7 +5,7 @@ clc;
 close all
 % while(1)
 %% step2��set the log path and other parameter
-log_path = '/media/root/老王3号/qwe/log';%
+log_path = '/data/@data_laowang/new/result/@test1_fold1/log';%
 fold_name = '1';
 or_train_flag = 1;
 verify_flag = 1;

@@ -177,6 +177,9 @@ def resnet_or(classes=2, use_bias_flag=True,inputshape=[1,1,1]):
     out = identity_block_or(out, [128, 128, 512], name='L2_block2', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [128, 128, 512], name='L2_block3', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [128, 128, 512], name='L2_block4', use_bias_flag=use_bias_flag)
+    # deeper
+    out = identity_block_or(out, [128, 128, 512], name='L2_block5', use_bias_flag=use_bias_flag)
+    out = identity_block_or(out, [128, 128, 512], name='L2_block6', use_bias_flag=use_bias_flag)
 
 
     out = conv_block_or(out, [256, 256, 1024], name = 'L3_block1', use_bias_flag=use_bias_flag)
@@ -186,12 +189,19 @@ def resnet_or(classes=2, use_bias_flag=True,inputshape=[1,1,1]):
     out = identity_block_or(out, [256, 256, 1024], name='L3_block4', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [256, 256, 1024], name='L3_block5', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [256, 256, 1024], name='L3_block6', use_bias_flag=use_bias_flag)
+    # deeper
+    out = identity_block_or(out, [256, 256, 1024], name='L3_block7', use_bias_flag=use_bias_flag)
+    out = identity_block_or(out, [256, 256, 1024], name='L3_block8', use_bias_flag=use_bias_flag)
+    out = identity_block_or(out, [256, 256, 1024], name='L3_block9', use_bias_flag=use_bias_flag)
+    out = identity_block_or(out, [256, 256, 1024], name='L3_block10', use_bias_flag=use_bias_flag)
 
 
     out = conv_block_or(out, [512, 512, 2048], name='L4_block1', use_bias_flag=use_bias_flag)
     print("conv4 shape:", out.shape)
     out = identity_block_or(out, [512, 512, 2048], name='L4_block2', use_bias_flag=use_bias_flag)
     out = identity_block_or(out, [512, 512, 2048], name='L4_block3', use_bias_flag=use_bias_flag)
+    #deeper
+    out = identity_block_or(out, [512, 512, 2048], name='L4_block4', use_bias_flag=use_bias_flag)
 
 
     out = GlobalAveragePooling3D(data_format='channels_last')(out)
