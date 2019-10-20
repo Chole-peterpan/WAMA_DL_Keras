@@ -16,7 +16,7 @@
 
 # 1.代码组成
  - <font size=5>预处理以及病例信息统计代码：主要包括5个<font color=#008000 >matlab</font>代码，分别为：</font>
- - 
+  
      `STEP1.m` : <font size=3>根据roi从NIFTI文件中提取病灶，并转换为mat文件，同时将所有病例的roi信息整合以便统计</font>
      
      `STEP2.m` : <font size=3>对提取到病灶进行分块（patch）</font>
@@ -32,7 +32,7 @@
      `STATISTIC.m` : <font size=3>统计并绘图显示各病例的扫描段数、肿瘤数量、肿瘤位置、肿瘤长宽高及长宽高比、各CT分辨率（voxel size），以及显示扩增前后数量对比，可在`STEP1.m` `STEP2.m` `STEP4.m`后使用</font>
      
  -  <font size=5>网络训练与监测代码：主要包括1个<font color= Blue >python</font>代码和1个<font color=#008000 >matlab</font>代码，分别为：</font>
- - 
+  
      `MAIN.py` :  <font size=3>网络训练代码，在训练过程中会同时测试和验证</font>
      
      `WATCHer.m` :  <font size=3>网络监测，可实时监测网络学习率，以及各数据集loss、acc等指标</font>
@@ -40,7 +40,7 @@
 	 `proWATCHer.m` ：<font size=3>进一步详细显示各数据集预测结果。可指定某个病人，或某个病人的某个patch以单独观察</font>
 	      
  -  <font size=5>训练结果汇总代码：主要包括2个<font color=#008000 >matlab</font>代码，分别为：</font>
- - 
+  
       `STEP6.m` :  <font size=3>交叉验证单折结果汇总代码</font>
       
       `STEP7.m` :  <font size=3>汇总所有折结果，并做出混淆矩阵，如果为二分类问题则补充AUC曲线</font>
