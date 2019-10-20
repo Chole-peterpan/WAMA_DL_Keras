@@ -1,10 +1,17 @@
 <font size=5> **环境和依赖包建议**</font>
+
 **matlab：**
+
 <font size=3>`MATLAB 2017` 或更高版本，低于2017将无法执行脚本`STEP1.m`到`STEP5.m`
+
 [`SPM8 toolbox` ](http://www.fil.ion.ucl.ac.uk/spm/software/spm8/) </font>
+
 **python：**
+
 <font size=3>`keras 2.1.1` （高版本可能不支持过GPU数据并行）
+
 `tensorflow 1.3.0` （高版本可能无法使用多GPU数据并行模式）
+
 `prettytable` 任意版本</font>
 
 # 1.代码组成
