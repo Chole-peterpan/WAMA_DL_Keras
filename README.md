@@ -136,7 +136,7 @@ block_savepath = 'G:\estdata\2block';  %分块结果保存文件夹
 step = 2; % 分块的滑动步长
 deepth = 20;% 分块的层厚，如果为0，则不分块
    ``` 
-### 第四步：运行STEP4.m，将STEP2输出的block**扩增**并储存到同名H5文件中。与STEP3不同的是：
+### 第四步：运行STEP4.m，将STEP2输出的block**扩增**并储存到非同名H5文件中，例如扩增的第一块会在原文件名后加上_e1。与STEP3不同的是：
 <font size=3>（1）STEP4会根据指定组的label扩增所有block，一般会使该组label对应的**各类block扩增数量相等**，且每类中**各样本block扩增数量相等**，以达到类别与样本两个层次的分布平衡。需要设置的参数主要有两个：</font>
 ```matlab 
 %总扩增数量
@@ -154,7 +154,7 @@ augdict.a_b_ratio = [1,1,1];%最终各类扩增数量比，例如ABC三类最终
  -  <font size=3>上下翻转</font>
  -  <font size=3>旋转</font>
 
-<font size=3>每种手段均可通过指定执行的几率，如百分之3几率执行旋转，则</font>
+<font size=3>每种手段均可通过指定执行的几率，如百分之30 几率执行旋转，则</font>
 ```matlab 
 augdict.rotation.p = 0.3;
 ```
