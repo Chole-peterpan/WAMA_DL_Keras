@@ -3,15 +3,16 @@
 clear;
 clc;
 close all
-% while(1)
+
 %% step2��set the log path and other parameter
-log_path = '/data/@data_laowang/new/result/@test1_fold1/log';%
-% fold_name = '1';
+log_path = '/media/root/老王3号/newnwenwennw/test/log';%
+
 or_train_flag = 1;
 verify_flag = 1;
 test_flag = 1;
 %% show the LRate
-lr_path = strcat(log_path,filesep,'@',fold_name,'_lr.txt');
+fold_name = '1';
+lr_path = strcat(log_path,filesep,'@1_lr.txt');
 lr =  importdata(lr_path);
 figure(1);
 set(gcf,'position',[10,1200,620,450]);
@@ -113,7 +114,7 @@ xlabel('iter');
 ylabel('loss');
 backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 legend(legend_str,'Location','best');
-title('or loss without smooth');
+title('or loss without smooth (trend)');
 hold off;
 subplot(2,1,2);
 plot(smooth(smooth(minibatch_loss,500)),'k');hold on;
@@ -127,7 +128,7 @@ backColor = [0.7 0.7 0.4];set(gca, 'color', backColor);
 legend(legend_str,'Location','best');
 title('or loss with smooth');
 hold off;
-%% step3����ȡverify����result���???
+%% step3����ȡverify����result���???
 if verify_flag
     tmp_str_v = '_result_ver';
     
@@ -158,7 +159,7 @@ if verify_flag
         auc = str2double(tmp_str(1:index(1)-1));
         tmp_str = tmp_str(index(1)+1:end);
         %loss
-        index = find(tmp_str==']');
+        index = find(tmp_str==')');
         loss = str2double(tmp_str(1:index(1)-1));
         
         
@@ -192,16 +193,12 @@ if verify_flag
     subplot(5,1,5);
     plot(ver_result(:,1),ver_result(:,6),'b');hold on;
     plot(ver_result(:,1),smooth(ver_result(:,6),20),'r');
-    title('sum');
+    title('loss');
     hold off;
     
-%     figure;
-%     plot(ver_result(:,1),ver_result(:,2).*ver_result(:,3).*ver_result(:,4).*ver_result(:,5),'b');hold on;
-%     plot(ver_result(:,1),smooth(ver_result(:,2).*ver_result(:,3).*ver_result(:,4).*ver_result(:,5),20),'r');
-%     title('ver miul');
-    
+   
 end
-%% step4����ȡtest����result���???
+%% step4����ȡtest����result���???
 if test_flag
     tmp_str_v = '_result_test';
     
@@ -232,7 +229,7 @@ if test_flag
         auc = str2double(tmp_str(1:index(1)-1));
         tmp_str = tmp_str(index(1)+1:end);
         %loss
-        index = find(tmp_str==']');
+        index = find(tmp_str==')');
         loss = str2double(tmp_str(1:index(1)-1));
         
         test_result(ii,:) = [iter,acc,sen,spc,auc,loss];
@@ -262,18 +259,12 @@ if test_flag
     subplot(5,1,5);
     plot(test_result(:,1),test_result(:,6),'b');hold on;
     plot(test_result(:,1),smooth(test_result(:,6),20),'r');
-    title('sum');
+    title('loss');
     hold off;
-%     figure;
-%     plot(test_result(:,1),test_result(:,2).*test_result(:,3).*test_result(:,4).*test_result(:,5),'b');hold on;
-%     plot(test_result(:,1),smooth(test_result(:,2).*test_result(:,3).*test_result(:,4).*test_result(:,5),20),'r');
-%     title('test miul');
+
 end
 
 
-
-% pause(15)
-% end
 
 
 
