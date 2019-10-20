@@ -4,7 +4,7 @@ clear;
 
 %%
 block_mat_path =  'H:\@data_NENs_recurrence\PNENs\data_outside\flow2\2block';
-mat_savepath =    'H:\@data_NENs_recurrence\PNENs\data_outside\flow2\3or_out';
+h5_savepath =    'H:\@data_NENs_recurrence\PNENs\data_outside\flow2\3or_out';
 filename_list = dir(strcat(block_mat_path,filesep,'*.mat'));
 augdict.savefomat.mode = 1;
 augdict.savefomat.param = [150,150,80];
@@ -64,7 +64,7 @@ for ii = 1:length(filename_list)
     write_name = (tmp_name(1:end-4));
 
 
-    finalpath = strcat(mat_savepath,filesep,write_name,'.h5');
+    finalpath = strcat(h5_savepath,filesep,write_name,'.h5');
     disp(finalpath);
     %----------------------------------------
     h5create(finalpath, '/data', size(aug_data),'Datatype','single');

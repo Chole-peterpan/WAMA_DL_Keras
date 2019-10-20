@@ -12,7 +12,7 @@ if ~exist('square_flag', 'var') || isempty(square_flag)
 end
 
 
-% cut
+% 计算cut的范围
 [I1,I2,I3] = ind2sub(size(mask),index);
 d1_min = min(I1)-extend_pixel;
 d1_max = max(I1)+extend_pixel;
@@ -24,10 +24,25 @@ if square_flag
    d1 = d1_max-d1_min;
    d2 = d2_max-d2_min;
    max_d = max(d1,d2);
-   d1_max = d1_min+max_d;%
+   d1_max = d1_min+max_d;
    d2_max = d2_min+max_d; 
 end
 
+% 判断是否越界
+% if d1_min<0
+%     d1_min = 1;
+% end
+% if d2_min<0
+%     d2_min =1;
+% end
+% if d1_max > size(mask,1)
+%     d1_max = size(mask,1);
+% end
+% if d2_max > size(mask,2)
+%     d2_max = size(mask,2);
+% end
+
+% cut
 location = [min(I1),max(I1),min(I2),max(I2),min(I3),max(I3)];
 tumor_mat = data(d1_min:d1_max,  d2_min:d2_max,  d3_min:d3_max);
 mask_mat =  mask(d1_min:d1_max,  d2_min:d2_max,  d3_min:d3_max);

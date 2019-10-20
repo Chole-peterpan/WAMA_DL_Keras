@@ -212,3 +212,17 @@ ylabel('True positive rate')
 title('ROC for Classification ')
 legend(strcat('AUC:',num2str(AUC)),'Location','Best')
 
+%%
+clear
+fileInfo = h5info('G:\estdata\3or\s3_v1_m2_b10.h5');
+
+figure;
+for i = 506:size(mask,3)
+%    imshow(data(:,:,i),[0,1]);
+imshow(mask(:,:,i),[0,1]);title(num2str(i));
+
+   pause();
+   
+end
+
+

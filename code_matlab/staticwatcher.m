@@ -9,6 +9,7 @@ subject_log_path = 'H:\@data_NENs_response\EP\data\3Aug20000\subject';
 wkspace = load(strcat(subject_log_path,filesep,'subject.mat'));
 subject = wkspace.subject;
 
+
 augdict.class_a_id = wkspace.augdict.class_a_id;% 手动传入a类病人的id
 augdict.class_b_id = wkspace.augdict.class_b_id;% 手动传入b类病人的id
 

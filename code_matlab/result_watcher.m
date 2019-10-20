@@ -7,8 +7,8 @@ clear;
 clc;
 
 %% 指定参数
-logpath = 'F:\test\log\test1\log';
-foldname = 1;
+logpath = 'F:\1\log';
+foldname = 2;
 test_flag = true;
 acc_thresold = 0.5;% 准确率阈值
 
@@ -32,7 +32,7 @@ disp(person_id);
 
 scale_size = 1;%loss热力图缩放的比例
 % 设定参数
-s_id = 2;%指定病人序号，非正数或0则不显示
+s_id = 9;%指定病人序号，非正数或0则不显示
 v_id = 0;%指定扫描段序号，非正数或0则不显示
 m_id = 0;%指定肿瘤序号，非正数或0则不显示
 %若为正数n，则显示id为n的病人的所有块的情况（acc，以及loss），显示loss有两种方法，一种是多条曲线，一种是heatmap，heatmap需要自己变换为图片形式显示
