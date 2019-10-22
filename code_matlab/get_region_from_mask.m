@@ -29,18 +29,18 @@ if square_flag
 end
 
 % ≈–∂œ «∑Ò‘ΩΩÁ
-% if d1_min<0
-%     d1_min = 1;
-% end
-% if d2_min<0
-%     d2_min =1;
-% end
-% if d1_max > size(mask,1)
-%     d1_max = size(mask,1);
-% end
-% if d2_max > size(mask,2)
-%     d2_max = size(mask,2);
-% end
+if d1_min<0
+    d1_min = 1;
+end
+if d2_min<0
+    d2_min =1;
+end
+if d1_max > size(mask,1)
+    d1_max = size(mask,1);
+end
+if d2_max > size(mask,2)
+    d2_max = size(mask,2);
+end
 
 % cut
 location = [min(I1),max(I1),min(I2),max(I2),min(I3),max(I3)];
