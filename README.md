@@ -57,7 +57,7 @@ ROI数据命名为：s<font color=red>病人ID</font>_v<font color=red>扫描段
 
 <font size=3>**ps**: 扫描段指的是：一个病人可能分多段扫描，比如先扫上腹部，再扫描下腹部</font>
 
-<font size=3>**eg**.  s1_v1.nii就是1号病人的第一个扫描段，s1_v1_m1即对应s1_v1.nii；s1_v2.nii就是1号病人的第一个扫描段，s1_v2_m1即对应s1_v2.nii。下图中为已命名好的例子</font>
+<font size=3>**eg**.  s1_v1.nii就是1号病人的第一个扫描段，s1_v1_m1即对应s1_v1.nii；s1_v2.nii就是1号病人的第二个扫描段，s1_v2_m1即对应s1_v2.nii。下图中为已命名好的例子</font>
 
 <font color=red>***如果有其他模态/序列的数据，则以同样命名格式存放在另一文件夹，并保证各模态文件夹中数据文件名相同***</font>
 
@@ -126,16 +126,7 @@ deepth = 20;% 分块的层厚，如果为0，则不分块
  - mode 3：直接剪裁&padding （当目标维度小于原始维度则剪裁，当目标维度大于原始维度则padding），空间原点为matlab空间坐标原点（1，1，1），所以叫做直接剪裁
  - mode 4：与mode3类似，但空间原点为block中心
 
-运行STEP2.m主要设置参数如下：
-```matlab
-%% 设置路径参数
-mat_path =       'G:\estdata\1mat'; %STEP1输出结果的文件夹，即STEP1的save_path 
-block_savepath = 'G:\estdata\2block';  %分块结果保存文件夹
 
-%% 设置其他参数
-step = 2; % 分块的滑动步长
-deepth = 20;% 分块的层厚，如果为0，则不分块
-   ``` 
 ### 第四步：运行STEP4.m，将STEP2输出的block**扩增**并储存到非同名H5文件中，例如扩增的第一块会在原文件名后加上_e1。与STEP3不同的是：
 <font size=3>（1）STEP4会根据指定组的label扩增所有block，一般会使该组label对应的**各类block扩增数量相等**，且每类中**各样本block扩增数量相等**，以达到类别与样本两个层次的分布平衡。需要设置的参数主要有两个：</font>
 ```matlab 
